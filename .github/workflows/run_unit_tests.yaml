@@ -17,7 +17,7 @@ env:
   IS_RELEASE: is_release.txt
   MATRIX_VERSION_PUBLISHING: "3.10"
   MAX_TAG_AGE: "1 hour"
-  SOURCE_CODE_PATH: tty_ov/tty_ov.py
+  SOURCE_CODE_PATH: pet_bit_melody/main.py
 
 jobs:
 
@@ -30,10 +30,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
 
