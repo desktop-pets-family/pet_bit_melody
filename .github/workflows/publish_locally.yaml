@@ -1,0 +1,184 @@
+name: pet-bit-melody-gh-packages
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: write
+  id-token: write
+
+env:
+  SETUP_FILE: setup.py
+  TAG_FILE: version.txt
+  IS_RELEASE: is_release.txt
+  MATRIX_VERSION_PUBLISHING: "3.10"
+  SOURCE_CODE_PATH: pet_bit_melody/main.py
+  LATEST_TAG: ""
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Get Latest Tag
+      id: get_latest_tag
+      run: |
+        echo "Getting tags"
+        # git fetch --tags # Make sure to fetch the tags first
+        echo "Updated the list"
+        latest_tag=$(git tag --list "v*" | sort -rV | head -n 1)
+        echo "Tag list: $(git tag -l)"
+        echo "Latest tag = $latest_tag"
+        if [ "$latest_tag" == "" ]; then
+          echo "No tags found matching 'v*'."
+          latest_tag="v1.0.0"
+          echo "Using a default tag: $latest_tag"
+        else
+          echo "Latest Tag: $latest_tag"
+        fi
+        echo "$latest_tag" > ${{env.TAG_FILE}}
+        echo "LATEST_TAG=$latest_tag" >> $GITHUB_ENV
+        echo -e "\n\n\n\n\n\n\n\n\n"
+        echo "new_tag = $latest_tag"
+        echo "env.new_tag = ${{env.tag_file}}"
+        echo "cat env.new_tag = $(cat ${{env.TAG_FILE}})"
+        echo "env.LATEST_TAG = ${{env.LATEST_TAG}}"
+        echo -e "\n\n\n\n\n\n\n\n\n"
+
+    - name: Update module version in source code and builder file
+      run: |
+        latest_tag="$(cat ${{env.TAG_FILE}})"
+        if [ -f ${{env.SETUP_FILE}} ]
+        then
+          echo "Updating version in ${{env.SETUP_FILE}}"
+          echo -e "\n\n\n\n\n\n\n\n\n"
+          echo "Tag: $latest_tag"
+          latest_tag=${latest_tag/"v"/""}
+          echo "Tag: $latest_tag"
+          sed -i "s/version='.*'/version='$latest_tag'/g" ${{env.SETUP_FILE}}
+          sed -i "s/self.__version__ = '.*'/self.__version__ = '$latest_tag'/g" ${{env.SOURCE_CODE_PATH}}
+        fi
+        echo "Content: $(ls)"
+        echo "Content of file: $(cat ${{env.SETUP_FILE}})"
+        echo -e "\n\n\n\n\n\n\n\n\n"
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install flake8 pytest
+        lib_packages=$(find ./*/ -name "requirements.txt" -type f)
+        first_requirement=$(echo $lib_packages | cut -d " " -f 1)
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        if [ ${#first_requirements} -gt 0 ]; then pip install -r $first_requirements.txt; fi
+    
+    - name: Lint with flake8
+      run: |
+        # stop the build if there are Python syntax errors or undefined names
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+    
+    - name: Test with pytest
+      run: |
+        pytest
+
+    - name: building the package
+      run: |
+        pip install build
+        python -m build
+
+    - name: Update author
+      run: |
+        git config --local user.name "${{secrets.USER_NAME_E}}"
+        git config --local user.email "${{secrets.USER_EMAIL_E}}"
+
+    - name: Update generated file
+      id: update-generated
+      if: matrix.python-version == env.MATRIX_VERSION_PUBLISHING
+      run: |
+        echo "Listing directory:"
+        ls -a
+        {
+          echo 'UG<<EOF'
+          ls dist/*
+          echo EOF
+        } >> "$GITHUB_OUTPUT"
+
+    - name: Get commit title
+      id: commit-title
+      if: matrix.python-version == env.MATRIX_VERSION_PUBLISHING
+      run: |
+        TAG_NAME="${{env.LATEST_TAG}}"
+        echo "Found file=$TAG_NAME"
+        COMMIT_TITLE="$(git tag -l --format='%(subject)' $TAG_NAME)"
+        if [ "$COMMIT_TITLE" = "" ]
+        then
+          COMMIT_TITLE="$(git log --format=%s -n 1)"
+        fi
+        COMMIT_TITLE="$TAG_NAME - $COMMIT_TITLE"
+        echo "Commit title: $COMMIT_TITLE"
+        echo "COMMIT_TITLE=$COMMIT_TITLE" >> "$GITHUB_OUTPUT"
+
+    - name: Get body message
+      id: body-message
+      if: matrix.python-version == env.MATRIX_VERSION_PUBLISHING
+      run: |
+        if [ "${{env.LATEST_TAG}}" = "" ]
+        then
+          echo "Tag name not found"
+          TAG_NAME="v0.0.0"
+        else
+          TAG_NAME="${{env.LATEST_TAG}}"
+        fi
+        echo "TAG NAME content = $TAG_NAME"
+        COMMIT_MESSAGE=$(git tag -l --format='%(contents)' $TAG_NAME)
+        echo "Commit message content = $COMMIT_MESSAGE"
+        if [[ -n "$COMMIT_MESSAGE" ]]; then
+          COMMIT_MESSAGE=$(git log --format=%s -n 1)
+        fi
+        if [ "$COMMIT_MESSAGE" = "" ]
+        then
+          COMMIT_MESSAGE="There is no message\n$(cat ./README.md)"
+        else
+          COMMIT_MESSAGE="${COMMIT_MESSAGE}\n$(cat ./README.md)"
+        fi
+        COMMIT_MESSAGE="${COMMIT_MESSAGE}\n\`\`\`log\n$(git log --format=%s -n 50)\n\`\`\`"
+        echo "Commit message final content = '$COMMIT_MESSAGE'"
+        # COMMIT_MESSAGE_ESCAPED=$(echo "$COMMIT_MESSAGE" | awk '{printf "%s\\n", $0}')
+        # echo "COMMIT_MESSAGE=$COMMIT_MESSAGE_ESCAPED" >> $GITHUB_ENV
+        {
+          echo "COMMIT_MESSAGE<<EOH"
+          echo -e "$COMMIT_MESSAGE"
+          echo EOH
+        } >> "$GITHUB_OUTPUT"
+
+    - name: Publish binary as GitHub release
+      uses: softprops/action-gh-release@v2
+      if: matrix.python-version == env.MATRIX_VERSION_PUBLISHING && startsWith(github.ref, 'refs/tags/')
+      with:
+        files: ${{ steps.update-generated.outputs.UG }}
+        name: ${{ steps.commit-title.outputs.COMMIT_TITLE }}
+        body: ${{ steps.body-message.outputs.COMMIT_MESSAGE }}
+        draft: false
+        prerelease: false
+        make_latest: true
+        token: ${{ secrets.GITHUB_TOKEN }}
