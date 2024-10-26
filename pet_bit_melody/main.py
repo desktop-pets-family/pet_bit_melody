@@ -5,6 +5,7 @@
 # main.py
 ##
 
+# Piano map
 DEFAULT_NOTE_MAP = {
     "C0": 16.35,
     "C#0": 17.32,
