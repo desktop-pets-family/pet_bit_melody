@@ -1,3 +1,29 @@
+# Unwanted editor cache
+.vscode/**
+
+# No temporary files
+*tmp*
+
+# No docker cache
+*.bash_history
+
+# No modules allowed
+node_modules/**
+
+# No unwanted cache
+**/.cache/**
+
+# No unwanted environements
+**/.env/**
+**/env/**
+**/lenv/**
+**/menv/**
+**/wenv/**
+**/server_env/**
+**/wserver_env/**
+**/doc/**
+**/.cache/**
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
