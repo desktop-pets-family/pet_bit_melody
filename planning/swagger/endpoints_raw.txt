@@ -1,0 +1,16 @@
+/login
+/logout
+/register
+/settings
+/reset_project
+/play_project
+/save_project
+/stop_project
+/generate_audio
+/undo_edit
+/redo_edit
+/import/{project_file}
+/new_project
+/export/{project_id}
+/download/{format}
+/download_formats
