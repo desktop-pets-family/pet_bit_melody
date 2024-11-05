@@ -17,7 +17,7 @@ env:
   IS_RELEASE: is_release.txt
   MATRIX_VERSION_PUBLISHING: "3.10"
   MAX_TAG_AGE: "1 hour"
-  SOURCE_CODE_PATH: pet_bit_melody/main.py
+  SOURCE_CODE_PATH: server/main.py
 
 jobs:
 

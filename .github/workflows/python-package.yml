@@ -16,7 +16,7 @@ env:
   TAG_FILE: version.txt
   IS_RELEASE: is_release.txt
   MATRIX_VERSION_PUBLISHING: "3.10"
-  SOURCE_CODE_PATH: pet_bit_melody/main.py
+  SOURCE_CODE_PATH: server/main.py
   LATEST_TAG: ""
 
 jobs:
