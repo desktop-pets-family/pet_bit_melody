@@ -1,0 +1,291 @@
+title = "Server file configuration"
+
+# As of the creation of this file, there is no way to put a null in toml, hence, to put a null vairable, you need to put "none" in a string.
+
+# The configuration for the server runtime (the uvicorn loop)
+[Server_configuration]
+
+# The number of simultaneous instances of the server that are running
+# type: integer, "none"
+# options: 1 -> 2147483647 workers
+# default: "none" (no other instances other than the main one)
+workers = 5
+
+# The lifespan (the delay)
+# type: string
+# options: "auto", "on", "off"
+# default: "auto"
+lifespan = "auto"
+
+# The timeout of each request
+# type: integer
+# options: 5 -> 2147483647 (68.1 years)
+# default: 30
+timeout_keep_alive = 5
+
+# To see a list of the unix codes, go to: https://chromium.googlesource.com/chromiumos/docs/+/master/constants/errnos.md
+# If you are on linux, you can run the command: errno -ls (or you can run: man 3 errno)
+# The status codes used by the program:
+[Server_configuration.status_codes]
+
+# The code when everything goes according to plan
+# type: integer
+# options: 0 (unix success code) -> 255 (abnormal termination)
+# The default code is 0 (unix: success) (epitech: standard success code)
+success = 0
+
+# The code when there is an error
+# type: integer
+# options: 0 (unix success code) -> 255 (abnormal termination)
+# The default code is 84 (unix: EILSEQ 84 Invalid or incomplete multibyte or wide character) (epitech: standard error code)
+error = 1
+
+# Debug mode, the mode that shows everything (almost) that is going on in the server
+# Be cautious, you may get a mind overflow with all the information.
+[Server_configuration.debug_mode]
+# This is a variable that will act on the general server on if to activate or not the debug mode
+# type: boolean
+# options: true, false
+# The default value is false
+debug = false
+
+# The configuration for development mode
+[Server_configuration.development]
+
+# Reload the server upon file change
+# type: boolean
+# options: true, false
+# default: false
+reload = false
+
+# Directories to look out for changes (will trigger a reload)
+# type: list[str], str, "none"
+# default: ["."]
+reload_dirs = ["."]
+
+# Server log level
+# type: string
+# options: "info", "warning", "error", "critical","debug"
+# default: "info"
+log_level = "info"
+
+# Use colours in the server
+# type: boolean
+# options: true, false, "none"
+# default: true
+use_colours = true
+
+# The settings for production mode for the server
+[Server_configuration.production]
+
+# Ensure the correct IP addresses are logged.
+# type: boolean
+# options: true, false
+# default: true
+proxy_headers = true
+
+# If using a proxy, specify IPs allowed to forward the request.
+# type: list[str], str, "none"
+# default: "none"
+forwarded_allow_ips = "none"
+
+# The settings for database connection for the server
+[Server_configuration.database]
+
+# Set the name to be used for the sql pool
+# type: string
+# default: "mypool"
+pool_name = "mypool"
+
+# Set the maximum size for the sql pool of connections
+# type: integer
+# options: 1 (no falback, not recommended) -> 64 (maximum allowed connections)
+# default: 10
+max_pool_connections = 10
+
+# Reset the connection of the node before returning it to the pool
+# type: boolean
+# options: true, false
+# default: true
+reset_pool_node_connection = true
+
+# The maximum delay for before the connection is considered dead
+# type: integer
+# options: 0 (instant, not recommended) -> 2147483647 (68.1 years)
+# connector default settings: 28800 secs (8 hours)
+# default: 10
+connection_timeout = 10 # seconds
+
+
+# Enables or disables the use of LOAD DATA LOCAL INFILE statements
+# type: boolean
+# default: false
+local_infile = false
+
+# Command(s) which will be executed when connecting and reconnecting to the database server
+# type: string, 'none'
+# default: 'none'
+init_command = 'none'
+
+# Read options from the specified option file
+# type: string, 'none'
+# default: 'none'
+default_file = 'none'
+
+
+# Path to a private key file to use for TLS (absolute path)
+# type: string, 'none'
+# default: 'none'
+ssl_key = 'none'
+
+# Path to the X509 certificate file to use for TLS (absolute path)
+# type: string, 'none'
+# default: 'none'
+ssl_cert = 'none'
+
+# Path to a PEM file that contains X509 certificates for trusted CAs (absolute path)
+# type: string, 'none'
+# default: 'none'
+ssl_ca = 'none'
+
+# List of permitted cipher suites for TLS
+# type: string, 'none'
+# default: 'none'
+ssl_cipher = 'none'
+
+# Enables server certificate verification
+# type: boolean
+# default: false
+ssl_verify_cert = false
+
+# Forces the connection to use TLS security, or it will fail
+# type: boolean
+# default: false
+ssl = false
+
+# Specifies the autocommit settings
+# type: boolean
+# default: false
+autocommit = false
+
+# Database collation (the format used in the database, utf8mb4_unicode_ci is strongly recommended for it's cross compatibility between mariadb and mysql)
+# type: string
+# default: "utf8mb4_unicode_ci"
+collation = "utf8mb4_unicode_ci" #"utf8mb4_general_ci"
+
+# The settings for the automation of the cache of the program.
+[Crons]
+# Enable token cleaning (removing epxired tokens)
+# type: boolean
+# options: true, false
+# default: true
+clean_tokens = true
+
+# The interval in which the loop for removing the expried tokens is run
+# The clean_tokens needs to be true for this setting to have an impact
+# type: integer
+# options: 0 (instant, not recommended) -> 2147483647 (68.1 years)
+# default: 1800 seconds (30 minutes)
+clean_tokens_interval = 1800 #seconds
+
+# Enable verification cleaning (removing epxired lines)
+# type: boolean
+# options: true, false
+# default: true
+clean_verification = true
+
+# The interval in which the loop for removing the expired tokens is run
+# The clean_tokens needs to be true for this setting to have an impact
+# type: integer
+# options: 0 (instant, not recommended) -> 2147483647 (68.1 years)
+# default: 900 seconds (15 minutes)
+clean_verification_interval = 900 #seconds
+
+# Check if any oath token need renewing
+# type: boolean
+# options: true, false
+# default: true
+renew_oath_tokens = true
+
+# The interval in which the loop for renewing the oath tokens is run
+# type: integer
+# options: 0 (instant, not recommended) -> 2147483647 (68.1 years)
+# default: 1800 seconds (30 minutes)
+renew_oath_tokens_interval = 1800 #seconds
+
+# Enable test cron functions
+# type: boolean
+# options: true, false
+# default: false
+enable_test_crons = false
+
+# Test cron interval
+# type: integer
+# options: 0 (instant, not recommended) -> 2147483647 (68.
+# default: 200 seconds (~3 minutes)
+test_cron_interval = 200 #seconds
+
+# The interval in which the checks for actions are run
+# type: integer
+# options: 0 (instant, not recommended) -> 2147483647 (68.1 years)
+# default: 300 seconds (5 minutes)
+check_actions_interval = 300 #seconds
+
+# The verification section
+[Verification]
+
+# The delay for the e-mail verification token (the time before the token expires)
+# type: integer
+# options: 0 (instant, not recommended) -> 2147483647 (68.1 years)
+# default: 240 seconds (4 minutes)
+email_verification_delay = 240 #seconds
+
+# The number fo chunks to put in the token
+# type: integer
+# options: 0 (1 chunk) -> 2147483647 (2147483648 chunks)
+# default: 4 (chunks)
+check_token_size = 4
+
+# The minimun value used in the random token generator
+# type: integer
+# options: 0 (0) -> 2147483647 (2147483647)
+# default: 1000000
+random_min = 100000
+
+# The maximum value used in the random token generator
+# type: integer
+# options: 0 (0) -> 2147483647 (2147483647)
+# default: 999999
+random_max = 999999
+
+# services
+[Services]
+
+# delay accorded to requests made to the api's
+# type: integer
+# options: 0 (instant, not recommended) -> 2147483647 (68.1 years)
+# default: 5 seconds
+api_request_delay = 20 #seconds
+
+# Arg, here comes the test territory
+[Test]
+
+[Test.port]
+# This is the port that will be used by the server and the client during the automated testing
+# type: integer
+# options: 1 -> 65,535
+# The default port is 6000
+port = 6000
+
+[Test.hosts]
+# This is the host on which the server will be listening when it will be waiting for queries
+# type: strig (ip)
+# options: 0.0.0.0 (everything) -> 127.0.0.1 (localhost) -> 255.255.255.255 (ip mask)
+# The default value is "0.0.0.0"
+server = "0.0.0.0"
+
+# This is the host on which the client will make it's requests.
+# type: strig (ip)
+# options: 0.0.0.0 (everything) -> 127.0.0.1 (localhost) -> 255.255.255.255 (ip mask)
+# The default value is "http://127.0.0.1"
+client = "http://127.0.0.1"
