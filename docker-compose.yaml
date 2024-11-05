@@ -1,36 +1,36 @@
 services:
   minio:
     build:
-      context: ./pet_bit_melody/s3
+      context: ./data/s3
       dockerfile: Dockerfile
     tty: true
     image: pet-bit-melody-minio
     container_name: pbm-minio
     restart: always
     env_file:
-      - ./pet_bit_melody/s3/.env
+      - ./data/s3/.env
     ports:
       - "9000:9000"
       -  "9001:9001"
     volumes:
-      - ./pet_bit_melody/s3/cache:/data
+      - ./data/s3/cache:/data
     command: server /data --console-address ":9001"
     networks:
       - pbm-network
 
   maria-db:
     build:
-      context: ./pet_bit_melody/db
+      context: ./data/db
       dockerfile: Dockerfile
     image: pet-bit-melody-mariadb
     container_name: pbm-mariadb
     restart: always
     env_file:
-      - ./pet_bit_melody/db/.env
+      - ./data/db/.env
     ports:
       - "3307:3306"
     volumes:
-      - ./pet_bit_melody/db/cache:/var/lib/mysql
+      - ./data/db/cache:/var/lib/mysql
     depends_on:
       - minio
     networks:
@@ -38,18 +38,18 @@ services:
 
   server:
     build:
-      context: ./pet_bit_melody/server
+      context: ./server
       dockerfile: Dockerfile
     image: pet-bit-melody-server
     container_name: pbm-server
     restart: always
     tty: true
     env_file:
-      - ./pet_bit_melody/server/.env
+      - ./server/.env
     ports:
       - "5000:5000"
     volumes:
-      - ./pet_bit_melody/server/:/srv/
+      - ./server/:/srv/
     depends_on:
       - maria-db
     networks:
@@ -57,7 +57,7 @@ services:
 
   web:
     build:
-      context: ./pet_bit_melody/front
+      context: ./front
       dockerfile: Dockerfile
     image: pet-bit-melody-web
     container_name: pbm-web
