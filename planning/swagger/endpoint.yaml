@@ -1,0 +1,3900 @@
+openapi: 3.0.0
+servers:
+# Added by API Auto Mocking Plugin
+- description: SwaggerHub API Auto Mocking
+  url: https://virtserver.swaggerhub.com/LETELLIERHENRY/pet_api/1.0.0
+info:
+  description: |
+    The HTTP Protocol to interract with the Character (pet).
+    This is a local protocol meant to interface with the other sections of the Desktop Pet app
+  version: "1.0.0"
+  title: Desktop Pets - Character API
+  contact:
+    email: henrysoftwarehouse@protonmail.com
+    name: HenraL
+    url: https://github.com/Hanra-s-work/Desktop_pet
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+tags:
+- name: incognito
+  description: Operations available for people that are not logged in.
+- name: user
+  description: Operations available for users that are logged in.
+- name: admins
+  description: Secured Admin-only calls.
+paths:
+  # Here go the methods (That will be created)
+  /:
+    get:
+      tags:
+      - incognito
+      - user
+      - admins
+      summary: Home Page
+      responses:
+        '200':
+          description: Welcome to the user to the control server of the {character_name}
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Home
+                  msg:
+                    type: string
+                    example: Welcome to the control server.
+                  resp:
+                    $ref: '#/components/schemas/EmptyResp'
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyFalse'
+
+  /help:
+    get:
+      tags:
+      - incognito
+      - user
+      - admins
+      summary: An endpoint that will provide a help description on the available endpoints.
+      parameters:
+      - in: query
+        name: command
+        schema:
+          type: string
+        description: This is an optional query parameter to filter the results of the help options, it will default to null.
+        required: false
+      responses:
+        '200':
+          description: The content of the help section
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Help
+                  msg:
+                    type: string
+                    example: Success
+                  resp:
+                    type: object
+                    additionalProperties: true
+                    example:
+                      /: The root of the server
+                      "/help": "This help section or help for a specific command (if present, passed using ?c=command)"
+                      /login: Login endpoint (returns true if you are connected)
+                      /login/{username}/{password}: Log into the server
+                      /logout: Logout endpoint
+                      /stop_server: An endpoint to stop the server
+                      /connection_ok: Check your connection with the server
+                      /restart/{character_rid}: Send a signal to restart the thread controlling the character
+                      /start/{character_rid}: Start the character's thread if it crashed or stopped
+                      /start/{character_uid}: Start the character's thread if it crashed or stopped
+                      /start/{character_name}: Start the character's thread if it crashed or stopped
+                      /stop/{character_rid}: Stop the character's thread if it is running
+                      /is_alive/{character_rid}: Check if the character's thread is running
+                      /load/{character_rid}/{name}: Unload the previous character and load a new one (based on the name)
+                      /load/{character_rid}/{character_uid}: Unload the previous character and load a new one (base on the uid)
+                      /download/{character_uid}: Ask the user if he accepts to download the character (This has no effect if the character is already present)
+                      /unload/{character_rid}: Unload the current character
+                      /update_window/{character_rid}: Force a window refresh (usefull if it is frozen)
+                      /has_animation/{character_rid}/{name}: Check if the name provided corresponds to an animation
+                      /is_a_complex_animation/{character_rid}/{name}: Check if the animation provided is a complex one
+                      /is_hidden/{character_rid}: Check if the character is not displayed on the screen
+                      /is_visible/{character_rid}: Check if the character is visible on the screen
+                      /is_playing/{character_rid}: Check if the animation buffer is currently playing (if animation frames are queued they will be played)
+                      /is_paused/{character_rid}: Check if the current processing of the buffered frames is paused (the character will not be playing any animation [even if queued])
+                      /is_stopped/{character_rid}: Check if the current processing of the buffer is paused (same as paused except all queued frames at have been cleared the moment the character was paused)
+                      /is_api_ready/{character_rid}: Check if the character is ready to receive instructions
+                      /get_animation/{character_rid}: Get the names of all the animations that the character can play
+                      /get_character_name/{character_rid}: Get the name of the character that is currently loaded
+                      /get_current_animation/{character_rid}: Get the current animation being played
+                      /get_animation_name/{character_rid}: Get the name of the animation that is currently playing
+                      /get_section_name/{character_rid}: Get the name of the section that is currently playing (This is usefull when complex [loop animations] are playing)
+                      /get_animation_frame/{character_rid}: Get the index of the current animation [This is based on the index of the image on the spritesheet]
+                      /get_character_position/{character_rid}: Get the current position of the character window (this is a tuple of x and y coordinate)
+                      /get_character_size/{character_rid}: Get the size of the character's window (this is a tuple of width and height values)
+                      /get_nb_animation_frames/{character_rid}/{animation_name}: Get the number of frames present in an animation
+                      /get_available_characters/{character_rid}: Get a list of the charaters available on the user's system
+                      /play_animation/{name}/{character_rid}: Queue an animation (if it exists) in the animation buffer
+                      /clear_queue/{character_rid}: Empty the current animation buffer
+                      /set_animation/{character_rid}/{name}: Clear's the animation buffer queue and plays the animation provided by name (if it exists)
+                      /pause_animation/{character_rid}: Pause the animation buffer queue (if queue is paused it will unpause it)
+                      /resume_animation/{character_rid}: Resume the animation buffer queue (has no effect if the queue is not paused)
+                      /step_animation/{character_rid}: This will pause the animation queue and play one frame only everytime it is called (use resume to exit the step_animation state)
+                      /play_animation_start/{character_rid}/{name}: When the animation is of type complex, the start section will be queued into the animation buffer
+                      /play_animation_middle/{character_rid}/{name}: When the animation is of type complex, the middle section (loop) will be queued. The amount of times the 'loop' needs to be queued in a single call can be specified in the character animation sheet.
+                      /play_animation_end/{character_rid}/{name}: When the animation is of type complex, the end section will be queued
+                      /set_animation_frame/{character_rid}/{name}/{index}: Queue an animation (if it exists) from the specified frame (no frames will be added if the index does not exist for said animation)
+                      /stop_animation/{character_rid}: Pause the animation buffer (This has no effect if the buffer was already paused)
+                      /move_character/{character_rid}/{x}/{y}: Move the character window to a specified location on the screen
+                      /set_character_size/{width}/{character_rid}/{height}: Set a new size for the character (in pixels)
+                      /set_character_size_width/{character_rid}/{width}: Set a new width for the character (in pixels)
+                      /set_character_size_height/{character_rid}/{height}: Set a new height for the character (in pixels)
+                      /set_character_position/{character_rid}/{x}/{y}: Set a new position for the character window (in pixels)
+                      /set_character_position_x/{character_rid}/{x}: Set a new position for the x coordinate (in pixels)
+                      /set_character_position_y/{character_rid}/{y}: Set a new position for the y coordinate (in pixels)
+                      /set_offset_position/{character_rid}/{x}/{y}: Set a new position for the character window based on the previous ones (operation --> <posx+new_posx>,<posy+new_posy>)
+                      /set_offset_position_x/{character_rid}/{x}: Set a new position for the x coordinate based on the previous x position
+                      /set_offset_position_y/{character_rid}/{y}: Set a new position for the y coordinate based on the previous y position
+                      /set_geometry/{character_rid}/{x}/{y}/{width}/{height}: Set a new position and dimension to the character's window
+                      /set_offset_geometry/{character_rid}/{x}/{y}/{width}/{height}: Set a new position and dimension to the character's window based on the previous ones.
+                      /set_offset_width/{character_rid}/{width}: Set a new width to the window based on the previous one
+                      /set_offset_height/{character_rid}/{height}: Set a new height to the window based on the previous one
+                      /set_character_opacity/{character_rid}/{opacity}: Set a new opacity for the character window (0.0)
+                      /show_character/{character_rid}: Show the character window on screen
+                      /hide_character/{character_rid}: Hide the character window from the screen
+                      /show/{character_rid}: Show the character window on screen
+                      /hide/{character_rid}: Hide the character window from the screen
+                      /think/{character_rid}/{message}: Make the character think (This will clear the animation buffer)
+                      /say/{character_rid}/{message}: Make the character say something (This will clear the animation buffer)
+                      /speak/{character_rid}/{message}: Make the character say something (This will clear the animation buffer)
+                      /whisper/{character_rid}/{message}: Make the character whisper (speak at a lower volume) (This will clear the animation buffer)
+                      /sing/{character_rid}/{special_data}: Make the character sing, this is an opportunity for character/script creators to generate their own music and put words that the character would then sing. The audio format will probably be 16-bit sound era. (This will clear the animation buffer) [This is a feature that does not exist yet, I am still thinking on how to implement it]
+                      /play_sound/{character_rid}/{sound_file}/{animation_name}: Play an animation with a sound.
+                      /ask/{character_rid}/{question}: Ask a question to the user
+                      /get_response/{character_rid}/{question}: Get the answer to the question that was asked
+                      /has_answered/{character_rid}/{question}: Check if the user has answered the question you asked
+                      /about: Return general information about the server and the characters that are active
+                      /about/server: Return general information about the server
+                      /about/server/author: Return the name of the person/people that created this server
+                      /about/server/version: Return the version of the server
+                      /about/server/process: Return a list of the pid('s) used by the server
+                      /about/server/connections: Return a list of accounts connected to the server
+                      /about/server/license: Return the license under which the server is running
+                      /about/server/logs: Return the current logs of the server
+                      /about/server/logs/error: Return the error log of the server
+                      /about/server/logs/access: Return the access log of the server
+                      /about/server/status: Return the current status of the server (ok/corrupt/failing/shuting_down/aborting)
+                      /about/server/running_characters: Return a list of the characters that are currently active.
+                      /about/server/uptime: Return the length of time that has happened since the server has been started
+                      /about/server/started_by: Return the name/account that started the server
+                      /about/server/url: Return the url of the server
+                      /about/server/url/host: Return the host the server is listening on
+                      /about/server/url/port: Return the port the server is listening on
+                      /about/character/{character_rid}: Return general information about the character or an error if it is not active
+                      /about/character/{character_rid}/ip: Return the name of the 'IP' (The people/company that created it) of the character
+                      /about/character/{character_rid}/license: Return the license that is used for this character
+                      /about/character/{character_rid}/age_restricted: Return True if the character is age restricted
+                      /about/character/{character_rid}/uploader: Return the name of the person who uploaded the charater to the program
+                      /about/character/{character_rid}/filename: Return the name of the file that was used to display this character
+                      /about/character/{character_rid}/credits: Return the credits/attribution of the original artwork that allowed this character to exist
+                      /about/character/{character_rid}/link: Return the link corresponding to where the original artwork was found
+                      /about/character/{character_rid}/id: Return the id of the character
+                      /about/character/{character_rid}/uploader_link: Return the link corresponding to the account that uploaded the character
+                      /about/character/{character_rid}/started_by: Return the name of the account that started this character for the current session
+                      /about/character/{character_rid}/bio: Return the biography of the character
+                      /about/character/{character_rid}/profile: Return general info about the character (i.e. age, name, height, etc)
+                      /about/character/{character_rid}/uid: Return the unique id of the character
+                      /about/character/{character_rid}/tags: Return the tags that were associated with the character
+                      /about/character/{character_rid}/voice: Return the available voices for the character
+                      /about/character/{character_rid}/voice/current: Return the voice that is currently in use.
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyFalse'
+        '404':
+          description: "Command not found"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Login
+                  msg:
+                    type: string
+                    example: No help was found for this command.
+                  error:
+                    type: string
+                    example: "Command not found"
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyFalse'
+
+  /login:
+    get:
+      tags:
+      - incognito
+      - user
+      - admins
+      summary: Login page - Check if you are still logged in
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      responses:
+        '200':
+          description: The user logged in successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Login
+                  msg:
+                    type: string
+                    example: Welcome to the character control server
+                    description: |
+                      Dynamic message that includes the `character_name` parameter value.
+                  resp:
+                    $ref: '#/components/schemas/EmptyResp'
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyFalse'
+        '401':
+          $ref: '#/components/responses/NotLoggedIn'
+
+  /login/{username}/{password}:
+    post:
+      tags:
+      - incognito
+      - user
+      - admins
+      parameters:
+      - in: path
+        name: username
+        required: true
+        schema:
+          type: string
+        description: "The username of the account"
+      - in: path
+        name: password
+        required: true
+        schema:
+          type: string
+        description: "The password of the account"
+      summary: Login page - Log into the server
+      responses:
+        '200':
+          description: The user is logged in
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Login
+                  msg:
+                    type: string
+                    example: Login success, you are logged in as {username}.
+                  resp:
+                    type: string
+                    example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJKb2huX0RvZSIsImlhdCI6MTY5MjUwNjQ3NSwiZXhwIjoxNjkyNTEwMDc1fQ.GmOSF2o1e8y9xwC_7AMTCdU4_C5TigDwccnqjD6O-WI"
+                    description: |
+                      This is an example of the token that will be returned to you if you managed to successfully login.
+                      Keep it safe until you log out (or the server is restarted), you will need it in the headers you send (especially for endpoints that require you to be logged in)
+                  token:
+                    type: string
+                    example: "your token"
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '401':
+          $ref: '#/components/responses/LoginFailed'
+
+  /logout:
+    post:
+      tags:
+      - user
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      summary: Log out of your account
+      responses:
+        '200':
+          description: The user is logged out
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Logout
+                  msg:
+                    type: string
+                    example: You have successfully been logged out...
+                  resp:
+                    $ref: '#/components/schemas/EmptyResp'
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyFalse'
+        '401':
+          $ref: '#/components/responses/NotLoggedIn'
+        '498':
+          $ref: '#/components/responses/InvalidToken'
+
+  /stop_server:
+    post:
+      tags:
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      summary: Stop server
+      responses:
+        '200':
+          description: Stop server
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Stop server
+                  msg:
+                    type: string
+                    example: The control server is stopping...
+                  resp:
+                    $ref: '#/components/schemas/EmptyResp'
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '401':
+          $ref: '#/components/responses/NotLoggedIn'
+        '498':
+          $ref: '#/components/responses/InvalidToken'
+        '403':
+          $ref: '#/components/responses/InsuffisantRights'
+
+  /connection_ok:
+    get:
+      tags:
+      - incognito
+      - user
+      - admins
+      summary: Server Heartbeat
+      responses:
+        '200':
+          description: Connection ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Connection ok
+                  msg:
+                    type: string
+                    example: Your connection with the server is successful.
+                    description: |
+                      Dynamic message that includes the `character_name` parameter value.
+                  resp:
+                    type: string
+                    example: "connection ok"
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyFalse'
+
+  /restart/{character_rid}:
+    post:
+      tags:
+      - user
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      - $ref: '#/components/parameters/CharacterRID'
+      summary: Restart the current character if it is running.
+      responses:
+        '200':
+          description: Restart the provided character
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Restart
+                  msg:
+                    type: string
+                    example: "You have successfully restarted character rid: {character_rid}."
+                    description: |
+                      Dynamic message that includes the `character_rid` parameter value.
+                  resp:
+                    type: string
+                    example: Restart ok
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '401':
+          $ref: '#/components/responses/NotLoggedIn'
+        '498':
+          $ref: '#/components/responses/InvalidToken'
+
+  /start/{character_name}:
+    post:
+      tags:
+      - user
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      - in: path
+        name: character_name
+        required: true
+        schema:
+          type: string
+        description: "The name of the character you wish to start."
+      summary: Start character
+      responses:
+        '200':
+          $ref: '#/components/responses/StartCharacter'
+        '401':
+          $ref: '#/components/responses/NotLoggedIn'
+        '498':
+          $ref: '#/components/responses/InvalidToken'
+
+  /start/{character_uid}:
+    post:
+      tags:
+      - user
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      - in: path
+        name: character_uid
+        required: true
+        schema:
+          type: string
+        description: "The uid (unique identifier) of the character that you wish to start."
+      summary: Start character
+      responses:
+        '200':
+          $ref: '#/components/responses/StartCharacter'
+        '401':
+          $ref: '#/components/responses/NotLoggedIn'
+        '498':
+          $ref: '#/components/responses/InvalidToken'
+
+  /start/{character_rid}:
+    post:
+      tags:
+      - user
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      - $ref: '#/components/parameters/CharacterRID'
+      summary: Start character
+      responses:
+        '200':
+          $ref: '#/components/responses/StartCharacter'
+        '401':
+          $ref: '#/components/responses/NotLoggedIn'
+        '498':
+          $ref: '#/components/responses/InvalidToken'
+
+
+  /stop/{character_rid}:
+    post:
+      tags:
+      - user
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      - $ref: '#/components/parameters/CharacterRID'
+      summary: Stop
+      responses:
+        '200':
+          description: Stop a character based on the runtime id that was provided
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Stop
+                  msg:
+                    type: string
+                    example: "Stopping character: {character_rid}."
+                    description: |
+                      Dynamic message that includes the `character_rid` parameter value.
+                  resp:
+                    $ref: '#/components/schemas/EmptyResp'
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '401':
+          $ref: '#/components/responses/NotLoggedIn'
+        '403':
+          $ref: '#/components/responses/CharacterNotRunning'
+        '498':
+          $ref: '#/components/responses/InvalidToken'
+
+  /is_alive/{character_rid}:
+    get:
+      tags:
+      - user
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      - $ref: '#/components/parameters/CharacterRID'
+      summary: Character health check
+      responses:
+        '200':
+          description: The character is alive
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Is alive
+                  msg:
+                    type: string
+                    example: "The character {character_rid} is alive."
+                    description: |
+                      Dynamic message that includes the `character_rid` parameter value.
+                  resp:
+                    $ref: '#/components/schemas/EmptyResp'
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '401':
+          $ref: '#/components/responses/NotLoggedIn'
+        '403':
+          $ref: '#/components/responses/CharacterNotRunning'
+        '498':
+          $ref: '#/components/responses/InvalidToken'
+
+  /load/{character_rid}/{name}:
+    post:
+      tags:
+      - user
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      - $ref: '#/components/parameters/CharacterRID'
+      - in: path
+        name: name
+        required: true
+        schema:
+          type: string
+        description: "The name of the character you whish to load."
+
+      summary: Load a character into the server
+      responses:
+        '200':
+          $ref: '#/components/responses/CharacterLoaded'
+        '404':
+          $ref: '#/components/responses/CharacterNotFound'
+        '401':
+          $ref: '#/components/responses/NotLoggedIn'
+        '403':
+          $ref: '#/components/responses/CharacterNotRunning'
+        '498':
+          $ref: '#/components/responses/InvalidToken'
+
+  /load/{character_rid}/{character_uid}:
+    post:
+      tags:
+      - user
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      - $ref: '#/components/parameters/CharacterRID'
+      - in: path
+        name: character_uid
+        required: true
+        schema:
+          type: string
+        description: "The uid (unique identifier) of the character you whish to load."
+
+      summary: Load a character into the server
+      responses:
+        '200':
+          $ref: '#/components/responses/CharacterLoaded'
+        '404':
+          $ref: '#/components/responses/CharacterNotFound'
+        '401':
+          $ref: '#/components/responses/NotLoggedIn'
+        '403':
+          $ref: '#/components/responses/CharacterNotRunning'
+        '498':
+          $ref: '#/components/responses/InvalidToken'
+
+  /download/{character_uid}:
+    put:
+      tags:
+      - user
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      - in: path
+        name: character_uid
+        required: true
+        schema:
+          type: string
+        description: "The unique id of the character wish to try and download."
+
+      summary: Download
+      responses:
+        '200':
+          description: Download character
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Download character
+                  msg:
+                    type: string
+                    example: The character {character_name} has successfully been downloaded.
+                    description: |
+                      Dynamic message that includes the `character_name` parameter value.
+                  resp:
+                    $ref: '#/components/schemas/EmptyResp'
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '409':
+          description: Character already exists
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Download character
+                  msg:
+                    type: string
+                    example: Character already exists
+                  err:
+                    type: string
+                    example: "Character already exists."
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '403':
+          description: Download denied
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Download character
+                  msg:
+                    type: string
+                    example: The download of the requested character {character_name} was canceled by the user.
+                    description: |
+                      Dynamic message that includes the `character_rid` parameter value.
+                  err:
+                    type: string
+                    example: Download canceled by the user.
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '404':
+          description: Character not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Download character
+                  msg:
+                    type: string
+                    example: The charather id you specified does not exist in the cloud.
+                  err:
+                    type: string
+                    example: "Character not found"
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '498':
+          $ref: '#/components/responses/InvalidToken'
+
+  /unload/{character_rid}:
+    post:
+      tags:
+      - user
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      - $ref: '#/components/parameters/CharacterRID'
+      summary: Unload
+      responses:
+        '200':
+          description: Unload a character
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Unload
+                  msg:
+                    type: string
+                    example: The character {character_name} has been unloaded from the control server.
+                    description: |
+                      Dynamic message that includes the `character_name` parameter value.
+                  resp:
+                    $ref: '#/components/schemas/EmptyResp'
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '401':
+          $ref: '#/components/responses/NotLoggedIn'
+        '403':
+          $ref: '#/components/responses/CharacterNotRunning'
+        '498':
+          $ref: '#/components/responses/InvalidToken'
+
+  /update_window/{character_rid}:
+    post:
+      tags:
+      - user
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      - $ref: '#/components/parameters/CharacterRID'
+      summary: Update window
+      responses:
+        '200':
+          description: Update the character window
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Update window
+                  msg:
+                    type: string
+                    example: The character {character_rid} window has been updated.
+                    description: |
+                      Dynamic message that includes the `character_rid` parameter value.
+                  resp:
+                    $ref: '#/components/schemas/EmptyResp'
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '401':
+          $ref: '#/components/responses/NotLoggedIn'
+        '403':
+          $ref: '#/components/responses/CharacterNotRunning'
+        '498':
+          $ref: '#/components/responses/InvalidToken'
+
+  /has_animation/{character_rid}/{name}:
+    get:
+      tags:
+      - user
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      - $ref: '#/components/parameters/CharacterRID'
+      - in: path
+        name: name
+        required: true
+        schema:
+          type: string
+        description: "The name of the animation that you wish to check."
+      summary: Check if animation is present
+      responses:
+        '200':
+          description: Check if an animation is present in the character.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Has animation
+                  msg:
+                    type: string
+                    example: "The animation {animation_name} is present in {character_name}."
+                    description: |
+                      Dynamic message that includes the `animation_name`, `character_name` parameter value.
+                  resp:
+                    type: boolean
+                    example: True
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '404':
+          $ref: '#/components/responses/AnimationNotFound'
+        '401':
+          $ref: '#/components/responses/NotLoggedIn'
+        '403':
+          $ref: '#/components/responses/CharacterNotRunning'
+        '498':
+          $ref: '#/components/responses/InvalidToken'
+
+  /is_a_complex_animation/{character_rid}/{name}:
+    get:
+      tags:
+      - user
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      - $ref: '#/components/parameters/CharacterRID'
+      - in: path
+        name: name
+        required: true
+        schema:
+          type: string
+        description: "The name of the animation that you wish to check."
+      summary: Is a complex animation
+      responses:
+        '200':
+          description: Response indicating whether the animation is of type complex or simple.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Is a complex animation
+                  msg:
+                    type: string
+                    description: Dynamic message that includes the `character_animation` parameter value.
+                  resp:
+                    type: boolean
+                    description: Indicates whether the character is hidden.
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+              examples:
+                complex:
+                  summary: animation is complex
+                  value:
+                    title: Is a complex animation
+                    msg: The character {character_animation} is complex.
+                    resp: true
+                    logged_in:
+                      logged_in: true
+                not_complex:
+                  summary: animation is not complex
+                  value:
+                    title: Is a complex animation
+                    msg: The character {character_animation} is not complex.
+                    resp: false
+                    logged_in:
+                      logged_in: true
+        '401':
+          $ref: '#/components/responses/NotLoggedIn'
+        '403':
+          $ref: '#/components/responses/CharacterNotRunning'
+        '498':
+          $ref: '#/components/responses/InvalidToken'
+
+  /is_hidden/{character_rid}:
+    get:
+      tags:
+      - user
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      - $ref: '#/components/parameters/CharacterRID'
+      summary: Is hidden
+      responses:
+        '200':
+          description: Response indicating whether the character is hidden or visible.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Is hidden
+                  msg:
+                    type: string
+                    description: Dynamic message that includes the `character_name` parameter value.
+                  resp:
+                    type: boolean
+                    description: Indicates whether the character is hidden.
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+              examples:
+                hidden:
+                  summary: Character is hidden
+                  value:
+                    title: Is hidden
+                    msg: The character {character_name} is hidden.
+                    resp: true
+                    logged_in:
+                      logged_in: true
+                visible:
+                  summary: Character is visible
+                  value:
+                    title: Is hidden
+                    msg: The character {character_name} is visible.
+                    resp: false
+                    logged_in:
+                      logged_in: true
+        '401':
+          $ref: '#/components/responses/NotLoggedIn'
+        '403':
+          $ref: '#/components/responses/CharacterNotRunning'
+        '498':
+          $ref: '#/components/responses/InvalidToken'
+
+  /is_visible/{character_rid}:
+    get:
+      tags:
+      - user
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      - $ref: '#/components/parameters/CharacterRID'
+      summary: Is visible
+      responses:
+        '200':
+          description: Response indicating whether the character is hidden or visible.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Is visible
+                  msg:
+                    type: string
+                    description: Dynamic message that includes the `character_name` parameter value.
+                  resp:
+                    type: boolean
+                    description: Indicates whether the character is visible.
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+              examples:
+                hidden:
+                  summary: Character Is visible
+                  value:
+                    title: Is visible
+                    msg: The character {character_name} is not visible.
+                    resp: false
+                    logged_in:
+                      logged_in: true
+                visible:
+                  summary: Character is visible
+                  value:
+                    title: Is visible
+                    msg: The character {character_name} is visible.
+                    resp: true
+                    logged_in:
+                      logged_in: true
+        '401':
+          $ref: '#/components/responses/NotLoggedIn'
+        '403':
+          $ref: '#/components/responses/CharacterNotRunning'
+        '498':
+          $ref: '#/components/responses/InvalidToken'
+
+  /is_playing/{character_rid}:
+    get:
+      tags:
+      - user
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      - $ref: '#/components/parameters/CharacterRID'
+      summary: Get the status of the character (if the animations are playing or not)
+      responses:
+        '200':
+          description: Response indicating whether the character animations are playing or not.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Is playing
+                  msg:
+                    type: string
+                    description: Dynamic message that includes the `character_name` parameter value.
+                  resp:
+                    type: boolean
+                    description: Indicates whether the character is playing.
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+              examples:
+                not_playing:
+                  summary: Is playing
+                  value:
+                    title: Is playing
+                    msg: The character {character_name} is not playing.
+                    resp: false
+                    logged_in:
+                      logged_in: true
+                playing:
+                  summary: Is playing
+                  value:
+                    title: Is playing
+                    msg: The character {character_name} is playing.
+                    resp: true
+                    logged_in:
+                      logged_in: true
+        '403':
+          $ref: '#/components/responses/CharacterNotRunning'
+
+  /is_paused/{character_rid}:
+    get:
+      tags:
+      - user
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      - $ref: '#/components/parameters/CharacterRID'
+      summary: Check if the animations of the character are not playing.
+      responses:
+        '200':
+          description: Response indicating whether the character animations are playing or not.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Is paused
+                  msg:
+                    type: string
+                    description: Dynamic message that includes the `character_name` parameter value.
+                  resp:
+                    type: boolean
+                    description: Indicates whether the character is paused.
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+              examples:
+                not_paused:
+                  summary: Is paused
+                  value:
+                    title: Is paused
+                    msg: The character {character_name} is not paused.
+                    resp: false
+                    logged_in:
+                      logged_in: true
+                paused:
+                  summary: Is paused
+                  value:
+                    title: Is paused
+                    msg: The character {character_name} is paused.
+                    resp: true
+                    logged_in:
+                      logged_in: true
+        '403':
+          $ref: '#/components/responses/CharacterNotRunning'
+
+  /is_stopped/{character_rid}:
+    get:
+      tags:
+      - user
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/CharacterRID'
+      summary: Is stopped
+      responses:
+        '200':
+          description: Response indicating whether the character is active or not.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Is stopped
+                  msg:
+                    type: string
+                    description: Dynamic message that includes the `character_name` parameter value.
+                  resp:
+                    type: boolean
+                    description: Indicates whether the character is stopped.
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+              examples:
+                stopped:
+                  summary: Is stopped
+                  value:
+                    title: Is stopped
+                    msg: The character {character_name} is stopped.
+                    resp: false
+                    logged_in:
+                      logged_in: true
+                not_stopped:
+                  summary: Is stopped
+                  value:
+                    title: Is stopped
+                    msg: The character {character_name} is not playing.
+                    resp: true
+                    logged_in:
+                      logged_in: true
+        '403':
+          $ref: '#/components/responses/CharacterNotRunning'
+
+  /is_api_ready/{character_rid}:
+    get:
+      tags:
+      - user
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      - $ref: '#/components/parameters/CharacterRID'
+      summary: Check if the api is ready
+      responses:
+        '200':
+          description: Response indicating whether the api is ready to accept requests or not.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Is api ready
+                  msg:
+                    type: string
+                    description: Dynamic message that includes the `character_name` parameter value.
+                  resp:
+                    type: boolean
+                    description: Indicates whether the character api is ready.
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+              examples:
+                api_ready:
+                  summary: Is api ready
+                  value:
+                    title: Is api ready
+                    msg: The character's {character_name} api is ready.
+                    resp: true
+                    logged_in:
+                      logged_in: true
+                api_not_ready:
+                  summary: Is api ready
+                  value:
+                    title: Is api ready
+                    msg: The character's {character_name} api is not ready.
+                    resp: false
+                    logged_in:
+                      logged_in: true
+        '401':
+          $ref: '#/components/responses/NotLoggedIn'
+        '403':
+          $ref: '#/components/responses/CharacterNotRunning'
+        '498':
+          $ref: '#/components/responses/InvalidToken'
+
+  /get_animations/{character_rid}:
+    get:
+      tags:
+      - user
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      - $ref: '#/components/parameters/CharacterRID'
+      summary: Get animations
+      responses:
+        '200':
+          description: Get a list of the animations that the character has.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Get animations
+                  msg:
+                    type: string
+                    example: "The list of {character_name}'s animations are {character_animations}"
+                    description: |
+                      Dynamic message that includes the `character_name`, `character_animations` parameter values.
+                  resp:
+                    type: array
+                    items:
+                      type: string
+                      example: ["animation1", "animation2", "animation3", "etc"]
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '401':
+          $ref: '#/components/responses/NotLoggedIn'
+        '403':
+          $ref: '#/components/responses/CharacterNotRunning'
+        '498':
+          $ref: '#/components/responses/InvalidToken'
+
+  /get_character_name/{character_rid}:
+    get:
+      tags:
+      - user
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      - $ref: '#/components/parameters/CharacterRID'
+      summary: Get character name.
+      responses:
+        '200':
+          description: Get the name of the character that is currently loaded.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Get character name
+                  msg:
+                    type: string
+                    example: "The character {character_rid} is {character_name}."
+                    description: |
+                      Dynamic message that includes the `character_rid`, `character_name` parameter value.
+                  resp:
+                    type: string
+                    example: "{character_name}"
+                    description: |
+                      Dynamic message that includes the `character_name` parameter value.
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '401':
+          $ref: '#/components/responses/NotLoggedIn'
+        '403':
+          $ref: '#/components/responses/CharacterNotRunning'
+        '498':
+          $ref: '#/components/responses/InvalidToken'
+
+  /get_section_name/{character_rid}:
+    get:
+      tags:
+      - user
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      - $ref: '#/components/parameters/CharacterRID'
+      summary: Get section name
+      responses:
+        '200':
+          description: Get the name of the animation that is currently playing.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Get section name
+                  msg:
+                    type: string
+                    example: The name of the current section playing is {section_name}.
+                    description: |
+                      Dynamic message that includes the `section_name` parameter value.
+                  resp:
+                    type: string
+                    example: "{section_name}"
+                    description: |
+                      Dynamic message that includes the `section_name` parameter value.
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '401':
+          $ref: '#/components/responses/NotLoggedIn'
+        '403':
+          $ref: '#/components/responses/CharacterNotRunning'
+        '498':
+          $ref: '#/components/responses/InvalidToken'
+
+  /get_animation_frame/{character_rid}:
+    get:
+      tags:
+      - user
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      - $ref: '#/components/parameters/CharacterRID'
+      summary: Get animation frame
+      responses:
+        '200':
+          description: Get the current frame that is playing.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Get animation frame
+                  msg:
+                    type: string
+                    example: "The current frame playing is: {animation_frame}."
+                    description: |
+                      Dynamic message that includes the `animation_frame` parameter value.
+                  resp:
+                    type: integer
+                    example: 2
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '404':
+          description: Animation frame not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Get animation frame
+                  msg:
+                    type: string
+                    example: No animation frames playing
+                  resp:
+                    type: string
+                    example: "No frames"
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '401':
+          $ref: '#/components/responses/NotLoggedIn'
+        '403':
+          $ref: '#/components/responses/CharacterNotRunning'
+        '498':
+          $ref: '#/components/responses/InvalidToken'
+
+  /get_character_position/{character_rid}:
+    get:
+      tags:
+      - user
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      - $ref: '#/components/parameters/CharacterRID'
+      summary: Get character position
+      responses:
+        '200':
+          description: Get the x,y coordinates of the character window.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Get character position
+                  msg:
+                    type: string
+                    example: The character is located at {x} {y}.
+                    description: |
+                      Dynamic message that includes the `x`, `y` parameter values.
+                  resp:
+                    type: array
+                    items:
+                      type: integer
+                    example: [0, 0]
+                    description: |
+                      The array/tuple is arrange in an x, y order.
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '401':
+          $ref: '#/components/responses/NotLoggedIn'
+        '403':
+          $ref: '#/components/responses/CharacterNotRunning'
+        '498':
+          $ref: '#/components/responses/InvalidToken'
+
+  /get_character_size/{character_rid}:
+    get:
+      tags:
+      - user
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      - $ref: '#/components/parameters/CharacterRID'
+      summary: Get character size
+      responses:
+        '200':
+          description: The size of the character window
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Get character size
+                  msg:
+                    type: string
+                    example: The size of character {character_name} is {width}x{height}.
+                    description: |
+                      Dynamic message that includes the `character_name`, `width`, `height` parameter values.
+                  resp:
+                    type: array
+                    items:
+                      type: integer
+                    example: [20, 20]
+                    description: The array/tuple will be provided as width height.
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '401':
+          $ref: '#/components/responses/NotLoggedIn'
+        '403':
+          $ref: '#/components/responses/CharacterNotRunning'
+        '498':
+          $ref: '#/components/responses/InvalidToken'
+
+  /get_nb_animation_frames/{character_rid}/{animation_name}:
+    get:
+      tags:
+      - user
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      - $ref: '#/components/parameters/CharacterRID'
+      - in: path
+        name: animation_name
+        required: true
+        schema:
+          type: string
+        description: The name of the animation you wish to query info on.
+      summary: Get nb animation frames
+      responses:
+        '200':
+          description: Get the number of frames present in a given animation.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Get number of frames.
+                  msg:
+                    type: string
+                    example: The animation {animation_name} for the character {character_name} is {nb_frames}.
+                    description: |
+                      Dynamic message that includes the `animation_name`, `character_name`, `nb_frames` parameter value.
+                  resp:
+                    type: integer
+                    example: 5
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '404':
+          $ref: '#/components/responses/AnimationNotFound'
+        '401':
+          $ref: '#/components/responses/NotLoggedIn'
+        '403':
+          $ref: '#/components/responses/CharacterNotRunning'
+        '498':
+          $ref: '#/components/responses/InvalidToken'
+
+  /get_available_characters:
+    get:
+      tags:
+      - user
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      summary: Get available characters
+      responses:
+        '200':
+          description: Get a list of the characters that are available to be loaded.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Get available characters
+                  msg:
+                    type: string
+                    example: "The list of available characters that can be started is : {list_of_character_names}."
+                    description: |
+                      Dynamic message that includes the `list_of_character_names` parameter value.
+                  resp:
+                    type: array
+                    items:
+                      type: string
+                    example:
+                    - "Character_name_1"
+                    - "Character_name_2"
+                    - "etc"
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '401':
+          $ref: '#/components/responses/NotLoggedIn'
+        '498':
+          $ref: '#/components/responses/InvalidToken'
+
+  /play_animation/{character_rid}/{name}:
+    post:
+      tags:
+      - user
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      - $ref: '#/components/parameters/CharacterRID'
+      - in: path
+        name: name
+        required: true
+        schema:
+          type: string
+        description: The name of the animation you wish to play
+      summary: Play an animation present in the loaded character.
+      responses:
+        '200':
+          description: Play animation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Play animation
+                  msg:
+                    type: string
+                    example: Playing animation {animation_name} for character {character_name}.
+                    description: |
+                      Dynamic message that includes the `animation_name`,`character_name` parameter value.
+                  resp:
+                    $ref: '#/components/schemas/EmptyResp'
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '404':
+          $ref: '#/components/responses/AnimationNotFound'
+        '401':
+          $ref: '#/components/responses/NotLoggedIn'
+        '403':
+          $ref: '#/components/responses/CharacterNotRunning'
+        '498':
+          $ref: '#/components/responses/InvalidToken'
+
+  /clear_queue/{character_rid}:
+    post:
+      tags:
+      - user
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      - $ref: '#/components/parameters/CharacterRID'
+      summary: Clear queue
+      responses:
+        '200':
+          description: Clear the animation queue of the designated character.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Clear queue
+                  msg:
+                    type: string
+                    example: The animation queue for {character_name} has been cleared.
+                    description: |
+                      Dynamic message that includes the `character_name` parameter value.
+                  resp:
+                    $ref: '#/components/schemas/EmptyResp'
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '401':
+          $ref: '#/components/responses/NotLoggedIn'
+        '403':
+          $ref: '#/components/responses/CharacterNotRunning'
+        '498':
+          $ref: '#/components/responses/InvalidToken'
+
+  /set_animation/{character_rid}/{name}:
+    post:
+      tags:
+      - user
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      - $ref: '#/components/parameters/CharacterRID'
+      - in: path
+        name: name
+        required: true
+        schema:
+          type: string
+        description: The name of the animation you wish to set.
+      summary: Set animation
+      responses:
+        '200':
+          description: Clear the queue and play the provided animation.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Set animation
+                  msg:
+                    type: string
+                    example: Animation {animation_game} has been set to play for {character_name} instantly.
+                    description: |
+                      Dynamic message that includes the `animation_name`, `character_name` parameter value.
+                  resp:
+                    $ref: '#/components/schemas/EmptyResp'
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '404':
+          $ref: '#/components/responses/AnimationNotFound'
+        '401':
+          $ref: '#/components/responses/NotLoggedIn'
+        '403':
+          $ref: '#/components/responses/CharacterNotRunning'
+        '498':
+          $ref: '#/components/responses/InvalidToken'
+
+  /pause_animation/{character_rid}:
+    post:
+      tags:
+      - user
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      - $ref: '#/components/parameters/CharacterRID'
+      summary: Pause animation
+      responses:
+        '200':
+          description: Pause the character animation buffer play.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Pause animation
+                  msg:
+                    type: string
+                    description: Dynamic message that includes the `character_name` parameter value.
+                  resp:
+                    type: boolean
+                    description: Indicates whether the character's animations are paused.
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+              examples:
+                paused:
+                  summary: Character Is paused
+                  value:
+                    title: Is paused
+                    msg: The character {character_name} animations are paused.
+                    resp: true
+                    logged_in:
+                      logged_in: false
+                not_paused:
+                  summary: Character is not paused
+                  value:
+                    title: Is not paused
+                    msg: The character {character_name} animations are not paused.
+                    resp: false
+                    logged_in:
+                      logged_in: false
+        '401':
+          $ref: '#/components/responses/NotLoggedIn'
+        '403':
+          $ref: '#/components/responses/CharacterNotRunning'
+        '498':
+          $ref: '#/components/responses/InvalidToken'
+
+  /resume_animation/{character_rid}:
+    post:
+      tags:
+      - user
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      - $ref: '#/components/parameters/CharacterRID'
+      summary: Resume animation
+      responses:
+        '200':
+          description: Resume the animation buffer of the character
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Resume animation
+                  msg:
+                    type: string
+                    example: The animations for {character_name} are playing.
+                    description: Dynamic message that includes the `character_name` parameter value.
+                  resp:
+                    type: boolean
+                    example: True
+                    description: Indicates whether the character's animations are playing.
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '401':
+          $ref: '#/components/responses/NotLoggedIn'
+        '403':
+          $ref: '#/components/responses/CharacterNotRunning'
+        '498':
+          $ref: '#/components/responses/InvalidToken'
+
+  /step_animation/{character_rid}:
+    post:
+      tags:
+      - user
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      - $ref: '#/components/parameters/CharacterRID'
+      summary: Step animation
+      responses:
+        '200':
+          description: Play the animation buffer step by step.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Step animation
+                  msg:
+                    type: string
+                    example: |
+                      The animation of the character {character_name} has been set to stepping mode.
+                      Stepping to frame {frame_index} of animation {animation_name}.
+                    description: |
+                      Dynamic message that includes the `character_name`, `frame_index`, `animation_name` parameter values.
+                  resp:
+                    type: integer
+                    example: 5
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '401':
+          $ref: '#/components/responses/NotLoggedIn'
+        '403':
+          $ref: '#/components/responses/CharacterNotRunning'
+        '498':
+          $ref: '#/components/responses/InvalidToken'
+
+  /play_animation_start/{character_rid}/{name}:
+    post:
+      tags:
+      - user
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      - $ref: '#/components/parameters/CharacterRID'
+      - in: path
+        name: name
+        required: true
+        schema:
+          type: string
+        description: The name of the animation you wish to play.
+      summary: Play animation start
+      responses:
+        '200':
+          description: Play the first section of a complex animation.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Play animation start
+                  msg:
+                    type: string
+                    example: Playing the first section of the complex animation {animation_name} for character {character_name}.
+                    description: |
+                      Dynamic message that includes the `animation_name`, `character_name` parameter value.
+                  resp:
+                    $ref: '#/components/schemas/EmptyResp'
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '204':
+          $ref: '#/components/responses/AnimationIsNotComplex'
+        '404':
+          $ref: '#/components/responses/AnimationNotFound'
+        '401':
+          $ref: '#/components/responses/NotLoggedIn'
+        '403':
+          $ref: '#/components/responses/CharacterNotRunning'
+        '498':
+          $ref: '#/components/responses/InvalidToken'
+
+  /play_animation_middle/{character_rid}/{name}:
+    post:
+      tags:
+      - user
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      - $ref: '#/components/parameters/CharacterRID'
+      - in: path
+        name: name
+        required: true
+        schema:
+          type: string
+        description: The name of the animation you wish to play.
+      summary: Play animation middle
+      responses:
+        '200':
+          description: Play the middle section of a complex animation.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Play animation middle
+                  msg:
+                    type: string
+                    example: Playing the middle section of the complex animation {animation_name} for character {character_name}.
+                    description: |
+                      Dynamic message that includes the `animation_name`, `character_name` parameter value.
+                  resp:
+                    $ref: '#/components/schemas/EmptyResp'
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '204':
+          $ref: '#/components/responses/AnimationIsNotComplex'
+        '404':
+          $ref: '#/components/responses/AnimationNotFound'
+        '401':
+          $ref: '#/components/responses/NotLoggedIn'
+        '403':
+          $ref: '#/components/responses/CharacterNotRunning'
+        '498':
+          $ref: '#/components/responses/InvalidToken'
+
+  /play_animation_end/{character_rid}/{name}:
+    post:
+      tags:
+      - user
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      - $ref: '#/components/parameters/CharacterRID'
+      - in: path
+        name: name
+        required: true
+        schema:
+          type: string
+        description: The name of the animation you wish to play.
+      summary: Play animation end
+      responses:
+        '200':
+          description: Play the last section of a complex animation.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Play animation end
+                  msg:
+                    type: string
+                    example: Playing the last section of the complex animation {animation_name} for character {character_name}.
+                    description: |
+                      Dynamic message that includes the `animation_name`, `character_name` parameter value.
+                  resp:
+                    $ref: '#/components/schemas/EmptyResp'
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '204':
+          $ref: '#/components/responses/AnimationIsNotComplex'
+        '404':
+          $ref: '#/components/responses/AnimationNotFound'
+        '401':
+          $ref: '#/components/responses/NotLoggedIn'
+        '403':
+          $ref: '#/components/responses/CharacterNotRunning'
+        '498':
+          $ref: '#/components/responses/InvalidToken'
+
+  /set_animation_frame/{character_rid}/{name}/{index}:
+    post:
+      tags:
+      - user
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      - $ref: '#/components/parameters/CharacterRID'
+      - in: path
+        name: name
+        required: true
+        schema:
+          type: string
+        description: The name of the animation you wish to use
+      - in: path
+        name: index
+        required: true
+        schema:
+          type: integer
+        description: The index of the frame from which you wish to start playing the animation.
+      summary: Set animation frame
+      responses:
+        '200':
+          description: Add the frames of an animation from a specific frame id until the end of the defined animation.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Set animation frame
+                  msg:
+                    type: string
+                    example: The animation {animation_name} has been set to play from {index} for character {character_name}.
+                    description: |
+                      Dynamic message that includes the `animation_name`, `index`,`character_name` parameter value.
+                  resp:
+                    $ref: '#/components/schemas/SuccessResp'
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '204':
+          description: The frame index is out of range
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Set animation frame
+                  msg:
+                    type: string
+                    example: The index {index} you provided for the animation {animation_name} is out of range for character {character_name}.
+                    description: |
+                      Dynamic message that includes the `index`,`animation_name`,`character_name` parameter values.
+                  err:
+                    type: string
+                    example: Index out of range.
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '404':
+          $ref: '#/components/responses/AnimationNotFound'
+        '401':
+          $ref: '#/components/responses/NotLoggedIn'
+        '403':
+          $ref: '#/components/responses/CharacterNotRunning'
+        '498':
+          $ref: '#/components/responses/InvalidToken'
+
+  /stop_animation/{character_rid}:
+    post:
+      tags:
+      - user
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      - $ref: '#/components/parameters/CharacterRID'
+      summary: Stop animation
+      responses:
+        '200':
+          description: Stop the animation buffer for the provided character.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Stop animation
+                  msg:
+                    type: string
+                    example: "The character {character_name} animation buffer have been stopped successfully."
+                    description: |
+                      Dynamic message that includes the `character_name` parameter value.
+                  resp:
+                    type: string
+                    example: Animations stopped
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '406':
+          description: Stop the animation buffer for the provided character.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Stop animation
+                  msg:
+                    type: string
+                    example: "The character {character_name} animation buffer is already stopped."
+                    description: |
+                      Dynamic message that includes the `character_name` parameter value.
+                  resp:
+                    type: string
+                    example: Animations already stopped
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '401':
+          $ref: '#/components/responses/NotLoggedIn'
+        '403':
+          $ref: '#/components/responses/CharacterNotRunning'
+        '498':
+          $ref: '#/components/responses/InvalidToken'
+
+  /move_character/{character_rid}/{x}/{y}:
+    post:
+      tags:
+      - user
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      - $ref: '#/components/parameters/CharacterRID'
+      - in: path
+        name: x
+        required: true
+        schema:
+          type: integer
+        description: The new x coordinate of the character.
+      - in: path
+        name: "y"
+        required: true
+        schema:
+          type: integer
+        description: The new y coordinate of the character.
+      summary: Move character
+      responses:
+        '200':
+          description: Move the character window to a new location on the screen
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Move character
+                  msg:
+                    type: string
+                    example: "{character_name} has been successfully moved to location ({x}, {y})."
+                    description: |
+                      Dynamic message that includes the `character_name`, `x`, `y` parameter values.
+                  resp:
+                    $ref: '#/components/schemas/SuccessResp'
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '401':
+          $ref: '#/components/responses/NotLoggedIn'
+        '403':
+          $ref: '#/components/responses/CharacterNotRunning'
+        '406':
+          description: The coordinates provided for moving the character are incorrect
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Move character
+                  msg:
+                    type: string
+                    example: "The provided coordinates ({x}, {y}) are incorrect for character {character_name}."
+                    description: |
+                      Dynamic message that includes the `x`, `y`, `character_name` parameter values.
+                  err:
+                    type: string
+                    example: Invalid coordinates
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '498':
+          $ref: '#/components/responses/InvalidToken'
+
+  /set_character_size/{character_rid}/{width}/{height}:
+    post:
+      tags:
+      - user
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      - $ref: '#/components/parameters/CharacterRID'
+      - in: path
+        name: width
+        required: true
+        schema:
+          type: integer
+        description: The new width of the character.
+      - in: path
+        name: height
+        required: true
+        schema:
+          type: integer
+        description: The new height of the character.
+      summary: Set character size
+      responses:
+        '200':
+          description: Change the size of the character (this concerns the window and character in it)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Set character size
+                  msg:
+                    type: string
+                    example: The character {character_name} new dimension is set to ({width}x{height}).
+                    description: |
+                      Dynamic message that includes the `character_name`, `width`, `height` parameter value.
+                  resp:
+                    $ref: '#/components/schemas/SuccessResp'
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '401':
+          $ref: '#/components/responses/NotLoggedIn'
+        '403':
+          $ref: '#/components/responses/CharacterNotRunning'
+        '406':
+          description: The dimensions provided for the character are incorrect.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Set character size
+                  msg:
+                    type: string
+                    example: "The provided dimensions ({width}, {height}) are incorrect for character {character_name}."
+                    description: |
+                      Dynamic message that includes the `width`, `height`, `character_name` parameter values.
+                  err:
+                    type: string
+                    example: Invalid dimensions
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '498':
+          $ref: '#/components/responses/InvalidToken'
+
+  /set_character_size_width/{character_rid}/{width}:
+    post:
+      tags:
+      - user
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      - $ref: '#/components/parameters/CharacterRID'
+      - in: path
+        name: width
+        required: true
+        schema:
+          type: integer
+        description: The new width you wish to pass to the character.
+      summary: Set character size width
+      responses:
+        '200':
+          description: Change the width of the character window (character image included)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Set character size width
+                  msg:
+                    type: string
+                    example: "The character {character_name}'s width has been set to {width}"
+                    description: |
+                      Dynamic message that includes the `character_name`, `width` parameter values.
+                  resp:
+                    $ref: '#/components/schemas/EmptyResp'
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '401':
+          $ref: '#/components/responses/NotLoggedIn'
+        '403':
+          $ref: '#/components/responses/CharacterNotRunning'
+        '406':
+          description: The width coordinate provided for resizing the character is incorrect
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Set character size width
+                  msg:
+                    type: string
+                    example: "The provided corrdinate ({width}) is incorrect for character {character_name}."
+                    description: |
+                      Dynamic message that includes the `width`, `character_name` parameter values.
+                  err:
+                    type: string
+                    example: Invalid width
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '498':
+          $ref: '#/components/responses/InvalidToken'
+
+  /set_character_size_height/{character_rid}/{height}:
+    post:
+      tags:
+      - user
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      - $ref: '#/components/parameters/CharacterRID'
+      - in: path
+        name: height
+        required: true
+        schema:
+          type: integer
+        description: The new height you wish to pass to the character.
+      summary: Set character size height
+      responses:
+        '200':
+          description: Change the height of the character window (character included)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Set character size height
+                  msg:
+                    type: string
+                    example: "The character {character_name}'s height has been set to {height}"
+                    description: |
+                      Dynamic message that includes the `character_name`, `height` parameter values.
+                  resp:
+                    $ref: '#/components/schemas/SuccessResp'
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '401':
+          $ref: '#/components/responses/NotLoggedIn'
+        '403':
+          $ref: '#/components/responses/CharacterNotRunning'
+        '406':
+          description: The height coordinate provided for resizing the character is incorrect
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Set character size height
+                  msg:
+                    type: string
+                    example: "The provided corrdinate ({height}) is incorrect for character {character_name}."
+                    description: |
+                      Dynamic message that includes the `height`, `character_name` parameter values.
+                  err:
+                    type: string
+                    example: Invalid height
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '498':
+          $ref: '#/components/responses/InvalidToken'
+
+  /set_character_position/{character_rid}/{x}/{y}:
+    post:
+      tags:
+      - user
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      - $ref: '#/components/parameters/CharacterRID'
+      - in: path
+        name: x
+        required: true
+        schema:
+          type: integer
+        description: The new x coordinate of the character.
+      - in: path
+        name: "y"
+        required: true
+        schema:
+          type: integer
+        description: The new y coordinate of the character.
+      summary: Set character position
+      responses:
+        '200':
+          description: Set the position of the character based on the x and y coordinates
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Set character position
+                  msg:
+                    type: string
+                    example: "{character_name} has been successfully moved to location ({x}, {y})."
+                    description: |
+                      Dynamic message that includes the `character_name`, `x`, `y` parameter values.
+                  resp:
+                    $ref: '#/components/schemas/SuccessResp'
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '401':
+          $ref: '#/components/responses/NotLoggedIn'
+        '403':
+          $ref: '#/components/responses/CharacterNotRunning'
+        '406':
+          description: The coordinates provided for moving the character are incorrect
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Move character
+                  msg:
+                    type: string
+                    example: "The provided coordinates ({x}, {y}) are incorrect for character {character_name}."
+                    description: |
+                      Dynamic message that includes the `x`, `y`, `character_name` parameter values.
+                  err:
+                    type: string
+                    example: Invalid coordinates
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '498':
+          $ref: '#/components/responses/InvalidToken'
+
+  /set_character_position_x/{character_rid}/{x}:
+    post:
+      tags:
+      - user
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      - $ref: '#/components/parameters/CharacterRID'
+      - in: path
+        name: x
+        required: true
+        schema:
+          type: integer
+        description: The new x coordinate for the character.
+      summary: Set character position x
+      responses:
+        '200':
+          description: Change the x coordinate of the character position
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Set character position x
+                  msg:
+                    type: string
+                    example: "{character_name} has been successfully moved to location ({provided_x}, {current_y})."
+                    description: |
+                      Dynamic message that includes the `character_name`, `provided_x`, `current_y` parameter values.
+                  resp:
+                    $ref: '#/components/schemas/SuccessResp'
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '401':
+          $ref: '#/components/responses/NotLoggedIn'
+        '403':
+          $ref: '#/components/responses/CharacterNotRunning'
+        '406':
+          description: The x coordinate provided for moving the character are incorrect
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Set character position x
+                  msg:
+                    type: string
+                    example: "The provided coordinates ({provided_x}, {current_y}) are incorrect for character {character_name}."
+                    description: |
+                      Dynamic message that includes the `provided_x`, `current_y`, `character_name` parameter values.
+                  err:
+                    type: string
+                    example: Invalid x coordinate
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '498':
+          $ref: '#/components/responses/InvalidToken'
+
+  /set_character_position_y/{character_rid}/{y}:
+    post:
+      tags:
+      - user
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      - $ref: '#/components/parameters/CharacterRID'
+      - in: path
+        name: "y"
+        required: true
+        schema:
+          type: integer
+        description: The new y coordinate of the character.
+      summary: Set character position y
+      responses:
+        '200':
+          description: Change the y coordinate of the character position
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Set character position y
+                  msg:
+                    type: string
+                    example: "{character_name} has been successfully moved to location ({current_x}, {provided_y})."
+                    description: |
+                      Dynamic message that includes the `character_name`, `current_x`, `provided_y` parameter values.
+                  resp:
+                    $ref: '#/components/schemas/SuccessResp'
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '401':
+          $ref: '#/components/responses/NotLoggedIn'
+        '403':
+          $ref: '#/components/responses/CharacterNotRunning'
+        '406':
+          description: The coordinates provided for moving the character are incorrect
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Set character position y
+                  msg:
+                    type: string
+                    example: "The provided coordinates ({current_x}, {provided_y}) are incorrect for character {character_name}."
+                    description: |
+                      Dynamic message that includes the `current_x`, `provided_y`, `character_name` parameter values.
+                  err:
+                    type: string
+                    example: Invalid coordinates
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '498':
+          $ref: '#/components/responses/InvalidToken'
+
+  /set_offset_position/{character_rid}/{x}/{y}:
+    post:
+      tags:
+      - user
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      - $ref: '#/components/parameters/CharacterRID'
+      - in: path
+        name: x
+        required: true
+        schema:
+          type: integer
+        description: The new x coordinate of the character.
+      - in: path
+        name: "y"
+        required: true
+        schema:
+          type: integer
+        description: The new y coordinate of the character.
+      summary: Set offset position
+      responses:
+        '200':
+          description: Move the character based on the sum of the old and new x and y coordinates.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Set offset position
+                  msg:
+                    type: string
+                    example: "{character_name} has been successfully moved to location ({new_x}, {new_y})."
+                    description: |
+                      Dynamic message that includes the `character_name`, `new_x`, `new_y` parameter values.
+                  resp:
+                    $ref: '#/components/schemas/SuccessResp'
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '401':
+          $ref: '#/components/responses/NotLoggedIn'
+        '403':
+          $ref: '#/components/responses/CharacterNotRunning'
+        '406':
+          description: The coordinates provided for moving the character are incorrect
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Set character position y
+                  msg:
+                    type: string
+                    example: "The provided coordinates ({provided_x}, {provided_y}) are incorrect for character {character_name}."
+                    description: |
+                      Dynamic message that includes the `provided_x`, `provided_y`, `character_name` parameter values.
+                  err:
+                    type: string
+                    example: Invalid coordinates
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '498':
+          $ref: '#/components/responses/InvalidToken'
+
+  /set_offset_position_x/{character_rid}/{x}:
+    post:
+      tags:
+      - user
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      - $ref: '#/components/parameters/CharacterRID'
+      - in: path
+        name: x
+        required: true
+        schema:
+          type: integer
+        description: The new x coordinate of the character.
+      summary: Set offset position x
+      responses:
+        '200':
+          description: Change the x coordinate of the character based on the current x and the provided x.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Set offset position x
+                  msg:
+                    type: string
+                    example: "{character_name} has been successfully moved to location ({new_x}, {current_y})."
+                    description: |
+                      Dynamic message that includes the `character_name`, `new_x`, `current_y` parameter values.
+                  resp:
+                    $ref: '#/components/schemas/SuccessResp'
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '401':
+          $ref: '#/components/responses/NotLoggedIn'
+        '403':
+          $ref: '#/components/responses/CharacterNotRunning'
+        '406':
+          description: The coordinates provided for moving the character are incorrect
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Set offset position x
+                  msg:
+                    type: string
+                    example: "The provided {x} coordinate is incorrect for character {character_name}."
+                    description: |
+                      Dynamic message that includes the `x`, `character_name` parameter values.
+                  err:
+                    type: string
+                    example: Invalid coordinate
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '498':
+          $ref: '#/components/responses/InvalidToken'
+
+  /set_offset_position_y/{character_rid}/{y}:
+    post:
+      tags:
+      - user
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      - $ref: '#/components/parameters/CharacterRID'
+      - in: path
+        name: y
+        required: true
+        schema:
+          type: integer
+        description: The y position from which you wish to offset the character.
+      summary: Set offset position y
+      responses:
+        '200':
+          description: Change the y coordinate of the character based on the current y and the provided y.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Set offset position y
+                  msg:
+                    type: string
+                    example: "{character_name} has been successfully moved to location ({current_x}, {new_y})."
+                    description: |
+                      Dynamic message that includes the `character_name`, `current_x`, `new_y` parameter values.
+                  resp:
+                    $ref: '#/components/schemas/SuccessResp'
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '401':
+          $ref: '#/components/responses/NotLoggedIn'
+        '403':
+          $ref: '#/components/responses/CharacterNotRunning'
+        '406':
+          description: The coordinates provided for moving the character are incorrect
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Set offset position x
+                  msg:
+                    type: string
+                    example: "The provided {y} coordinate is incorrect for character {character_name}."
+                    description: |
+                      Dynamic message that includes the `y`, `character_name` parameter values.
+                  err:
+                    type: string
+                    example: Invalid coordinate
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '498':
+          $ref: '#/components/responses/InvalidToken'
+
+  /set_geometry/{character_rid}/{x}/{y}/{width}/{height}:
+    post:
+      tags:
+      - user
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      - $ref: '#/components/parameters/CharacterRID'
+      - in: path
+        name: x
+        required: true
+        schema:
+          type: integer
+        description: The new x position of the character.
+      - in: path
+        name: "y"
+        required: true
+        schema:
+          type: integer
+        description: The new y position of the character.
+      - in: path
+        name: width
+        required: true
+        schema:
+          type: integer
+        description: The new width of the character.
+      - in: path
+        name: height
+        required: true
+        schema:
+          type: integer
+        description: The new height of the character.
+      summary: Set geometry
+      responses:
+        '200':
+          description: Move the character based on the new x, y, width and height coordinates.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Set geometry
+                  msg:
+                    type: string
+                    example: "{character_name} has been successfully moved to location ({new_x}, {new_y}) and has a new dimension of ({new_width}x{new_height})."
+                    description: |
+                      Dynamic message that includes the `character_name`, `new_x`, `new_y`, `new_width`, `new_height` parameter values.
+                  resp:
+                    $ref: '#/components/schemas/SuccessResp'
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '401':
+          $ref: '#/components/responses/NotLoggedIn'
+        '403':
+          $ref: '#/components/responses/CharacterNotRunning'
+        '406':
+          description: The coordinates provided for moving the character are incorrect
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Set geometry
+                  msg:
+                    type: string
+                    example: "The provided coordinates ({provided_x}, {provided_y}) and dimensions ({provided_width}x{provided_height}) are incorrect for character {character_name}."
+                    description: |
+                      Dynamic message that includes the `provided_x`, `provided_y`, `provided_width`, `provided_height`, `character_name` parameter values.
+                  err:
+                    type: string
+                    example: Invalid coordinates
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '498':
+          $ref: '#/components/responses/InvalidToken'
+
+  /set_offset_width/{character_rid}/{width}:
+    post:
+      tags:
+      - user
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      - $ref: '#/components/parameters/CharacterRID'
+      - in: path
+        name: width
+        required: true
+        schema:
+          type: integer
+        description: The new width for the character.
+      summary: Set offset width
+      responses:
+        '200':
+          description: Change the width of the character based on the current width and the provided width.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Set offset width
+                  msg:
+                    type: string
+                    example: "{character_name} has been successfully resized to ({new_width}, {current_height})."
+                    description: |
+                      Dynamic message that includes the `character_name`, `new_width`, `current_height` parameter values.
+                  resp:
+                    $ref: '#/components/schemas/SuccessResp'
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '401':
+          $ref: '#/components/responses/NotLoggedIn'
+        '403':
+          $ref: '#/components/responses/CharacterNotRunning'
+        '406':
+          description: The coordinates provided for moving the character are incorrect
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Set offset width
+                  msg:
+                    type: string
+                    example: "The provided {width} is incorrect for character {character_name}."
+                    description: |
+                      Dynamic message that includes the `width`, `character_name` parameter values.
+                  err:
+                    type: string
+                    example: Invalid coordinate
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '498':
+          $ref: '#/components/responses/InvalidToken'
+
+  /set_offset_height/{character_rid}/{height}:
+    post:
+      tags:
+      - user
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      - $ref: '#/components/parameters/CharacterRID'
+      - in: path
+        name: height
+        required: true
+        schema:
+          type: integer
+        description: The height by which you wish to offset the character window.
+      summary: Set offset height
+      responses:
+        '200':
+          description: Change the height of the character based on the current height and the provided height.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Set offset height
+                  msg:
+                    type: string
+                    example: "{character_name} has been successfully resized to ({current_width}, {new_height})."
+                    description: |
+                      Dynamic message that includes the `character_name`, `current_width`, `new_height` parameter values.
+                  resp:
+                    $ref: '#/components/schemas/SuccessResp'
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '401':
+          $ref: '#/components/responses/NotLoggedIn'
+        '403':
+          $ref: '#/components/responses/CharacterNotRunning'
+        '406':
+          description: The coordinates provided for moving the character are incorrect
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Set offset height
+                  msg:
+                    type: string
+                    example: "The provided {height} is incorrect for character {character_name}."
+                    description: |
+                      Dynamic message that includes the `height`, `character_name` parameter values.
+                  err:
+                    type: string
+                    example: Invalid coordinate
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '498':
+          $ref: '#/components/responses/InvalidToken'
+
+  /set_character_opacity/{character_rid}/{opacity}:
+    post:
+      tags:
+      - user
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      - $ref: '#/components/parameters/CharacterRID'
+      - in: path
+        name: opacity
+        required: true
+        schema:
+          type: integer
+        description: The opacity you wish to affect to the character window.
+      summary: Set character opacity
+      responses:
+        '200':
+          description: Set the opacity of the character
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Set character opacity
+                  msg:
+                    type: string
+                    example: The character {character_name} opacity has been set to {new_opacity}
+                    description: |
+                      Dynamic message that includes the `character_name`, `new_opacity` parameter value.
+                  resp:
+                    $ref: '#/components/schemas/SuccessResp'
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '401':
+          $ref: '#/components/responses/NotLoggedIn'
+        '403':
+          $ref: '#/components/responses/CharacterNotRunning'
+        '406':
+          description: The opacity provided for the character is incorrect.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Set character opacity
+                  msg:
+                    type: string
+                    example: "The provided opacity ({opacity}) is incorrect for character {character_name}."
+                    description: |
+                      Dynamic message that includes the `opacity`, `character_name` parameter values.
+                  err:
+                    type: string
+                    example: Invalid opacity
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '498':
+          $ref: '#/components/responses/InvalidToken'
+
+  /get_character_opacity/{character_rid}/:
+    get:
+      tags:
+      - user
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      - $ref: '#/components/parameters/CharacterRID'
+      summary: Get the current opacity of the character
+      responses:
+        '200':
+          description: Get the opacity of the character
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Get character opacity
+                  msg:
+                    type: string
+                    example: The character {character_name} opacity is set to {current_opacity}
+                    description: |
+                      Dynamic message that includes the `character_name`, `current_opacity` parameter value.
+                  resp:
+                    type: integer
+                    example: 50
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '401':
+          $ref: '#/components/responses/NotLoggedIn'
+        '403':
+          $ref: '#/components/responses/CharacterNotRunning'
+        '498':
+          $ref: '#/components/responses/InvalidToken'
+
+  /show_character/{character_rid}:
+    post:
+      tags:
+      - user
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      - $ref: '#/components/parameters/CharacterRID'
+      summary: Show character
+      responses:
+        '200':
+          description: Display the character on the screen
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Show character
+                  msg:
+                    type: string
+                    example: The character {character_name} has been successfully displayed on screen.
+                    description: |
+                      Dynamic message that includes the `character_name` parameter value.
+                  resp:
+                    $ref: '#/components/schemas/SuccessResp'
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '401':
+          $ref: '#/components/responses/NotLoggedIn'
+        '403':
+          $ref: '#/components/responses/CharacterNotRunning'
+        '406':
+          description: The character is already displayed on screen.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Show character
+                  msg:
+                    type: string
+                    example: "The character {character_name} is already displayed on screen."
+                    description: |
+                      Dynamic message that includes the `character_name` parameter values.
+                  err:
+                    type: string
+                    example: Character is visible
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '498':
+          $ref: '#/components/responses/InvalidToken'
+
+  /hide_character/{character_rid}:
+    post:
+      tags:
+      - user
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      - $ref: '#/components/parameters/CharacterRID'
+      summary: Hide character
+      responses:
+        '200':
+          description: Hide the character on the screen
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Hide character
+                  msg:
+                    type: string
+                    example: The character {character_name} has been successfully hidden from the screen.
+                    description: |
+                      Dynamic message that includes the `character_name` parameter value.
+                  resp:
+                    $ref: '#/components/schemas/SuccessResp'
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '401':
+          $ref: '#/components/responses/NotLoggedIn'
+        '403':
+          $ref: '#/components/responses/CharacterNotRunning'
+        '406':
+          description: The character is already displayed on screen.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Hide character
+                  msg:
+                    type: string
+                    example: "The character {character_name} is already hidden from the screen."
+                    description: |
+                      Dynamic message that includes the `character_name` parameter values.
+                  err:
+                    type: string
+                    example: Character is hidden
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '498':
+          $ref: '#/components/responses/InvalidToken'
+
+  /show/{character_rid}:
+    post:
+      tags:
+      - user
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      - $ref: '#/components/parameters/CharacterRID'
+      summary: Show character
+      responses:
+        '200':
+          description: Display the character on the screen
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Show
+                  msg:
+                    type: string
+                    example: The character {character_name} has been successfully displayed on screen.
+                    description: |
+                      Dynamic message that includes the `character_name` parameter value.
+                  resp:
+                    $ref: '#/components/schemas/SuccessResp'
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '401':
+          $ref: '#/components/responses/NotLoggedIn'
+        '403':
+          $ref: '#/components/responses/CharacterNotRunning'
+        '406':
+          description: The character is already displayed on screen.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Show
+                  msg:
+                    type: string
+                    example: "The character {character_name} is already displayed on screen."
+                    description: |
+                      Dynamic message that includes the `character_name` parameter values.
+                  err:
+                    type: string
+                    example: Character is visible
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '498':
+          $ref: '#/components/responses/InvalidToken'
+
+  /hide/{character_rid}:
+    post:
+      tags:
+      - user
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      - $ref: '#/components/parameters/CharacterRID'
+      summary: Hide
+      responses:
+        '200':
+          description: Hide the character on the screen
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Hide
+                  msg:
+                    type: string
+                    example: The character {character_name} has been successfully hidden from the screen.
+                    description: |
+                      Dynamic message that includes the `character_name` parameter value.
+                  resp:
+                    $ref: '#/components/schemas/SuccessResp'
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '401':
+          $ref: '#/components/responses/NotLoggedIn'
+        '403':
+          $ref: '#/components/responses/CharacterNotRunning'
+        '406':
+          description: The character is already displayed on screen.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Hide
+                  msg:
+                    type: string
+                    example: "The character {character_name} is already hidden from the screen."
+                    description: |
+                      Dynamic message that includes the `character_name` parameter values.
+                  err:
+                    type: string
+                    example: Character is hidden
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '498':
+          $ref: '#/components/responses/InvalidToken'
+
+  /think/{character_rid}/{message}:
+    post:
+      tags:
+      - user
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      - $ref: '#/components/parameters/CharacterRID'
+      - $ref: '#/components/parameters/Message'
+      summary: Think
+      responses:
+        '200':
+          description: The message for the character to think.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Think
+                  msg:
+                    type: string
+                    example: The character {character_name} is thinking {message}.
+                    description: |
+                      Dynamic message that includes the `character_name`, `message` parameter value.
+                  resp:
+                    $ref: '#/components/schemas/SuccessResp'
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '401':
+          $ref: '#/components/responses/NotLoggedIn'
+        '403':
+          $ref: '#/components/responses/CharacterNotRunning'
+        '406':
+          description: The message provided for the character is incorrect
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Think
+                  msg:
+                    $ref: '#/components/schemas/InvalidMessage'
+                  err:
+                    $ref: '#/components/schemas/InvalidMessageResp'
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '498':
+          $ref: '#/components/responses/InvalidToken'
+
+  /say/{character_rid}/{message}:
+    post:
+      tags:
+      - user
+      - admins
+      parameters:
+      - $ref: '#/components/parameters/AuthorisationToken'
+      - $ref: '#/components/parameters/CharacterRID'
+      - $ref: '#/components/parameters/Message'
+      summary: Say
+      responses:
+        '200':
+          description: The message for the character to speak.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Say
+                  msg:
+                    type: string
+                    example: The character {character_name} is saying {message}.
+                    description: |
+                      Dynamic message that includes the `character_name`, `message` parameter value.
+                  resp:
+                    $ref: '#/components/schemas/SuccessResp'
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '401':
+          $ref: '#/components/responses/NotLoggedIn'
+        '403':
+          $ref: '#/components/responses/CharacterNotRunning'
+        '406':
+          description: The message provided for the character is incorrect
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Say
+                  msg:
+                    $ref: '#/components/schemas/InvalidMessage'
+                  err:
+                    $ref: '#/components/schemas/InvalidMessageResp'
+                  logged_in:
+                    $ref: '#/components/schemas/LoggedInPropertyTrue'
+        '498':
+          $ref: '#/components/responses/InvalidToken'
+
+
+components:
+  parameters:
+    AuthorisationToken:
+      in: header
+      name: Token
+      required: true
+      schema:
+        type: string
+      description: "Bearer token for authorization"
+    CharacterRID:
+      in: path
+      name: character_rid
+      required: true
+      schema:
+        type: string
+      description: "The id of the character thread you whish to interract with."
+    Message:
+      in: path
+      name: message
+      required: true
+      schema:
+        type: string
+      description: The message you wish to provide to the character
+    Question:
+      in: path
+      name: question
+      required: true
+      schema:
+        type: string
+      description: The question you wish to ask the user
+  schemas:
+    LoggedInPropertyFalse:
+      type: boolean
+      example: false
+      description: Indicates if the user is logged in.
+    LoggedInPropertyTrue:
+      type: boolean
+      example: true
+      description: Indicates if the user is logged in.
+    EmptyResp:
+      type: string
+      example: ''
+      description: This section will contain any data the user would have queried using an endpoint.$
+    SuccessResp:
+      type: string
+      example: "success"
+      description: The success response for the programs that would only analyse returned strings instead of statuses.
+    InvalidMessageResp:
+      type: string
+      example: Invalid message
+      description: The success response for the programs that would only analyse returned strings instead of statuses.
+    InvalidMessage:
+      type: string
+      example: "The provided message {message} for the character {character_name} is incorrect."
+      description: |
+        Dynamic message that includes the `message`, `character_name` parameter values.
+    CharacterRID:
+      type: string
+      example: "{character_name}{id}"
+      description: |
+        This is an identifier to allow you to interract with the character you just started. This is a character runtime id or (crid).
+    About:
+      type: object
+      properties:
+        server_response:
+          $ref: '#/components/schemas/AboutServer'
+        character:
+          $ref: '#/components/schemas/AboutCharacter'
+
+    AboutServer:
+      type: object
+      properties:
+        author:
+          $ref: '#/components/schemas/AboutServerAuthors'
+        version:
+          $ref: '#/components/schemas/AboutServerVersion'
+        process:
+          $ref: '#/components/schemas/AboutServerProcess'
+        connections:
+          $ref: '#/components/schemas/AboutServerConnections'
+        license:
+          $ref: '#/components/schemas/AboutServerLicense'
+        logs:
+          $ref: '#/components/schemas/AboutServerLogs'
+        status:
+          $ref: '#/components/schemas/AboutServerStatus'
+        running_characters:
+          $ref: '#/components/schemas/AboutServerRunningCharacters'
+        uptime:
+          $ref: '#/components/schemas/AboutServerUptime'
+        started_by:
+          $ref: '#/components/schemas/AboutServerStartedBy'
+        url:
+          $ref: '#/components/schemas/AboutServerUrl'
+    AboutServerAuthors:
+      type: string
+      example: (c) Henry Letellier
+    AboutServerVersion:
+      type: string
+      example: v1.0.0
+    AboutServerProcess:
+      type: string
+      example: process_id
+    AboutServerConnections:
+      type: array
+      items:
+        type: string
+      example:
+      - "connection info 1"
+      - "connection info 2"
+      - "etc"
+    AboutServerLicense:
+      type: string
+      example: "Here would be the content of the license"
+    AboutServerLogs:
+      type: object
+      properties:
+        error:
+          $ref: '#/components/schemas/AboutServerLogsError'
+        access:
+          $ref: '#/components/schemas/AboutServerLogsAccess'
+    AboutServerLogsAccess:
+      type: string
+      example: Some access log
+    AboutServerLogsError:
+      type: string
+      example: Some error log
+    AboutServerStatus:
+      type: string
+      example: "Server health: Sain"
+    AboutServerRunningCharacters:
+      type: array
+      items:
+        type: string
+      example:
+      - "character1"
+      - "character2"
+      - "etc"
+    AboutServerUptime:
+      type: string
+      example: The time since the server was running.
+    AboutServerStartedBy:
+      type: string
+      example: The account that started the server
+    AboutServerUrl:
+      type: object
+      properties:
+        host:
+          $ref: '#/components/schemas/AboutServerUrlHost'
+        port:
+          $ref: '#/components/schemas/AboutServerUrlPort'
+        default:
+          $ref: '#/components/schemas/AboutServerUrlDefault'
+    AboutServerUrlHost:
+      type: string
+      example: 127.0.0.1
+    AboutServerUrlPort:
+      type: string
+      example: 8080
+    AboutServerUrlDefault:
+      type: string
+      example: http://127.0.0.1:8080
+      description: This is the value returned when the sub objects are not called.
+    AboutCharacter:
+      type: array
+      items:
+        type: object
+      example:
+      - Character1:
+          $ref: '#/components/schemas/AboutCharacterInfo'
+      - character2:
+          $ref: '#/components/schemas/AboutCharacterInfo'
+      - etc:
+        type: string
+        example: The rest of the active characters
+
+    AboutCharacterInfo:
+      type: object
+      properties:
+        ip:
+          $ref: '#/components/schemas/AboutCharacterInfoIP'
+        license:
+          $ref: '#/components/schemas/AboutCharacterInfoLicense'
+        age_restricted:
+          $ref: '#/components/schemas/AboutCharacterInfoAgeRestricted'
+        uploader:
+          $ref: '#/components/schemas/AboutCharacterInfoUploader'
+        filename:
+          $ref: '#/components/schemas/AboutCharacterInfoFilename'
+        credits:
+          $ref: '#/components/schemas/AboutCharacterInfoCredits'
+        link:
+          $ref: '#/components/schemas/AboutCharacterInfoLink'
+        id:
+          $ref: '#/components/schemas/AboutCharacterInfoId'
+        uploader_link:
+          $ref: '#/components/schemas/AboutCharacterInfoUploaderLink'
+        started_by:
+          $ref: '#/components/schemas/AboutCharacterInfoStartedBy'
+        bio:
+          $ref: '#/components/schemas/AboutCharacterInfoBio'
+        profile:
+          $ref: '#/components/schemas/AboutCharacterInfoProfile'
+        uid:
+          $ref: '#/components/schemas/AboutCharacterInfoUID'
+        tags:
+          $ref: '#/components/schemas/AboutCharacterInfoTags'
+        voice:
+          $ref: '#/components/schemas/AboutCharacterInfoVoice'
+
+    AboutCharacterInfoIP:
+      type: string
+      example: '{company_ip}'
+      description: Dynamic message that includes the `company_ip` parameter value.
+
+    AboutCharacterInfoLicense:
+      type: string
+      example: '{character_license}'
+      description: |
+        Dynamic message that includes the `character_license` parameter value.
+
+    AboutCharacterInfoAgeRestricted:
+      type: boolean
+      example: false
+      description: |
+        Dynamic message that depends on the credits of the character.
+
+    AboutCharacterInfoUploader:
+      type: string
+      example: '{uploader_tag}:{uploader_link}'
+      description: |
+        Dynamic message that includes the `uploader_tag`, `uploader_link` parameter values.
+
+    AboutCharacterInfoFilename:
+      type: string
+      example: '{the_name_of_the_file_used_for_generating_the_character}'
+      description: |
+        Dynamic message that includes the `the_name_of_the_file_used_for_the_generation_of_the_character` parameter value.
+
+    AboutCharacterInfoCredits:
+      type: string
+      example: '{credits_of_the_character_file}'
+      description: |
+        Dynamic message that includes the `credits_of_the_character_file` parameter value.
+
+    AboutCharacterInfoLink:
+      type: string
+      example: '{link_of_the_character_file}'
+      description: |
+        Dynamic message that includes the `link_of_the_character_file` parameter value.
+
+    AboutCharacterInfoId:
+      type: integer
+      example: 1
+
+    AboutCharacterInfoUploaderLink:
+      type: string
+      example: 'https://some_social_media_site/some_user_handle'
+
+    AboutCharacterInfoStartedBy:
+      type: string
+      example: 'Character {character_name} has been started by {user_account}'
+      description: |
+        Dynamic message that includes the `character_name`, `user_account` parameter values.
+
+    AboutCharacterInfoBio:
+      type: object
+      properties:
+        user_firstname:
+          type: string
+          example: John
+        user_lastname:
+          type: string
+          example: Doe
+        user_nickname:
+          type: string
+          example: Joe
+        biography_field:
+          type: string
+          example: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed euismod, libero eu
+        author:
+          type: string
+          example: JustACompany
+        link:
+          type: string
+          example: https://google.com
+        display_link:
+          type: string
+          example: "John doe - Background story"
+
+    AboutCharacterInfoProfile:
+      type: string
+      example: https://example.com/profile
+
+    AboutCharacterInfoUID:
+      type: string
+      example: '{uid}'
+      description: |
+        Dynamic message that includes the `uid` parameter value.
+
+    AboutCharacterInfoTags:
+      type: array
+      items:
+        type: string
+      example:
+      - tag1
+      - tag2
+      - etc
+
+    AboutCharacterInfoVoice:
+      type: array
+      items:
+        type: string
+      example:
+      - 'en'
+      - 'fr'
+      - 'etc'
+
+    AboutCharacterInfoVoiceCurrent:
+      type: string
+      example: 'en'
+  responses:
+    # 401
+    NotLoggedIn:
+      description: Message sent when the user is not logged into any account but is trying to run a command that requires the user to be logged in
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              title:
+                type: string
+                example: "{Endpoint name}"
+                description: |
+                  This component represents the name of the endpoint that was called.
+              msg:
+                type: string
+                example: You need to be logged in to be able to run this endpoint
+              err:
+                type: string
+                example: User not logged in
+              logged_in:
+                $ref: '#/components/schemas/LoggedInPropertyFalse'
+
+    LoginFailed:
+      description: The message displayed when the user failed to log in
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              title:
+                type: string
+                example: Login
+              msg:
+                type: string
+                example: Login failed, invalid credentials or username.
+              err:
+                type: string
+                example: "Invalid credentials or username."
+              logged_in:
+                $ref: '#/components/schemas/LoggedInPropertyFalse'
+    # 403
+    InsuffisantRights:
+      description: Message sent when the user does not have enough permissions to execute this endpoint
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              title:
+                type: string
+                example: "{Endpoint name}"
+                description: |
+                  This component represents the name of the endpoint that was called.
+              msg:
+                type: string
+                example: "You do not have enough permissions to execute this endpoint."
+              err:
+                type: string
+                example: "Insufficient rights for given account."
+              logged_in:
+                $ref: '#/components/schemas/LoggedInPropertyTrue'
+
+    CharacterNotRunning:
+      description: Message sent when the character is not running
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              title:
+                type: string
+                example: "{Endpoint name}"
+                description: |
+                  This component represents the name of the endpoint that was called.
+              msg:
+                type: string
+                example: "The character runtime id you provided is not running."
+              err:
+                type: string
+                example: "Character not running."
+              logged_in:
+                $ref: '#/components/schemas/LoggedInPropertyTrue'
+
+    # 404
+    CharacterNotFound:
+      description: Message sent when the character runtime id is not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              title:
+                type: string
+                example: "{Endpoint name}"
+                description: |
+                  This component represents the name of the endpoint that was called.
+              msg:
+                type: string
+                example: "The character id {character_rid} is not running."
+                description: |
+                  Dynamic message that includes the `character_rid` parameter value.
+              err:
+                type: string
+                example: Runtime id not present.
+              logged_in:
+                $ref: '#/components/schemas/LoggedInPropertyTrue'
+
+    AnimationNotFound:
+      description: Message sent when the animation is not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              title:
+                type: string
+                example: "{Endpoint name}"
+                description: |
+                  This component represents the name of the endpoint that was called.
+              msg:
+                type: string
+                example: "The animation {animation_name} does not exist for {character_name}."
+                description: |
+                  Dynamic message that includes the `animation_name`,`character_name` parameter values.
+              err:
+                type: string
+                example: Animation is not present.
+              logged_in:
+                $ref: '#/components/schemas/LoggedInPropertyTrue'
+
+    NotAsked:
+      description: Message sent when the question was not asked by the character
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              title:
+                type: string
+                example: "{Endpoint name}"
+                description: |
+                  This component represents the name of the endpoint that was called.
+              msg:
+                type: string
+                example: "The question provided is has not been asked by this character {character_name}"
+                description: |
+                  Dynamic message that includes the `character_name` parameter values.
+              err:
+                type: string
+                example: "Not asked"
+              logged_in:
+                $ref: '#/components/schemas/LoggedInPropertyTrue'
+
+    # 406
+    NotAnswered:
+      description: The answer has not been provided for the current question
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              title:
+                type: string
+                example: "{Endpoint name}"
+                description: |
+                  This component represents the name of the endpoint that was called.
+              msg:
+                type: string
+                example: "The response for the question '{question}' has not yet been provided for character '{character_name}'"
+                description: |
+                  Dynamic message that includes the `question`, `character_name` parameter values.
+              err:
+                type: object
+                example: Null
+              logged_in:
+                $ref: '#/components/schemas/LoggedInPropertyTrue'
+
+
+    # 498
+    InvalidToken:
+      description: Invalid token
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              title:
+                type: string
+                example: "{Endpoint name}"
+                description: |
+                  This component represents the name of the endpoint that was called.
+              msg:
+                type: string
+                example: The token you entered is invalid.
+              err:
+                type: string
+                example: Invalid token
+              logged_in:
+                $ref: '#/components/schemas/LoggedInPropertyFalse'
+
+    # 200
+    StartCharacter:
+      description: Start a character that will be managed by the server and it's endpoints
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              title:
+                type: string
+                example: "{Endpoint name}"
+                description: |
+                  This component represents the name of the endpoint that was called.
+              msg:
+                type: string
+                example: "The character {character_name} has started successfully."
+                description: |
+                  Dynamic message that includes the `character_name` parameter value.
+              resp:
+                $ref: '#/components/schemas/SuccessResp'
+              logged_in:
+                $ref: '#/components/schemas/LoggedInPropertyTrue'
+
+    CharacterLoaded:
+      description: The character is loaded
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              title:
+                type: string
+                example: Load
+              msg:
+                type: string
+                example: "The character {character_name} is loaded into the control server."
+                description: |
+                  Dynamic message that includes the `character_name` parameter value.
+              resp:
+                $ref: '#/components/schemas/SuccessResp'
+              logged_in:
+                $ref: '#/components/schemas/LoggedInPropertyTrue'
+
+    # 204
+    AnimationIsNotComplex:
+      description: Message sent when an animation is not of type complex
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              title:
+                type: string
+                example: "{Endpoint name}"
+                description: |
+                  This component represents the name of the endpoint that was called.
+              msg:
+                type: string
+                example: "The animation {animation_name} you tried to play is not of type complex for character {character_name}."
+                description: |
+                  Dynamic message that includes the `animation_name`, `character_name` parameter values.
+              err:
+                type: string
+                example: Animation is not complex.
+              logged_in:
+                $ref: '#/components/schemas/LoggedInPropertyTrue'
