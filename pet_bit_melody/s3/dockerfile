@@ -1,0 +1,7 @@
+FROM minio/minio:latest
+
+ENV LOCATION=docker-s3
+
+EXPOSE 9000
+EXPOSE 9001
+CMD ["server /data --console-address ':9001'"]
