@@ -1,0 +1,29 @@
+@startuml melody protocol
+
+namespace server {
+  class Instrument {
+    +String name : the name of the instrument
+    +List<Inote> inotes : list of inote structures
+  }
+
+  class Inote {
+    +String note : the name of the note
+    +Float frequency : the frequency to reproduce the note
+  }
+  Instrument "1" --> "*" Inote : has a list of inotes
+}
+
+namespace http_request {
+  class Note {
+    +String type  : the name of the note (e.g., F3)
+    +Float length : the duration for which the note is played
+    +String instrument : the name of the instrument
+    +Float tn : the time (in seconds) when the note starts playing
+  }
+  class Music {
+    +List<Note> notes : the notes to play
+  }
+  Music "1" --> "*" Note : contains
+}
+
+@enduml
