@@ -1,0 +1,3 @@
+# Ignore the database cache
+cache/**
+!cache/.gitkeep
