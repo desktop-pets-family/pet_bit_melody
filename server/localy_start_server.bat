@@ -1,4 +1,4 @@
-@REM echo off
+echo off
 echo Creating python environment
 py -m venv wenv
 echo Activating python environment
