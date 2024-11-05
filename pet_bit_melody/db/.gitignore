@@ -1,0 +1,9 @@
+# Ignore the database cache
+cache/**
+!cache/.gitkeep
+# Ignore dbeaver cache
+**/.dbeaver/**
+.project
+
+# No obese sql files
+full_fledged_database_12_9_2024_3_51.sql

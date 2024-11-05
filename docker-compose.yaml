@@ -1,7 +1,7 @@
 services:
   minio:
     build:
-      context: ./app/back/s3
+      context: ./pet_bit_melody/s3
       dockerfile: Dockerfile
     tty: true
     image: pet-bit-melody-minio
