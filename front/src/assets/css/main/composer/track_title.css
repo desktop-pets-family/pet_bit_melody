@@ -1,0 +1,54 @@
+:root {
+  --cell-title-width: 66px;
+  --cell-title-heigth: 30px;
+  --cell-icon-font-size: 17px;
+  --cell-button-width: 32px;
+  --cell-button-height: auto;
+}
+
+.cell_title_container {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  width: var(--cell-title-width);
+  height: var(--cell-title-heigth);
+}
+
+.cell_title_instrument_option {
+  width: 132px;
+  height: var(--cell-title-heigth);
+}
+
+.cell_title_sound_option {
+  width: var(--cell-button-width);
+  height: var(--cell-button-height);
+}
+
+.cell_title_sound_option_icon {
+  font-size: var(--cell-icon-font-size);
+}
+
+.cell_title_sound_visualiser {
+  width: 4px;
+  background-color: forestgreen;
+  height: var(--cell-title-heigth);
+}
+
+.cell_title_track_delete {
+  width: var(--cell-button-width);
+  height: var(--cell-button-height);
+}
+
+.cell_title_track_delete_icon {
+  font-size: var(--cell-icon-font-size);
+}
+
+.cell_sound_visualiser {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-content: space-between;
+  width: var(--cell-title-width);
+  height: var(--cell-title-heigth);
+}
+

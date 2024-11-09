@@ -9,6 +9,10 @@
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
     <link rel="stylesheet" href="assets/css/header.css">
     <link rel="stylesheet" href="assets/css/main/access_point_url.css">
+    <link rel="stylesheet" href="assets/css/main/composer/track_content.css">
+    <link rel="stylesheet" href="assets/css/main/composer/track_title.css">
+    <link rel="stylesheet" href="assets/css/main/control_panel.css">
+    <link rel="stylesheet" href="assets/css/select.css">
 </head>
 
 <body>
@@ -18,28 +22,30 @@
         <div class="header_right header_node_design"></div>
     </header>
     <main class="page_body">
-        <div>
+        <section alias="The controls for the page">
             <div>
                 <ul class="nav nav-tabs" role="tablist">
                     <li class="nav-item" role="presentation"><a class="nav-link" role="tab" data-bs-toggle="tab" href="#tab-1">Controls</a></li>
-                    <li class="nav-item" role="presentation"><a class="nav-link active" role="tab" data-bs-toggle="tab" href="#tab-4">Account</a></li>
-                    <li class="nav-item" role="presentation"><a class="nav-link" role="tab" data-bs-toggle="tab" href="#tab-2">Output</a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link" role="tab" data-bs-toggle="tab" href="#tab-4">Account</a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link active" role="tab" data-bs-toggle="tab" href="#tab-2">Output</a></li>
                     <li class="nav-item" role="presentation"><a class="nav-link" role="tab" data-bs-toggle="tab" href="#tab-3">Server connection</a></li>
                 </ul>
                 <div class="tab-content">
                     <div class="tab-pane" role="tabpanel" id="tab-1">
-                        <p>Content for tab 1.</p>
-                        <div><button class="player_button" type="button"><i class="fas fa-step-backward" style="font-size: 17px;"></i></button><button class="player_button" type="button"><i class="fas fa-fast-backward" style="font-size: 17px;"></i></button><button class="player_button" type="button"><i class="fas fa-backward" style="font-size: 17px;"></i></button><button class="player_button" type="button"><i class="fas fa-play" style="font-size: 17px;"></i><i class="fas fa-pause visually-hidden" style="font-size: 17px;"></i></button><button class="player_button" type="button"><i class="fas fa-forward"></i></button><button class="player_button" type="button"><i class="fas fa-fast-forward"></i></button><button class="player_button" type="button"><i class="fas fa-step-forward"></i></button><button class="player_button" type="button"><i class="fas fa-stop"></i></button><button class="player_button" type="button"><i class="fas fa-sync"></i></button></div>
-                        <div><button class="player_button" type="button"><i class="fas fa-plus-circle" style="font-size: 17px;"></i></button><button class="player_button" type="button"><i class="fas fa-minus-circle" style="font-size: 17px;"></i></button></div>
-                        <div><button class="player_button" type="button"><i class="fas fa-undo-alt" style="font-size: 17px;"></i></button><button class="player_button" type="button"><i class="fas fa-save" style="font-size: 17px;"></i></button><button class="player_button" type="button"><i class="fas fa-redo-alt" style="font-size: 17px;"></i></button></div>
-                        <div><button class="player_button" type="button"><i class="fas fa-file-export" style="font-size: 17px;"></i></button><button class="player_button" type="button"><i class="fas fa-file" style="font-size: 17px;"></i></button><button class="player_button" type="button"><i class="fas fa-file-import" style="font-size: 17px;"></i></button></div>
+                        <div class="button_menu_container"><button class="button_menu" type="button" alias="to start" title="to start"><i class="fas fa-step-backward button_menu_icon"></i></button><button class="button_menu" type="button" alias="rewind" title="rewind"><i class="fas fa-backward button_menu_icon"></i></button><button class="button_menu" type="button" alias="play" title="play"><i class="fas fa-play button_menu_container"></i><i class="fas fa-pause visually-hidden button_menu_icon"></i></button><button class="button_menu" type="button" alias="fast forward" title="fast forward"><i class="fas fa-forward button_menu_icon"></i></button><button class="button_menu" type="button" alias="to end" title="to end"><i class="fas fa-step-forward button_menu_icon"></i></button><button class="button_menu" type="button" alias="stop" title="stop"><i class="fas fa-stop button_menu_icon"></i></button><button class="button_menu" type="button" alias="repeat" title="repeat"><i class="fas fa-sync button_menu_icon"></i></button></div>
+                        <div class="button_menu_container"><button class="button_menu" type="button" alias="zoom in" title="zoom in"><i class="fas fa-plus-circle button_menu_icon"></i></button><button class="button_menu" type="button" alias="zoom out" title="zoom out"><i class="fas fa-minus-circle button_menu_icon"></i></button></div>
+                        <div class="button_menu_container"><button class="button_menu" type="button" alias="undo" title="undo"><i class="fas fa-undo-alt button_menu_icon"></i></button><button class="button_menu" type="button" alias="save" title="save"><i class="fas fa-save button_menu_icon"></i></button><button class="button_menu" type="button" alias="auto-save" title="auto-save"><i class="fas fa-save button_menu_icon"></i><i class="fas fa-sync button_menu_icon"></i></button><button class="button_menu" type="button" alias="redo/repeat" title="redo/repeat"><i class="fas fa-redo-alt button_menu_icon"></i></button></div>
+                        <div class="button_menu_container"><button class="button_menu" type="button" alias="import project" title="import project"><i class="fas fa-file-export button_menu_icon"></i></button><button class="button_menu" type="button" alias="new project" title="new project"><i class="fas fa-file button_menu_icon"></i></button><button class="button_menu" type="button" alias="export project" title="export project"><i class="fas fa-file-import button_menu_icon"></i></button></div>
                     </div>
-                    <div class="tab-pane active" role="tabpanel" id="tab-4">
-                        <p>Tab content.</p>
-                        <div><button class="player_button" type="button"><i class="fas fa-user" style="font-size: 17px;"></i></button><button class="player_button" type="button"><i class="fas fa-user-plus" style="font-size: 17px;"></i></button><button class="player_button" type="button"><i class="fas fa-backward" style="font-size: 17px;"></i></button><button class="player_button" type="button"><i class="fas fa-play" style="font-size: 17px;"></i><i class="fas fa-pause visually-hidden" style="font-size: 17px;"></i></button><button class="player_button" type="button"><i class="fas fa-forward"></i></button><button class="player_button" type="button"><i class="fas fa-fast-forward"></i></button><button class="player_button" type="button"><i class="fas fa-step-forward"></i></button><button class="player_button" type="button"><i class="fas fa-stop"></i></button><button class="player_button" type="button"><i class="fas fa-sync"></i></button></div>
+                    <div class="tab-pane" role="tabpanel" id="tab-4">
+                        <div class="button_menu_container"><button class="button_menu" type="button" alias="sign in" title="sign in"><i class="fas fa-sign-in-alt button_menu_icon"></i></button><button class="button_menu" type="button" alias="sign out" title="sign out"><i class="fas fa-sign-out-alt button_menu_icon"></i></button><button class="button_menu" type="button" alias="settings" title="settings"><i class="fas fa-cogs button_menu_icon"></i></button><button class="button_menu" type="button" alias="register" title="register"><i class="fas fa-user-plus button_menu_icon"></i></button></div>
                     </div>
-                    <div class="tab-pane" role="tabpanel" id="tab-2">
-                        <p>Content for tab 2.</p>
+                    <div class="tab-pane active" role="tabpanel" id="tab-2">
+                        <div class="button_menu_container">
+                            <div class="dropdown" alias="export format" title="export format"><button class="dropdown-toggle button_menu_dropdown" aria-expanded="false" data-bs-toggle="dropdown" type="button" alias="export format" title="export format"><i class="fas fa-arrow-circle-down button_menu_icon"></i></button>
+                                <div class="dropdown-menu"><a class="dropdown-item" href="#">First Item</a><a class="dropdown-item" href="#">Second Item</a><a class="dropdown-item" href="#">Third Item</a><span class="dropdown-item-text">Text Item</span></div>
+                            </div><button class="button_menu" type="button" alias="share" title="share"><i class="fas fa-share-alt button_menu_icon"></i></button>
+                        </div>
                     </div>
                     <div class="tab-pane" role="tabpanel" id="tab-3">
                         <p>Change the link that will be used to communicate with the server.</p>
@@ -49,9 +55,48 @@
                     </div>
                 </div>
             </div>
-        </div>
-        <div></div>
-        <div></div>
+        </section>
+        <section alias="The section for composing the music">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Intrument</th>
+                            <th>music path</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <section class="cell_sound_visualiser"><div class="cell_title_instrument_option">
+<input list="fruits" id="myInput" placeholder="Type to search..." alias="Instrument of choice" title="Instrument of choice" class="cell_title_instrument_option">
+    <datalist id="fruits">
+        <option value="Apple">
+        <option value="Banana">
+        <option value="Orange">
+        <option value="Grapes">
+        <option value="Pineapple">
+        <option value="Mango">
+        <option value="Strawberry">
+        <option value="Blueberry">
+    </datalist>
+</div><button class="cell_title_sound_option" type="button" alias="mute/unmute" title="mute/unmute"><i class="fas fa-volume-up cell_title_sound_option_icon"></i><i class="fas fa-volume-mute cell_title_sound_option_icon visually-hidden"></i></button><button class="cell_title_track_delete" type="button" alias="delete track" title="delete track"><i class="fas fa-trash-alt cell_title_track_delete_icon"></i></button></section>
+                            </td>
+                            <td>Cell 2</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div><button type="button">Add track</button>
+        </section>
+        <aside alias="login/register">
+            <form></form>
+        </aside>
+        <aside alias="reset_password">
+            <form></form>
+        </aside>
+        <aside alias="settings">
+            <form></form>
+        </aside>
     </main>
     <footer class="footer_design"></footer>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
