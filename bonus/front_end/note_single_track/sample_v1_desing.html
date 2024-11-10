@@ -1,0 +1,507 @@
+<!-- This is a sample design for a single track -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Font Awesome for Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <!-- Other head content -->
+    <title>MIDI Track Editor</title>
+</head>
+
+<body>
+    <style>
+        :root {
+            --sound-editor-width: 100%;
+            --sound-editor-height: 50%;
+            /* The cell containing the name of the instrument being used */
+            --cell-title-width: 200px;
+            --cell-title-height: 30px;
+            --cell-icon-font-size: 17px;
+            --cell-button-width: 32px;
+            --cell-button-height: 30px;
+            /* The cell title values concerning padding for the side */
+            --cell-title-padding-vertical: 0px;
+            --cell-title-padding-horizontal: 5px;
+            /* The variables controling the padding of the notes */
+            --cell-note-name-padding-horizontal: 5px;
+            --cell-note-name-padding-vertical: 0px;
+            /* The variables controling the note toggles */
+            --note-toggle-height: 100%;
+            --note-toggle-width: 40px;
+            /* line padding */
+            --line-vertical-gap-between-notes: 2px;
+            --line-horizontal-gap-between-notes: 1px;
+            /* The status colours for the notes */
+            --note-colour-status-idle: grey;
+            --note-colour-status-active: green;
+            --note-colour-status-mute: pink;
+        }
+
+        /* Default bootstrap functions that are used in this desing */
+
+        .visually-hidden {
+            display: none;
+        }
+
+        /* Begin the styling functions for the page */
+
+        .sound_editor {
+            background-color: black;
+            color: white;
+            width: var(--sound-editor-width);
+            height: var(--sound-editor-height);
+        }
+
+        .sound_toolbar {
+            background-color: grey;
+            color: white;
+        }
+
+        /* The section for the toolbar design */
+        .track_toolbar {
+            display: flex;
+            gap: 10px;
+            padding: 10px;
+            background-color: #444;
+            color: white;
+        }
+
+        /* The section for the toolbar button */
+        .track_toolbar_button {
+            padding: 8px 12px;
+            border: none;
+            background-color: #666;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .track_toolbar_button.active {
+            background-color: #00cc88;
+        }
+
+        .track_toolbar_button:hover {
+            /*background-color: #888;*/
+            color: black;
+        }
+
+        /* The desing for the edit line */
+        .track_line {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            height: 200px;
+        }
+
+        /* The desing for the instrument title section */
+
+        .track_line_title {
+            display: flex;
+            flex-direction: row;
+            height: 100%;
+            gap: 10px;
+            /* Add some space between items */
+            width: var(--cell-title-width);
+            justify-content: space-between;
+            /* Ensure the items are spaced out across the width */
+            align-items: center;
+            /* Vertically align items */
+            background-color: slategrey;
+            padding-top: var(--cell-title-padding-vertical);
+            padding-bottom: var(--cell-title-padding-vertical);
+            padding-left: var(--cell-title-padding-horizontal);
+            padding-right: var(--cell-title-padding-horizontal);
+        }
+
+        .cell_title_container {
+            display: flex;
+            flex-direction: column;
+            flex-wrap: nowrap;
+            width: var(--cell-title-width);
+            height: var(--cell-title-height);
+            background-color: aquamarine;
+        }
+
+        .cell_title_instrument_option {
+            width: 100%;
+            height: var(--cell-button-height);
+        }
+
+        /* The css designs for the mute/unmute track button */
+        .cell_title_sound_option {
+            width: var(--cell-button-width);
+            height: var(--cell-button-height);
+        }
+
+        .cell_title_sound_option:hover {
+            background-color: lightblue;
+        }
+
+        .cell_title_sound_option_icon {
+            font-size: var(--cell-icon-font-size);
+        }
+
+        /* currently not supported because of the way the generation works.
+        .cell_title_sound_visualiser {
+            width: 4px;
+            background-color: forestgreen;
+            height: var(--cell-title-height);
+        }*/
+
+        /* The css designs for the delete track button */
+        .cell_title_track_delete {
+            width: var(--cell-button-width);
+            height: var(--cell-button-height);
+        }
+
+        .cell_title_track_delete:hover {
+            background-color: orangered;
+        }
+
+        .cell_title_track_delete_icon {
+            font-size: var(--cell-icon-font-size);
+        }
+
+        /* The body of the line */
+        .track_line_content {
+            display: flex;
+            flex-grow: 1;
+            flex-direction: row;
+            overflow: scroll;
+            width: 100%;
+            height: 100%;
+            background-color: tan;
+        }
+
+        /* The design for a line of notes */
+        .note_line {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            width: 100%;
+            gap: var(--line-vertical-gap-between-notes);
+            padding-top: var(--line-horizontal-gap-between-notes);
+            padding-bottom: var(--line-horizontal-gap-between-notes);
+        }
+
+        .note_line:hover {
+            background-color: lightblue;
+        }
+
+        /* The section concerning the notes of the line */
+        .track_note_names {
+            display: flex;
+            flex-direction: column;
+            /*background-color: dodgerblue;*/
+            padding-top: 2px;
+            padding-bottom: 2px;
+            padding-left: 0px;
+            padding-right: 0px;
+            flex-grow: 1;
+        }
+
+        /* The css class in charge of making the desing more intuitive for the user */
+
+        .note_name {
+            box-sizing: border-box;
+            border-bottom: black 2px groove;
+            width: 100%;
+            text-align: center;
+            padding-left: var(--cell-note-name-padding-horizontal);
+            padding-right: var(--cell-note-name-padding-horizontal);
+            padding-top: var(--cell-note-name-padding-vertical);
+            padding-bottom: var(--cell-note-name-padding-vertical);
+        }
+
+        .note_name:hover {
+            background-color: black;
+            cursor: pointer;
+        }
+
+        /* The class encapsulating the notes */
+        .note_toggles {
+            display: flex;
+            flex-grow: 1;
+            flex-direction: row;
+            gap: var(--line-vertical-gap-between-notes);
+        }
+
+        /* The note toggle node */
+        .note_toggle_node {
+            height: var(--note-toggle-height);
+            width: var(--note-toggle-width);
+            background-color: var(--note-colour-status-idle);
+        }
+
+        .note_toggle_node:hover {
+            background-color: lightblue !important;
+        }
+
+        /* The toggle options */
+        .note_active {
+            background: var(--note-colour-status-active);
+        }
+
+        .note_idle {
+            background: var(--note-colour-status-idle);
+        }
+
+        .note_muted {
+            background: var(--note-colour-status-mute);
+        }
+    </style>
+    <h1>MIDI Track Editor</h1>
+    <datalist id="instruments">
+        <option value="8 bit"></option>
+        <option value="16 bit"></option>
+        <option value="32 bit"></option>
+        <option value="Piano"></option>
+        <option value="Guitar"></option>
+        <option value="Drums"></option>
+        <option value="Cello"></option>
+    </datalist>
+    <section class="sound_editor">
+        <section class="track_toolbar">
+            <button class="track_toolbar_button active" id="addNote" onclick="toggle_menu_button_state('addNote')">Add notes</button>
+            <button class="track_toolbar_button" id="deleteNote" onclick="toggle_menu_button_state('deleteNote')">Delete notes</button>
+            <button class="track_toolbar_button" id="muteNote" onclick="toggle_menu_button_state('muteNote')">Mute notes</button>
+        </section>
+        <section class="track_editor">
+            <section id="track_nb_1" class="track_line">
+                <section class="track_line_title">
+                    <input list="instruments" id="myInput" placeholder="Type to search..." alias="Instrument of choice" title="Instrument of choice" class="cell_title_instrument_option">
+                    <button class="cell_title_sound_option" type="button" id="sound" alias="mute/unmute" title="mute/unmute" data-sound-on="true" onclick="toggle_line_status(this)">
+                        <i class="fas fa-volume-up cell_title_sound_option_icon"></i>
+                        <i class="fas fa-volume-mute cell_title_sound_option_icon visually-hidden"></i>
+                    </button>
+                    <button class="cell_title_track_delete" type="button" alias="delete track" title="delete track" onclick="delete_track('track_nb_1')">
+                        <i class="fas fa-trash-alt cell_title_track_delete_icon"></i>
+                    </button>
+                </section>
+                <section class="track_line_content">
+                    <aside class="user_notes">
+                        <!-- These are sample lines -->
+                        <section class="note_line">
+                            <aside class="note_name">A</aside>
+                            <aside class="note_toggles">
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="A" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="A" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="A" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="A" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="A" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="A" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="A" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="A" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="A" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="A" onclick="toggle_note_status(this)"></span>
+                            </aside>
+                        </section>
+                        <section class="note_line">
+                            <aside class="note_name">B</aside>
+                            <aside class="note_toggles">
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="B" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="B" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="B" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="B" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="B" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="B" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="B" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="B" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="B" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="B" onclick="toggle_note_status(this)"></span>
+                            </aside>
+                        </section>
+                        <section class="note_line">
+                            <aside class="note_name">C</aside>
+                            <aside class="note_toggles">
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="C" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="C" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="C" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="C" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="C" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="C" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="C" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="C" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="C" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="C" onclick="toggle_note_status(this)"></span>
+                            </aside>
+                        </section>
+                        <section class="note_line">
+                            <aside class="note_name">D</aside>
+                            <aside class="note_toggles">
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="D" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="D" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="D" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="D" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="D" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="D" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="D" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="D" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="D" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="D" onclick="toggle_note_status(this)"></span>
+                            </aside>
+                        </section>
+                        <section class="note_line">
+                            <aside class="note_name">E</aside>
+                            <aside class="note_toggles">
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="E" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="E" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="E" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="E" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="E" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="E" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="E" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="E" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="E" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="E" onclick="toggle_note_status(this)"></span>
+                            </aside>
+                        </section>
+                        <section class="note_line">
+                            <aside class="note_name">F</aside>
+                            <aside class="note_toggles">
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="F" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="F" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="F" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="F" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="F" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="F" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="F" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="F" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="F" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="F" onclick="toggle_note_status(this)"></span>
+                            </aside>
+                        </section>
+                    </aside>
+                </section>
+            </section>
+        </section>
+    </section>
+    <script type="text/JavaScript" id="constants">
+        const EDIT_MODE_NODE = "edit_mode";
+        const ADD_NOTE = "addNote",
+            DELETE_NOTE = "deleteNote",
+            MUTE_NOTE = "muteNote";
+        const DATA_TRUE_KEY = "true",
+            DATA_FALSE_KEY = "false";
+        const BUTTON_IDS = [
+                "addNote",
+                "deleteNote",
+                "muteNote"
+            ];
+    </script>
+    <script type="text/JavaScript" id="utility functions">
+        function toggle_menu_button_state(ID) {
+            reset_clicked_buttons()
+            document.getElementById(ID).classList.toggle('active');
+            set_current_mode_to_localstorage(EDIT_MODE_NODE, ID)
+        }
+        function set_current_mode_to_localstorage(node, mode) {
+            localStorage.setItem(node, mode);
+        }
+        function delete_current_node_from_localstorage(node) {
+            localStorage.removeItem(node);
+        }
+        function get_current_mode_from_localstorage_if_present(node) {
+            return localStorage.getItem(node);
+        }
+        function reset_clicked_buttons() {
+            for (var i = 0; i < BUTTON_IDS.length; i++) {
+                document.getElementById(BUTTON_IDS[i]).classList.remove('active');
+            }
+        }
+    </script>
+    <script type="text/JavaScript" id="mute/unmute">
+        const HIDE_CLASS_KEY = "visually-hidden";
+
+        function toggle_line_status(button_node) {
+            const data_sound_node_key = "data-sound-on";
+            const sound_on = button_node.getAttribute(data_sound_node_key) === DATA_TRUE_KEY;
+            const volume_up_icon = button_node.querySelector(".fa-volume-up");
+            const volume_mute_icon = button_node.querySelector(".fa-volume-mute");
+            button_node.setAttribute(data_sound_node_key, !sound_on);
+            volume_up_icon.classList.toggle(HIDE_CLASS_KEY, sound_on);
+            volume_mute_icon.classList.toggle(HIDE_CLASS_KEY, !sound_on);
+        }
+    </script>
+    <script type="text/JavaScript" id="remove track">
+        function delete_track(TRACK_ID) {
+            const track_node = document.getElementById(TRACK_ID);
+            if (track_node === null || track_node === undefined) {
+                console.log("track_node is null or undefined.\nAborting function.");
+                return;
+            }
+            track_node.remove();
+        }
+    </script>
+    <script type="text/JavaScript" id="toggle note">
+        const DATA_NOTE_ACTIVE_KEY = "data-note-active"
+        const DATA_NOTE_MUTED_KEY = "data-note-muted"
+        const DATA_NOTE_NAME_KEY = "data-note-name"
+        const NOTE_TOOL_COLOUR_CORRESPONDANCE = {
+            "addNote": "note_active",
+            "deleteNote": "note_idle",
+            "muteNote": "note_muted"
+        };
+
+        function clear_note_colour(note_node) {
+            note_node.classList.remove(NOTE_TOOL_COLOUR_CORRESPONDANCE[ADD_NOTE]);
+            note_node.classList.remove(NOTE_TOOL_COLOUR_CORRESPONDANCE[MUTE_NOTE]);
+            note_node.classList.remove(NOTE_TOOL_COLOUR_CORRESPONDANCE[DELETE_NOTE]);
+        }
+
+        function toggle_note_status(note_node) {
+            const current_tool = get_current_mode_from_localstorage_if_present(EDIT_MODE_NODE);
+            var note_active = note_node.getAttribute(DATA_NOTE_ACTIVE_KEY) === DATA_TRUE_KEY,
+            note_muted = note_node.getAttribute(DATA_NOTE_MUTED_KEY) === DATA_TRUE_KEY;
+
+            clear_note_colour(note_node);
+            if (current_tool === MUTE_NOTE) {
+                if (note_muted === true) {
+                    note_node.setAttribute(DATA_NOTE_MUTED_KEY, DATA_FALSE_KEY);
+                    if (note_active === true) {
+                        note_node.classList.add(NOTE_TOOL_COLOUR_CORRESPONDANCE[ADD_NOTE]);
+                    } else {
+                        note_node.classList.add(NOTE_TOOL_COLOUR_CORRESPONDANCE[DELETE_NOTE]);
+                    }
+                } else {
+                    note_node.classList.add(NOTE_TOOL_COLOUR_CORRESPONDANCE[MUTE_NOTE]);
+                    note_node.setAttribute(DATA_NOTE_MUTED_KEY, DATA_TRUE_KEY);
+                }
+            } else if (current_tool === ADD_NOTE) {
+                if (note_active === true) {
+                    note_node.classList.add(NOTE_TOOL_COLOUR_CORRESPONDANCE[DELETE_NOTE]);
+                    note_node.setAttribute(DATA_NOTE_MUTED_KEY, DATA_FALSE_KEY);
+                    note_node.setAttribute(DATA_NOTE_ACTIVE_KEY, DATA_FALSE_KEY);
+                } else {
+                    note_node.classList.add(NOTE_TOOL_COLOUR_CORRESPONDANCE[ADD_NOTE]);
+                    note_node.setAttribute(DATA_NOTE_MUTED_KEY, DATA_FALSE_KEY);
+                    note_node.setAttribute(DATA_NOTE_ACTIVE_KEY, DATA_TRUE_KEY);
+                }
+            } else if (current_tool === DELETE_NOTE) {
+                note_node.classList.add(NOTE_TOOL_COLOUR_CORRESPONDANCE[DELETE_NOTE]);
+                note_node.setAttribute(DATA_NOTE_MUTED_KEY, DATA_FALSE_KEY);
+                note_node.setAttribute(DATA_NOTE_ACTIVE_KEY, DATA_FALSE_KEY);
+            }
+        }
+
+    </script>
+    <script type="text/JavaScript" id="warming up">
+        function initialise_menu_editor() {
+            var node = get_current_mode_from_localstorage_if_present(EDIT_MODE_NODE)
+            console.log(`node = ${node}`);
+            if (node === null || node === undefined) {
+                node = "addNote";
+            }
+            toggle_menu_button_state(node);
+        }
+    </script>
+    <script type="text/JavaScript" id="Boot up">
+        initialise_menu_editor()
+    </script>
+</body>
+
+</html>
