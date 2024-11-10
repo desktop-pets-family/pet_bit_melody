@@ -14,6 +14,11 @@
 
 <body>
     <style>
+        * {
+            font-family: Arial, Helvetica, sans-serif;
+            font-weight: 100;
+        }
+
         :root {
             --sound-editor-width: 100%;
             --sound-editor-height: 50%;
@@ -37,8 +42,8 @@
             --line-horizontal-gap-between-notes: 1px;
             /* The status colours for the notes */
             --note-colour-status-idle: grey;
-            --note-colour-status-active: green;
-            --note-colour-status-mute: pink;
+            --note-colour-status-active: rgb(0, 100, 128);
+            --note-colour-status-mute: rgb(169, 9, 84);
         }
 
         /* Default bootstrap functions that are used in this desing */
@@ -74,19 +79,20 @@
         .track_toolbar_button {
             padding: 8px 12px;
             border: none;
-            background-color: #666;
+            background-color: #444;
             color: white;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: color 0.3s;
         }
 
         .track_toolbar_button.active {
-            background-color: #00cc88;
+            text-decoration: underline;
+            /* underline the first few letters (~5mm)*/
+            color: aqua;
         }
 
         .track_toolbar_button:hover {
-            /*background-color: #888;*/
-            color: black;
+            color: aqua;
         }
 
         /* The desing for the edit line */
@@ -128,17 +134,26 @@
 
         .cell_title_instrument_option {
             width: 100%;
-            height: var(--cell-button-height);
+            height: 10%;
+            color: white;
+            background-color: slategrey;
+        }
+
+        .cell_title_instrument_option::placeholder {
+            color: white;
         }
 
         /* The css designs for the mute/unmute track button */
         .cell_title_sound_option {
             width: var(--cell-button-width);
             height: var(--cell-button-height);
+            border-radius: 18px;
+            background-color: transparent;
+            border: none;
         }
 
         .cell_title_sound_option:hover {
-            background-color: lightblue;
+            background-color: aqua;
         }
 
         .cell_title_sound_option_icon {
@@ -156,6 +171,9 @@
         .cell_title_track_delete {
             width: var(--cell-button-width);
             height: var(--cell-button-height);
+            border-radius: 18px;
+            background-color: transparent;
+            border: none;
         }
 
         .cell_title_track_delete:hover {
@@ -174,7 +192,7 @@
             overflow: scroll;
             width: 100%;
             height: 100%;
-            background-color: tan;
+            background-color: azure;
         }
 
         /* The design for a line of notes */
@@ -210,6 +228,7 @@
             box-sizing: border-box;
             border-bottom: black 2px groove;
             width: 100%;
+            color: black;
             text-align: center;
             padding-left: var(--cell-note-name-padding-horizontal);
             padding-right: var(--cell-note-name-padding-horizontal);
@@ -218,7 +237,6 @@
         }
 
         .note_name:hover {
-            background-color: black;
             cursor: pointer;
         }
 
@@ -228,6 +246,7 @@
             flex-grow: 1;
             flex-direction: row;
             gap: var(--line-vertical-gap-between-notes);
+            overflow-x: auto;
         }
 
         /* The note toggle node */
@@ -273,7 +292,7 @@
         <section class="track_editor">
             <section id="track_nb_1" class="track_line">
                 <section class="track_line_title">
-                    <input list="instruments" id="myInput" placeholder="Type to search..." alias="Instrument of choice" title="Instrument of choice" class="cell_title_instrument_option">
+                    <input list="instruments" id="myInput" placeholder="Instrument" alias="Instrument of choice" title="Instrument of choice" class="cell_title_instrument_option">
                     <button class="cell_title_sound_option" type="button" id="sound" alias="mute/unmute" title="mute/unmute" data-sound-on="true" onclick="toggle_line_status(this)">
                         <i class="fas fa-volume-up cell_title_sound_option_icon"></i>
                         <i class="fas fa-volume-mute cell_title_sound_option_icon visually-hidden"></i>
@@ -362,6 +381,66 @@
                         </section>
                         <section class="note_line">
                             <aside class="note_name">F</aside>
+                            <aside class="note_toggles">
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="F" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="F" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="F" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="F" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="F" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="F" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="F" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="F" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="F" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="F" onclick="toggle_note_status(this)"></span>
+                            </aside>
+                        </section>
+                        <section class="note_line">
+                            <aside class="note_name">G</aside>
+                            <aside class="note_toggles">
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="F" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="F" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="F" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="F" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="F" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="F" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="F" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="F" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="F" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="F" onclick="toggle_note_status(this)"></span>
+                            </aside>
+                        </section>
+                        <section class="note_line">
+                            <aside class="note_name">H</aside>
+                            <aside class="note_toggles">
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="F" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="F" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="F" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="F" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="F" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="F" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="F" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="F" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="F" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="F" onclick="toggle_note_status(this)"></span>
+                            </aside>
+                        </section>
+                        <section class="note_line">
+                            <aside class="note_name">I</aside>
+                            <aside class="note_toggles">
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="F" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="F" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="F" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="F" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="F" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="F" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="F" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="F" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="F" onclick="toggle_note_status(this)"></span>
+                                <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="F" onclick="toggle_note_status(this)"></span>
+                            </aside>
+                        </section>
+                        <section class="note_line">
+                            <aside class="note_name">J</aside>
                             <aside class="note_toggles">
                                 <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="F" onclick="toggle_note_status(this)"></span>
                                 <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="F" onclick="toggle_note_status(this)"></span>
