@@ -1,0 +1,558 @@
+<!-- This is a sample design for a single track -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Font Awesome for Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <!-- Other head content -->
+    <title>MIDI Track Editor</title>
+</head>
+
+<body>
+    <style>
+        * {
+            font-family: Arial, Helvetica, sans-serif;
+            font-weight: 100;
+        }
+
+        :root {
+            --sound-editor-width: 100%;
+            --sound-editor-height: 50%;
+            /* The cell containing the name of the instrument being used */
+            --cell-title-width: 200px;
+            --cell-title-height: 30px;
+            --cell-icon-font-size: 17px;
+            --cell-button-width: 32px;
+            --cell-button-height: 30px;
+            /* The cell title values concerning padding for the side */
+            --cell-title-padding-vertical: 0px;
+            --cell-title-padding-horizontal: 5px;
+            /* The variables controling the padding of the notes */
+            --cell-note-name-padding-horizontal: 5px;
+            --cell-note-name-padding-vertical: 0px;
+            /* The variables controling the note toggles */
+            --note-toggle-height: 100%;
+            --note-toggle-width: 40px;
+            /* line padding */
+            --line-vertical-gap-between-notes: 2px;
+            --line-horizontal-gap-between-notes: 1px;
+            /* The status colours for the notes */
+            --note-colour-status-idle: grey;
+            --note-colour-status-active: rgb(0, 100, 128);
+            --note-colour-status-mute: rgb(169, 9, 84);
+        }
+
+        /* Default bootstrap functions that are used in this desing */
+
+        .visually-hidden {
+            display: none;
+        }
+
+        /* Begin the styling functions for the page */
+
+        .sound_editor {
+            background-color: black;
+            color: white;
+            width: var(--sound-editor-width);
+            height: var(--sound-editor-height);
+        }
+
+        .sound_toolbar {
+            background-color: grey;
+            color: white;
+        }
+
+        /* The section for the toolbar design */
+        .track_toolbar {
+            display: flex;
+            gap: 10px;
+            padding: 10px;
+            background-color: #444;
+            color: white;
+        }
+
+        /* The section for the toolbar button */
+        .track_toolbar_button {
+            padding: 8px 12px;
+            border: none;
+            background-color: #444;
+            color: white;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .track_toolbar_button.active {
+            position: relative;
+            color: aqua;
+        }
+
+        .track_toolbar_button.active::after {
+            content: "";
+            position: absolute;
+            left: 10px;
+            bottom: 2px;
+            width: 5mm;
+            height: 4px;
+            background-color: aqua;
+        }
+
+        .track_toolbar_button:hover {
+            color: aqua;
+        }
+
+        /* The desing for the edit line */
+        .track_line {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            height: 200px;
+        }
+
+        /* The desing for the instrument title section */
+
+        .track_line_title {
+            display: flex;
+            flex-direction: row;
+            height: 100%;
+            gap: 10px;
+            /* Add some space between items */
+            width: var(--cell-title-width);
+            justify-content: space-between;
+            /* Ensure the items are spaced out across the width */
+            align-items: center;
+            /* Vertically align items */
+            background-color: slategrey;
+            padding-top: var(--cell-title-padding-vertical);
+            padding-bottom: var(--cell-title-padding-vertical);
+            padding-left: var(--cell-title-padding-horizontal);
+            padding-right: var(--cell-title-padding-horizontal);
+        }
+
+        .cell_title_container {
+            display: flex;
+            flex-direction: column;
+            flex-wrap: nowrap;
+            width: var(--cell-title-width);
+            height: var(--cell-title-height);
+            background-color: aquamarine;
+        }
+
+        .cell_title_instrument_option {
+            width: 100%;
+            height: 10%;
+            color: white;
+            background-color: slategrey;
+        }
+
+        .cell_title_instrument_option::placeholder {
+            color: white;
+        }
+
+        /* The css designs for the mute/unmute track button */
+        .cell_title_sound_option {
+            width: var(--cell-button-width);
+            height: var(--cell-button-height);
+            border-radius: 18px;
+            background-color: transparent;
+            border: none;
+        }
+
+        .cell_title_sound_option:hover {
+            background-color: aqua;
+        }
+
+        .cell_title_sound_option_icon {
+            font-size: var(--cell-icon-font-size);
+        }
+
+        /* currently not supported because of the way the generation works.
+        .cell_title_sound_visualiser {
+            width: 4px;
+            background-color: forestgreen;
+            height: var(--cell-title-height);
+        }*/
+
+        /* The css designs for the delete track button */
+        .cell_title_track_delete {
+            width: var(--cell-button-width);
+            height: var(--cell-button-height);
+            border-radius: 18px;
+            background-color: transparent;
+            border: none;
+        }
+
+        .cell_title_track_delete:hover {
+            background-color: orangered;
+        }
+
+        .cell_title_track_delete_icon {
+            font-size: var(--cell-icon-font-size);
+        }
+
+        /* The body of the line */
+        .track_line_content {
+            display: flex;
+            /*flex-grow: 1;*/
+            flex-direction: row;
+            overflow: scroll;
+            width: 100%;
+            height: 100%;
+            background-color: azure;
+        }
+
+        /* The field in which the user notes are present */
+        .user_notes {
+            width: 100%;
+        }
+
+        /* The design for a line of notes */
+        .note_line {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            width: 100%;
+            gap: var(--line-vertical-gap-between-notes);
+            padding-top: var(--line-horizontal-gap-between-notes);
+            padding-bottom: var(--line-horizontal-gap-between-notes);
+        }
+
+        .note_line:hover {
+            background-color: lightblue;
+        }
+
+        /* The section concerning the notes of the line */
+        .track_note_names {
+            display: flex;
+            flex-direction: column;
+            padding-top: 2px;
+            padding-bottom: 2px;
+            padding-left: 0px;
+            padding-right: 0px;
+            /*flex-grow: 1;*/
+        }
+
+        /* The css class in charge of making the desing more intuitive for the user */
+
+        .note_name {
+            display: inline-block;
+            width: auto;
+            box-sizing: border-box;
+            border-bottom: black 2px groove;
+            max-width: 100%;
+            white-space: nowrap;
+            text-align: center;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            color: black;
+            padding-left: var(--cell-note-name-padding-horizontal);
+            padding-right: var(--cell-note-name-padding-horizontal);
+            padding-top: var(--cell-note-name-padding-vertical);
+            padding-bottom: var(--cell-note-name-padding-vertical);
+        }
+
+        .note_name:hover {
+            cursor: pointer;
+        }
+
+        /* The class encapsulating the notes */
+        .note_toggles {
+            display: flex;
+            /*flex-grow: 1;*/
+            flex-direction: row;
+            gap: var(--line-vertical-gap-between-notes);
+            overflow-x: auto;
+        }
+
+        /* The note toggle node */
+        .note_toggle_node {
+            height: var(--note-toggle-height);
+            width: var(--note-toggle-width);
+            background-color: var(--note-colour-status-idle);
+        }
+
+        .note_toggle_node:hover {
+            background-color: lightblue !important;
+        }
+
+        /* The toggle options */
+        .note_active {
+            background: var(--note-colour-status-active);
+        }
+
+        .note_idle {
+            background: var(--note-colour-status-idle);
+        }
+
+        .note_muted {
+            background: var(--note-colour-status-mute);
+        }
+    </style>
+    <h1>MIDI Track Editor</h1>
+    <datalist id="instruments">
+        <option value="8 bit"></option>
+        <option value="16 bit"></option>
+        <option value="32 bit"></option>
+        <option value="Piano"></option>
+        <option value="Guitar"></option>
+        <option value="Drums"></option>
+        <option value="Cello"></option>
+    </datalist>
+    <section class="sound_editor">
+        <section class="track_toolbar">
+            <button class="track_toolbar_button active" id="addNote" onclick="toggle_menu_button_state('addNote')">Add notes</button>
+            <button class="track_toolbar_button" id="deleteNote" onclick="toggle_menu_button_state('deleteNote')">Delete notes</button>
+            <button class="track_toolbar_button" id="muteNote" onclick="toggle_menu_button_state('muteNote')">Mute notes</button>
+        </section>
+        <section class="track_editor" id="editors">
+
+        </section>
+        <button onclick="add_row('editors')">Add instrument</button>
+    </section>
+    <script type="text/JavaScript" id="constants">
+        const EDIT_MODE_NODE = "edit_mode";
+        const ADD_NOTE = "addNote",
+            DELETE_NOTE = "deleteNote",
+            MUTE_NOTE = "muteNote";
+        const DATA_TRUE_KEY = "true",
+            DATA_FALSE_KEY = "false";
+        const BUTTON_IDS = [
+                "addNote",
+                "deleteNote",
+                "muteNote"
+            ];
+    </script>
+    <script type="text/JavaScript" id="utility functions">
+        function toggle_menu_button_state(ID) {
+            reset_clicked_buttons()
+            document.getElementById(ID).classList.toggle('active');
+            set_current_mode_to_localstorage(EDIT_MODE_NODE, ID)
+        }
+        function set_current_mode_to_localstorage(node, mode) {
+            localStorage.setItem(node, mode);
+        }
+        function delete_current_node_from_localstorage(node) {
+            localStorage.removeItem(node);
+        }
+        function get_current_mode_from_localstorage_if_present(node) {
+            return localStorage.getItem(node);
+        }
+        function reset_clicked_buttons() {
+            for (var i = 0; i < BUTTON_IDS.length; i++) {
+                document.getElementById(BUTTON_IDS[i]).classList.remove('active');
+            }
+        }
+    </script>
+    <script type="text/JavaScript" id="note_name_width">
+        function set_note_name_width(note_line_node) {
+            const noteNames = note_line_node.querySelectorAll('.note_name');
+            let maxWidth = 0;
+            
+            // Calculate the maximum width
+            noteNames.forEach(note => {
+                const width = note.scrollWidth; // Width based on content
+                if (width > maxWidth) {
+                    maxWidth = width;
+                }
+            });
+            
+            // Apply the maximum width to all .note_name elements
+            noteNames.forEach(note => {
+                note.style.width = `${maxWidth}px`;
+            });
+        }
+
+        function set_instrument_notes() {
+            // Select all containers with class `user_notes`
+            const noteContainers = document.querySelectorAll('.user_notes');
+            
+            // Apply the width adjustment function for each container
+            noteContainers.forEach(container => {
+                set_note_name_width(container);
+            });
+        };
+        
+        function set_instrument_notes_via_id(ID) {
+            const noteContainer = document.getElementById(ID);
+            set_note_name_width(noteContainer);
+        };
+
+        document.addEventListener("DOMContentLoaded", set_instrument_notes);
+    </script>
+    <script type="text/JavaScript" id="mute/unmute">
+        const HIDE_CLASS_KEY = "visually-hidden";
+
+        function toggle_line_status(button_node) {
+            const data_sound_node_key = "data-sound-on";
+            const sound_on = button_node.getAttribute(data_sound_node_key) === DATA_TRUE_KEY;
+            const volume_up_icon = button_node.querySelector(".fa-volume-up");
+            const volume_mute_icon = button_node.querySelector(".fa-volume-mute");
+            button_node.setAttribute(data_sound_node_key, !sound_on);
+            volume_up_icon.classList.toggle(HIDE_CLASS_KEY, sound_on);
+            volume_mute_icon.classList.toggle(HIDE_CLASS_KEY, !sound_on);
+        }
+    </script>
+    <script type="text/JavaScript" id="remove track">
+        function delete_track(TRACK_ID) {
+            const track_node = document.getElementById(TRACK_ID);
+            if (track_node === null || track_node === undefined) {
+                console.log("track_node is null or undefined.\nAborting function.");
+                return;
+            }
+            track_node.remove();
+        }
+    </script>
+    <script type="text/JavaScript" id="toggle note">
+        const DATA_NOTE_ACTIVE_KEY = "data-note-active"
+        const DATA_NOTE_MUTED_KEY = "data-note-muted"
+        const DATA_NOTE_NAME_KEY = "data-note-name"
+        const NOTE_TOOL_COLOUR_CORRESPONDANCE = {
+            "addNote": "note_active",
+            "deleteNote": "note_idle",
+            "muteNote": "note_muted"
+        };
+
+        function clear_note_colour(note_node) {
+            note_node.classList.remove(NOTE_TOOL_COLOUR_CORRESPONDANCE[ADD_NOTE]);
+            note_node.classList.remove(NOTE_TOOL_COLOUR_CORRESPONDANCE[MUTE_NOTE]);
+            note_node.classList.remove(NOTE_TOOL_COLOUR_CORRESPONDANCE[DELETE_NOTE]);
+        }
+
+        function toggle_note_status(note_node) {
+            const current_tool = get_current_mode_from_localstorage_if_present(EDIT_MODE_NODE);
+            var note_active = note_node.getAttribute(DATA_NOTE_ACTIVE_KEY) === DATA_TRUE_KEY,
+            note_muted = note_node.getAttribute(DATA_NOTE_MUTED_KEY) === DATA_TRUE_KEY;
+
+            clear_note_colour(note_node);
+            if (current_tool === MUTE_NOTE) {
+                if (note_muted === true) {
+                    note_node.setAttribute(DATA_NOTE_MUTED_KEY, DATA_FALSE_KEY);
+                    if (note_active === true) {
+                        note_node.classList.add(NOTE_TOOL_COLOUR_CORRESPONDANCE[ADD_NOTE]);
+                    } else {
+                        note_node.classList.add(NOTE_TOOL_COLOUR_CORRESPONDANCE[DELETE_NOTE]);
+                    }
+                } else {
+                    note_node.classList.add(NOTE_TOOL_COLOUR_CORRESPONDANCE[MUTE_NOTE]);
+                    note_node.setAttribute(DATA_NOTE_MUTED_KEY, DATA_TRUE_KEY);
+                }
+            } else if (current_tool === ADD_NOTE) {
+                if (note_active === true) {
+                    note_node.classList.add(NOTE_TOOL_COLOUR_CORRESPONDANCE[DELETE_NOTE]);
+                    note_node.setAttribute(DATA_NOTE_MUTED_KEY, DATA_FALSE_KEY);
+                    note_node.setAttribute(DATA_NOTE_ACTIVE_KEY, DATA_FALSE_KEY);
+                } else {
+                    note_node.classList.add(NOTE_TOOL_COLOUR_CORRESPONDANCE[ADD_NOTE]);
+                    note_node.setAttribute(DATA_NOTE_MUTED_KEY, DATA_FALSE_KEY);
+                    note_node.setAttribute(DATA_NOTE_ACTIVE_KEY, DATA_TRUE_KEY);
+                }
+            } else if (current_tool === DELETE_NOTE) {
+                note_node.classList.add(NOTE_TOOL_COLOUR_CORRESPONDANCE[DELETE_NOTE]);
+                note_node.setAttribute(DATA_NOTE_MUTED_KEY, DATA_FALSE_KEY);
+                note_node.setAttribute(DATA_NOTE_ACTIVE_KEY, DATA_FALSE_KEY);
+            }
+        }
+
+    </script>
+    <script type="text/JavaScript" id="add_notes">
+        const MUSIC_LENGTH = 20;
+        const INSTRUMENT_NOTES = {
+            "8 bit": [],
+            "16 bit": [],
+            "32 bit": [],
+            "Piano": ["A","B","C","D","E","F","G","H","I","J","K","L","M","O","P"],
+            "Guitar": ["A","B","C","D","E","F","G","H","I","J","K","L","M","O","P"],
+            "Drums": ["A","B","C","D","E","F","G","H","I","J","K","L","M","O","P"],
+            "Cello": ["A","B","C","D","E","F","G","H","I","J","K","L","M","O","P"]
+        }
+        console.log(`INSTRUMENT_NOTES = ${JSON.stringify(INSTRUMENT_NOTES)}`);
+        function add_notes(ID, name) {
+            var content = "";
+            const node = document.getElementById(ID);
+            if ( name in INSTRUMENT_NOTES === false ) {
+                console.error(`Instrument: ${name} is not present in the available instruments.`);
+                return null;
+            }
+            if ( node === null || node === undefined) {
+                console.error(`Failed to find the name of the id ${ID}.\nAborting function.`);
+                return;
+            }
+            for (var i = 0; i < INSTRUMENT_NOTES[name].length; i++) {
+                content += `            <section class="note_line">`;
+                content += `                <aside class="note_name">${INSTRUMENT_NOTES[name][i]}</aside>`;
+                content += `                <aside class="note_toggles">`;
+                for (var j = 0; j < MUSIC_LENGTH; j++) {
+                    content += `                    <span class="note_toggle_node" data-note-active="false" data-note-muted="false" data-note-name="${INSTRUMENT_NOTES[name][i]}" onclick="toggle_note_status(this)"></span>`;
+                }
+                content += `                </aside>`;
+                content += `            </section>`;
+            }
+            node.innerHTML += content;
+            console.log(`Added content = ${content}`);
+        }
+        
+        function delete_notes(ID) {
+            const node = document.getElementById(ID);
+            if ( node === null || node === undefined) {
+                console.error(`Failed to find the name of the id ${ID}.\nAborting function`);
+            }
+            node.innerHTML = "";
+        }
+
+        function update_notes(ID, name) {
+            delete_notes(ID);
+            add_notes(ID, name);
+        }
+    </script>
+    <script type="text/JavaScript" id="add_row">
+        var editor_counter = 1;
+        function add_row(ID) {
+            const TRACK_NUMBER = `track_nb_${editor_counter}`,
+            NOTE_SECTION = `notes_${editor_counter}`;
+            var content = "";
+            content += `<section id="${TRACK_NUMBER}" class="track_line">`;
+            content += `    <section class="track_line_title">`;
+            content += `        <input list="instruments" id="myInput" placeholder="Type to search..." alias="Instrument of choice" title="Instrument of choice" class="cell_title_instrument_option" onchange="update_notes()">`;
+            content += `        <button class="cell_title_sound_option" type="button" id="sound" alias="mute/unmute" title="mute/unmute" data-sound-on="true" onclick="toggle_line_status(this)">`;
+            content += `            <i class="fas fa-volume-up cell_title_sound_option_icon"></i>`;
+            content += `            <i class="fas fa-volume-mute cell_title_sound_option_icon visually-hidden"></i>`;
+            content += `        </button>`;
+            content += `        <button class="cell_title_track_delete" type="button" alias="delete track" title="delete track" onclick="delete_track('track_nb_${editor_counter}')">`;
+            content += `            <i class="fas fa-trash-alt cell_title_track_delete_icon"></i>`;
+            content += `        </button>`;
+            content += `    </section>`;
+            content += `    <section class="track_line_content">`;
+            content += `        <aside class="user_notes" id="${NOTE_SECTION}">`;
+            content += `        </aside>`;
+            content += `    </section>`;
+            content += `</section>`;
+            var node = document.getElementById(ID);
+            if ( node === null || node === undefined ) {
+                console.error(`Undefined id: ${ID}\nAborting function`);
+            }
+            editor_counter++;
+            node.innerHTML += content;
+            add_notes(NOTE_SECTION, "Piano");
+            set_instrument_notes_via_id(NOTE_SECTION);
+        }
+    </script>
+    <script type="text/JavaScript" id="warming up">
+        function initialise_menu_editor() {
+            var node = get_current_mode_from_localstorage_if_present(EDIT_MODE_NODE)
+            console.log(`node = ${node}`);
+            if (node === null || node === undefined) {
+                node = "addNote";
+            }
+            toggle_menu_button_state(node);
+        }
+    </script>
+    <script type="text/JavaScript" id="Boot up">
+        initialise_menu_editor();
+        add_row('editors');
+    </script>
+</body>
+
+</html>
