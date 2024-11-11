@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Underline samples</title>
+</head>
+
+<body>
+    <p>v1</p>
+    <div>
+
+        <p>This is some text with a <span class="underline_v1">short underline</span>.</p>
+
+        <style>
+            .underline_v1 {
+                display: inline-block;
+                border-bottom: 1px solid black;
+                width: 5mm;
+                /* Set the underline width */
+                margin-bottom: -2px;
+                /* Adjust spacing to line up with text if necessary */
+            }
+        </style>
+    </div>
+    <p>v2</p>
+    <div>
+        <p>This is some text with a <span class="underline_v2">short underline</span>.</p>
+
+        <style>
+            .underline_v2 {
+                position: relative;
+            }
+
+            .underline_v2::after {
+                content: "";
+                position: absolute;
+                left: 0;
+                bottom: -5px;
+                /* Adjust to move underline closer or farther from text */
+                width: 5mm;
+                /* Set the underline width */
+                height: 5px;
+                /* Set underline thickness */
+                background-color: black;
+            }
+        </style>
+    </div>
+    <div id="padding">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+    </div>
+</body>
+
+</html>
