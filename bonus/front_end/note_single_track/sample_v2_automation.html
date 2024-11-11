@@ -84,7 +84,6 @@
         /* The design for the divider */
         .divider {
             width: 4px;
-            height: 100%;
             color: white;
             background-color: white;
         }
@@ -410,6 +409,12 @@
             const noteNames = note_line_node.querySelectorAll('.note_name');
             let maxWidth = 0;
             
+            // Get the provided padding
+            const paddingLeft = getComputedStyle(noteNames[0]).getPropertyValue('padding-left');
+            const paddingRight = getComputedStyle(noteNames[0]).getPropertyValue('padding-right');
+            const paddingTop = getComputedStyle(noteNames[0]).getPropertyValue('padding-top');
+            const paddingBottom = getComputedStyle(noteNames[0]).getPropertyValue('padding-bottom');
+
             // Calculate the maximum width
             noteNames.forEach(note => {
                 const width = note.scrollWidth; // Width based on content
@@ -421,6 +426,10 @@
             // Apply the maximum width to all .note_name elements
             noteNames.forEach(note => {
                 note.style.width = `${maxWidth}px`;
+                note.style.paddingLeft = paddingLeft;
+                note.style.paddingRight = paddingRight;
+                note.style.paddingTop = paddingTop;
+                note.style.paddingBottom = paddingBottom;
             });
         }
 
@@ -434,7 +443,7 @@
             });
         };
         
-        function set_instrument_notes_via_id(ID) {
+        function set_instrument_notes_dimensions_via_id(ID) {
             const noteContainer = document.getElementById(ID);
             set_note_name_width(noteContainer);
         };
@@ -521,10 +530,10 @@
     <script type="text/JavaScript" id="add_notes">
         const MUSIC_LENGTH = 20;
         const INSTRUMENT_NOTES = {
+            "Piano": ["A","B","C","D","E","F","G","H","I","J","K","L","M","O","P"],
             "8 bit": [],
             "16 bit": [],
             "32 bit": [],
-            "Piano": ["A","B","C","D","E","F","G","H","I","J","K","L","M","O","P"],
             "Guitar": ["A","B","C","D","E","F","G","H","I","J","K","L","M","O","P"],
             "Drums": ["A","B","C","D","E","F","G","H","I","J","K","L","M","O","P"],
             "Cello": ["A","B","C","D","E","F","G","H","I","J","K","L","M","O","P"]
@@ -552,6 +561,7 @@
                 content += `            </section>`;
             }
             node.innerHTML += content;
+            set_instrument_notes_dimensions_via_id(ID);
         }
         
         function delete_notes(ID) {
@@ -562,9 +572,14 @@
             node.innerHTML = "";
         }
 
-        function update_notes(ID, name) {
+        function update_notes(ID, ID_name) {
+            const instrument = document.getElementById(ID_name);
+            if (instrument === null || instrument === undefined) {
+                console.error(`Failed to find the name of the id ${ID_name}.\nAborting function.`);
+                return;
+            }
             delete_notes(ID);
-            add_notes(ID, name);
+            add_notes(ID, instrument.value);
         }
     </script>
     <script type="text/JavaScript" id="add_row">
@@ -575,12 +590,18 @@
             }
             editor_counter++;
             const TRACK_NUMBER = `track_nb_${editor_counter}`,
-            NOTE_SECTION = `notes_${editor_counter}`;
+            NOTE_SECTION = `notes_${editor_counter}`,
+            INSTRUMENT_ID = `instrument_selection_${editor_counter}`;
             var content = "";
             content += `<section id="${TRACK_NUMBER}" class="track_line">`;
             content += `    <p>${editor_counter}</p>`;
             content += `    <section class="track_line_title">`;
-            content += `        <input list="instruments" id="myInput" placeholder="Type to search..." alias="Instrument of choice" title="Instrument of choice" class="cell_title_instrument_option" onchange="update_notes()">`;
+            //content += `        <input list="instruments" id="${INSTRUMENT_ID}" placeholder="Instrument" alias="Instrument of choice" title="Instrument of choice" class="cell_title_instrument_option" onchange="update_notes('${NOTE_SECTION}', '${INSTRUMENT_ID}')">`;
+            content += `        <select list="instruments" id="${INSTRUMENT_ID}" placeholder="Instrument" alias="Instrument of choice" title="Instrument of choice" class="cell_title_instrument_option" onchange="update_notes('${NOTE_SECTION}', '${INSTRUMENT_ID}')">`;
+            for (var instrument in INSTRUMENT_NOTES) {
+                content += `            <option value="${instrument}">${instrument}</option>`;
+            }
+            content += `</select>`;
             content += `        <button class="cell_title_sound_option" type="button" id="sound" alias="mute/unmute" title="mute/unmute" data-sound-on="true" onclick="toggle_line_status(this)">`;
             content += `            <i class="fas fa-volume-up cell_title_sound_option_icon"></i>`;
             content += `            <i class="fas fa-volume-mute cell_title_sound_option_icon visually-hidden"></i>`;
@@ -596,8 +617,7 @@
             content += `</section>`;
             update_editor_counter();
             node.innerHTML += content;
-            add_notes(NOTE_SECTION, "Piano");
-            set_instrument_notes_via_id(NOTE_SECTION);
+            update_notes(`${NOTE_SECTION}`, `${INSTRUMENT_ID}`);
         }
     </script>
     <script type="text/JavaScript" id="warming up">
