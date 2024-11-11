@@ -19,6 +19,12 @@
             font-weight: 100;
         }
 
+        p,
+        span,
+        pre {
+            font-size: 14px;
+        }
+
         :root {
             --sound-editor-width: 100%;
             --sound-editor-height: 50%;
@@ -75,7 +81,27 @@
             color: white;
         }
 
-        /* The section for the toolbar button */
+        /* The design for the divider */
+        .divider {
+            width: 4px;
+            height: 100%;
+            color: white;
+            background-color: white;
+        }
+
+        /* The button to add a new instrument line */
+        .add_instrument_button {
+            color: white;
+            background-color: transparent;
+            border: transparent 2px none;
+            transition: color 0.3s;
+        }
+
+        .add_instrument_button:hover {
+            color: aqua;
+        }
+
+        /* The section for the toolbar edit buttons */
         .track_toolbar_button {
             padding: 8px 12px;
             border: none;
@@ -102,6 +128,19 @@
 
         .track_toolbar_button:hover {
             color: aqua;
+        }
+
+        /* The section informing the user of the number of tracks that are present */
+        .track_counter {
+            color: aqua;
+        }
+
+        /* The section for the body containing the editor lines */
+        .track_editor {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            padding-bottom: 2px;
         }
 
         /* The desing for the edit line */
@@ -303,14 +342,17 @@
     </datalist>
     <section class="sound_editor">
         <section class="track_toolbar">
+            <button class="add_instrument_button" onclick="add_row('editors')">Add instrument</button>
+            <span class="divider">|</span>
             <button class="track_toolbar_button active" id="addNote" onclick="toggle_menu_button_state('addNote')">Add notes</button>
             <button class="track_toolbar_button" id="deleteNote" onclick="toggle_menu_button_state('deleteNote')">Delete notes</button>
             <button class="track_toolbar_button" id="muteNote" onclick="toggle_menu_button_state('muteNote')">Mute notes</button>
+            <span class="divider">|</span>
+            <p class="track_counter">There <span id="track_counter_index_to_be">are</span> <span id="track_counter_index">0</span> track<span id="track_counter_index_plural">s</span></p>
         </section>
         <section class="track_editor" id="editors">
 
         </section>
-        <button onclick="add_row('editors')">Add instrument</button>
     </section>
     <script type="text/JavaScript" id="constants">
         const EDIT_MODE_NODE = "edit_mode";
@@ -324,6 +366,23 @@
                 "deleteNote",
                 "muteNote"
             ];
+    </script>
+    <script type="text/JavaScript" id="track_count_tracker">
+        var editor_counter = 0;
+        function update_editor_counter() {
+            const tci = document.getElementById('track_counter_index'),
+            tcitb = document.getElementById('track_counter_index_to_be'),
+            tcip = document.getElementById('track_counter_index_plural');
+            if (editor_counter === 1 ) {
+                tci.innerHTML = editor_counter;
+                tcitb.innerHTML = "is";
+                tcip.innerHTML = "";
+            } else {
+                tci.innerHTML = editor_counter;
+                tcitb.innerHTML = "are";
+                tcip.innerHTML = "s";
+            }
+        }
     </script>
     <script type="text/JavaScript" id="utility functions">
         function toggle_menu_button_state(ID) {
@@ -399,10 +458,12 @@
         function delete_track(TRACK_ID) {
             const track_node = document.getElementById(TRACK_ID);
             if (track_node === null || track_node === undefined) {
-                console.log("track_node is null or undefined.\nAborting function.");
+                console.error("track_node is null or undefined.\nAborting function.");
                 return;
             }
             track_node.remove();
+            editor_counter--;
+            update_editor_counter();
         }
     </script>
     <script type="text/JavaScript" id="toggle note">
@@ -491,7 +552,6 @@
                 content += `            </section>`;
             }
             node.innerHTML += content;
-            console.log(`Added content = ${content}`);
         }
         
         function delete_notes(ID) {
@@ -508,12 +568,17 @@
         }
     </script>
     <script type="text/JavaScript" id="add_row">
-        var editor_counter = 1;
         function add_row(ID) {
+            var node = document.getElementById(ID);
+            if ( node === null || node === undefined ) {
+                console.error(`Undefined id: ${ID}\nAborting function`);
+            }
+            editor_counter++;
             const TRACK_NUMBER = `track_nb_${editor_counter}`,
             NOTE_SECTION = `notes_${editor_counter}`;
             var content = "";
             content += `<section id="${TRACK_NUMBER}" class="track_line">`;
+            content += `    <p>${editor_counter}</p>`;
             content += `    <section class="track_line_title">`;
             content += `        <input list="instruments" id="myInput" placeholder="Type to search..." alias="Instrument of choice" title="Instrument of choice" class="cell_title_instrument_option" onchange="update_notes()">`;
             content += `        <button class="cell_title_sound_option" type="button" id="sound" alias="mute/unmute" title="mute/unmute" data-sound-on="true" onclick="toggle_line_status(this)">`;
@@ -529,11 +594,7 @@
             content += `        </aside>`;
             content += `    </section>`;
             content += `</section>`;
-            var node = document.getElementById(ID);
-            if ( node === null || node === undefined ) {
-                console.error(`Undefined id: ${ID}\nAborting function`);
-            }
-            editor_counter++;
+            update_editor_counter();
             node.innerHTML += content;
             add_notes(NOTE_SECTION, "Piano");
             set_instrument_notes_via_id(NOTE_SECTION);
@@ -551,6 +612,7 @@
     </script>
     <script type="text/JavaScript" id="Boot up">
         initialise_menu_editor();
+        add_row('editors');
         add_row('editors');
     </script>
 </body>
