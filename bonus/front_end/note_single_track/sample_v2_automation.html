@@ -129,6 +129,15 @@
             color: aqua;
         }
 
+        /* The section in charge of designing the appearance of the track_length display */
+        .track_length {
+            color: aqua;
+        }
+
+        .track_length_input {
+            width: 40px;
+        }
+
         /* The section informing the user of the number of tracks that are present */
         .track_counter {
             color: aqua;
@@ -347,6 +356,8 @@
             <button class="track_toolbar_button" id="deleteNote" onclick="toggle_menu_button_state('deleteNote')">Delete notes</button>
             <button class="track_toolbar_button" id="muteNote" onclick="toggle_menu_button_state('muteNote')">Mute notes</button>
             <span class="divider">|</span>
+            <p class="track_length">Music length: <input id="music_length_toggle" class="track_length_input" type="number" value="0" min="0" onchange="update_music_length(this)"></p>
+            <span class="divider">|</span>
             <p class="track_counter">There <span id="track_counter_index_to_be">are</span> <span id="track_counter_index">0</span> track<span id="track_counter_index_plural">s</span></p>
         </section>
         <section class="track_editor" id="editors">
@@ -367,7 +378,14 @@
             ];
     </script>
     <script type="text/JavaScript" id="track_count_tracker">
-        var editor_counter = 0;
+        var editor_counter = 0,
+        used_ids = [];
+
+        function update_editor_display() {
+            var counter = 1;
+            const node = document.getElementById("editors");
+        }
+
         function update_editor_counter() {
             const tci = document.getElementById('track_counter_index'),
             tcitb = document.getElementById('track_counter_index_to_be'),
@@ -381,6 +399,7 @@
                 tcitb.innerHTML = "are";
                 tcip.innerHTML = "s";
             }
+            update_editor_display();
         }
     </script>
     <script type="text/JavaScript" id="utility functions">
@@ -410,14 +429,16 @@
             let maxWidth = 0;
             
             // Get the provided padding
-            const paddingLeft = getComputedStyle(noteNames[0]).getPropertyValue('padding-left');
-            const paddingRight = getComputedStyle(noteNames[0]).getPropertyValue('padding-right');
-            const paddingTop = getComputedStyle(noteNames[0]).getPropertyValue('padding-top');
-            const paddingBottom = getComputedStyle(noteNames[0]).getPropertyValue('padding-bottom');
+            const floatPaddingLeft = parseFloat(getComputedStyle(noteNames[0]).getPropertyValue('padding-left'));
+            const floatPaddingRight = parseFloat(getComputedStyle(noteNames[0]).getPropertyValue('padding-right'));
+            /*const paddingLeft = getComputedStyle(noteNames[0]).getPropertyValue('padding-left'),
+            paddingRight = getComputedStyle(noteNames[0]).getPropertyValue('padding-right'),
+            paddingTop = getComputedStyle(noteNames[0]).getPropertyValue('padding-top'),
+            paddingBottom = getComputedStyle(noteNames[0]).getPropertyValue('padding-bottom');*/
 
             // Calculate the maximum width
             noteNames.forEach(note => {
-                const width = note.scrollWidth; // Width based on content
+                const width = note.scrollWidth;
                 if (width > maxWidth) {
                     maxWidth = width;
                 }
@@ -425,11 +446,11 @@
             
             // Apply the maximum width to all .note_name elements
             noteNames.forEach(note => {
-                note.style.width = `${maxWidth}px`;
-                note.style.paddingLeft = paddingLeft;
+                note.style.width = `${maxWidth + floatPaddingLeft + floatPaddingRight}px`;
+                /*note.style.paddingLeft = paddingLeft;
                 note.style.paddingRight = paddingRight;
                 note.style.paddingTop = paddingTop;
-                note.style.paddingBottom = paddingBottom;
+                note.style.paddingBottom = paddingBottom;*/
             });
         }
 
@@ -448,7 +469,7 @@
             set_note_name_width(noteContainer);
         };
 
-        document.addEventListener("DOMContentLoaded", set_instrument_notes);
+        //document.addEventListener("DOMContentLoaded", set_instrument_notes);
     </script>
     <script type="text/JavaScript" id="mute/unmute">
         const HIDE_CLASS_KEY = "visually-hidden";
@@ -527,8 +548,28 @@
         }
 
     </script>
+    <script type="text/JavaScript" id="music_length">
+        var MUSIC_LENGTH = 20;
+        function set_music_length(ID, length=20) {
+            const node = document.getElementById(ID);
+            if (node === null || node === undefined) {
+                console.error(`Id not found for ${ID}\nAborting function`);
+                return;
+            }
+            node.value = length;
+            MUSIC_LENGTH = length;
+        }
+        function update_music_length(length_node) {
+            const new_value = length_node.value;
+            if (new_value=== null || new_value=== undefined) {
+                console.error(`The new value (${new_value}) is not processable.\nAborting function`);
+                return;
+            }
+            MUSIC_LENGTH = new_value;
+            update_notes()
+        }
+    </script>
     <script type="text/JavaScript" id="add_notes">
-        const MUSIC_LENGTH = 20;
         const INSTRUMENT_NOTES = {
             "Piano": ["A","B","C","D","E","F","G","H","I","J","K","L","M","O","P"],
             "8 bit": [],
@@ -581,18 +622,22 @@
             delete_notes(ID);
             add_notes(ID, instrument.value);
         }
+        //function place_notes_on_track(ID, notes)
+        //function update_while_retaining_position()
     </script>
     <script type="text/JavaScript" id="add_row">
         function add_row(ID) {
+            var content = "";
             var node = document.getElementById(ID);
             if ( node === null || node === undefined ) {
                 console.error(`Undefined id: ${ID}\nAborting function`);
             }
             editor_counter++;
+            //for (var index = 0; index < used_ids.length; index++)
+            //    const inner_editor_index = ;
             const TRACK_NUMBER = `track_nb_${editor_counter}`,
             NOTE_SECTION = `notes_${editor_counter}`,
             INSTRUMENT_ID = `instrument_selection_${editor_counter}`;
-            var content = "";
             content += `<section id="${TRACK_NUMBER}" class="track_line">`;
             content += `    <p>${editor_counter}</p>`;
             content += `    <section class="track_line_title">`;
@@ -631,9 +676,13 @@
         }
     </script>
     <script type="text/JavaScript" id="Boot up">
-        initialise_menu_editor();
-        add_row('editors');
-        add_row('editors');
+        function boot_up() {
+            initialise_menu_editor();
+            set_music_length('music_length_toggle', 20)
+            add_row('editors');
+            add_row('editors');
+        }
+        document.addEventListener("DOMContentLoaded", boot_up);
     </script>
 </body>
 
