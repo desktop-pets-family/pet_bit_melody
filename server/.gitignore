@@ -31,12 +31,5 @@ binarea_server
 client_secret*.json
 
 # Ignore the ffmpeg and similar binaries
-ff_family/ffmpeg/**
-ff_family/ffplay/**
-ff_family/ffprobe/**
-ff_family/downloads/linux/**
-!ff_family/downloads/linux/.gitkeep
-ff_family/downloads/macos/**
-!ff_family/downloads/macos/.gitkeep
-ff_family/downloads/windows/**
-!ff_family/downloads/windows/.gitkeep
+ff_family/**
+!ff_family/downloader.py

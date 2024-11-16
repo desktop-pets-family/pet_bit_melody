@@ -11,6 +11,7 @@ Raises:
     PackageNotInstalled: _description_
 """
 import os
+import sys
 import shutil
 import zipfile
 import tarfile
@@ -33,6 +34,13 @@ class PackageNotSupported(Exception):
 
 # Function to extract files based on archive type
 
+FFMPEG_KEY = "ffmpeg"
+FFPROBE_KEY = "ffprobe"
+FFPLAY_KEY = "ffplay"
+
+WINDOWS_KEY = "windows"
+LINUX_KEY = "linux"
+MAC_KEY = "darwin"
 
 FILE_URL_TOKEN = "file_url"
 FILE_PATH_TOKEN = "file_path"
@@ -41,35 +49,181 @@ QUERY_TIMEOUT = 10
 CWD = os.getcwd()
 
 BUNDLE_DOWNLOAD = {
-    "windows": {
-        "86": {
-            FILE_URL_TOKEN: "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-i686-static.zip",  # 32-bit Windows
-            FILE_PATH_TOKEN: f"{CWD}/windows/ffmpeg-release-i686-static.zip"
+    FFMPEG_KEY: {
+        WINDOWS_KEY: {
+            "i686": {
+                FILE_URL_TOKEN: "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-i686-static.zip",  # 32-bit Windows
+                FILE_PATH_TOKEN: os.path.join(
+                    CWD, "downloads", "windows", "ffmpeg-release-i686-static.zip"
+                )
+            },
+            "64": {
+                FILE_URL_TOKEN: "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-x86_64-static.zip",  # 64-bit Windows
+                FILE_PATH_TOKEN: os.path.join(
+                    CWD, "downloads", "windows", "ffmpeg-release-x86_64-static.zip"
+                )
+            }
         },
-        "64": {
-            FILE_URL_TOKEN: "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-x86_64-static.zip",  # 64-bit Windows
-            FILE_PATH_TOKEN: f"{CWD}/windows/ffmpeg-release-x86_64-static.zip"
-        }
+        LINUX_KEY: {
+            "i686": {
+                # 32-bit Linux (x86)
+                FILE_URL_TOKEN: "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-i686-static.tar.xz",
+                FILE_PATH_TOKEN: os.path.join(
+                    CWD, "downloads", "linux", "ffmpeg-release-i686-static.tar.xz"
+                )
+            },
+            "64": {
+                FILE_URL_TOKEN: "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz",  # 64-bit Linux
+                FILE_PATH_TOKEN: os.path.join(
+                    CWD, "downloads", "linux", "ffmpeg-release-x86_64-static.tar.xz"
+                )
+            },
+            "arm64": {
+                # 64-bit Linux (arm64)
+                FILE_URL_TOKEN: "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-arm64-static.tar.xz",
+                FILE_PATH_TOKEN: os.path.join(
+                    CWD, "downloads", "linux", "ffprobe-release-arm64-static.tar.xz"
+                )
+            }
+        },
+        MAC_KEY: {
+            "i686": {
+                FILE_URL_TOKEN: "https://evermeet.cx/ffmpeg/get/zip",  # 32-bit macOS
+                FILE_PATH_TOKEN: os.path.join(
+                    CWD, "downloads", "macos", "ffmpeg-latest.zip"
+                )
+            },
+            "64": {
+                FILE_URL_TOKEN: "https://evermeet.cx/ffmpeg/get/zip",  # 64-bit macOS
+                FILE_PATH_TOKEN: os.path.join(
+                    CWD, "downloads", "macos", "ffmpeg-latest-amd64.zip"
+                )
+            },
+            "arm64": {
+                # 64-bit macOS (arm64),
+                FILE_URL_TOKEN: "https://ffmpeg.martin-riedl.de/redirect/latest/macos/arm64/release/ffmpeg.zip",
+                FILE_PATH_TOKEN: os.path.join(
+                    CWD, "downloads", "macos", "ffmpeg-latest-arm64.zip"
+                )
+            }
+        },
     },
-    "linux": {
-        "86": {
-            # 32-bit Linux (x86)
-            FILE_URL_TOKEN: "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-i686-static.tar.xz",
-            FILE_PATH_TOKEN: f"{CWD}/linux/ffmpeg-release-i686-static.tar.xz"
+    FFPROBE_KEY: {
+        WINDOWS_KEY: {
+            "i686": {
+                FILE_URL_TOKEN: "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-i686-static.zip",
+                FILE_PATH_TOKEN: os.path.join(
+                    CWD, "downloads", "windows", "ffprobe-release-i686-static.zip"
+                )
+            },
+            "64": {
+                FILE_URL_TOKEN: "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-x86_64-static.zip",  # 64-bit Windows
+                FILE_PATH_TOKEN: os.path.join(
+                    CWD, "downloads", "windows", "ffprobe-release-x86_64-static.zip"
+                )
+            }
         },
-        "64": {
-            FILE_URL_TOKEN: "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz",  # 64-bit Linux
-            FILE_PATH_TOKEN: f"{CWD}/linux/ffmpeg-release-x86_64-static.tar.xz"
-        }
+        LINUX_KEY: {
+            "i686": {
+                # 32-bit Linux (x86)
+                FILE_URL_TOKEN: "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-i686-static.tar.xz",
+                FILE_PATH_TOKEN: os.path.join(
+                    CWD, "downloads", "linux", "ffprobe-release-i686-static.tar.xz"
+                )
+            },
+            "64": {
+                # 64-bit Linux
+                FILE_URL_TOKEN: "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz",
+                FILE_PATH_TOKEN: os.path.join(
+                    CWD, "downloads", "linux", "ffprobe_x64.tar.xz"
+                )
+            },
+            "arm64": {
+                # 64-bit Linux (arm 64)
+                FILE_URL_TOKEN: "https://ffmpeg.martin-riedl.de/redirect/latest/linux/arm64/release/ffprobe.zip",
+                FILE_PATH_TOKEN: os.path.join(
+                    CWD, "downloads", "linux", "ffprobe_arm64.zip"
+                )
+            },
+        },
+        MAC_KEY: {
+            "i686": {
+                FILE_URL_TOKEN: "https://evermeet.cx/ffmpeg/getrelease/ffprobe/zip",  # 32-bit macOS
+                FILE_PATH_TOKEN: os.path.join(
+                    CWD, "downloads", "macos", "ffprobe-latest.zip"
+                )
+            },
+            "64": {
+                FILE_URL_TOKEN: "https://evermeet.cx/ffmpeg/getrelease/ffprobe/zip",  # 64-bit macOS
+                FILE_PATH_TOKEN: os.path.join(
+                    CWD, "downloads", "macos", "ffprobe-latest-amd64.zip"
+                )
+            },
+            "arm64": {
+                # 64-bit macOS (arm64),
+                FILE_URL_TOKEN: "https://ffmpeg.martin-riedl.de/redirect/latest/macos/arm64/release/ffprobe.zip",
+                FILE_PATH_TOKEN: os.path.join(
+                    CWD, "downloads", "macos", "ffprobe-latest-arm64.zip"
+                )
+            }
+        },
     },
-    "darwin": {
-        "86": {
-            FILE_URL_TOKEN: "https://evermeet.cx/ffmpeg/ffmpeg-7.1.zip",  # 32-bit macOS
-            FILE_PATH_TOKEN: f"{CWD}/macos/ffmpeg-7.1.zip"
+    FFPLAY_KEY: {
+        WINDOWS_KEY: {
+            "i686": {
+                FILE_URL_TOKEN: "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-n4.4-32bit-static.zip",  # 32-bit Windows
+                FILE_PATH_TOKEN: os.path.join(
+                    CWD, "downloads", "windows", "ffplay-release-i686-static.zip"
+                )
+            },
+            "64": {
+                FILE_URL_TOKEN: "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-x86_64-static.zip",  # 64-bit Windows
+                FILE_PATH_TOKEN: os.path.join(
+                    CWD, "downloads", "windows", "ffplay-release-x86_64-static.zip"
+                )
+            }
         },
-        "64": {
-            FILE_URL_TOKEN: "https://evermeet.cx/ffmpeg/ffmpeg-7.1.zip",  # 64-bit macOS
-            FILE_PATH_TOKEN: f"{CWD}/macos/ffmpeg-7.1.zip"
+        LINUX_KEY: {
+            "i686": {
+                # 32-bit Linux (x86)
+                FILE_URL_TOKEN: "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-i686-static.tar.xz",
+                FILE_PATH_TOKEN: os.path.join(
+                    CWD, "downloads", "linux", "ffplay-release-i686-static.tar.xz"
+                )
+            },
+            "64": {
+                FILE_URL_TOKEN: "https://ffmpeg.martin-riedl.de/redirect/latest/linux/amd64/release/ffplay.zip",  # 64-bit Linux
+                FILE_PATH_TOKEN: os.path.join(
+                    CWD, "downloads", "linux", "ffplay-latest-amd64.zip"
+                )
+            },
+            "arm64": {
+                FILE_URL_TOKEN: "https://ffmpeg.martin-riedl.de/redirect/latest/linux/arm64/release/ffplay.zip",  # 64-bit Linux
+                FILE_PATH_TOKEN: os.path.join(
+                    CWD, "downloads", "linux", "ffplay-latest-arm64.zip"
+                )
+            }
+        },
+        MAC_KEY: {
+            "i686": {
+                FILE_URL_TOKEN: "https://evermeet.cx/ffmpeg/getrelease/ffplay/zip",  # 32-bit macOS
+                FILE_PATH_TOKEN: os.path.join(
+                    CWD, "downloads", "macos", "ffplay-latest.zip"
+                )
+            },
+            "64": {
+                FILE_URL_TOKEN: "https://evermeet.cx/ffmpeg/getrelease/ffplay/zip",  # 64-bit macOS
+                FILE_PATH_TOKEN: os.path.join(
+                    CWD, "downloads", "macos", "ffplay-latest.zip"
+                )
+            },
+            "arm64": {
+                # 64-bit macOS (arm64)
+                FILE_URL_TOKEN: "https://ffmpeg.martin-riedl.de/redirect/latest/macos/arm64/release/ffplay.zip",
+                FILE_PATH_TOKEN: os.path.join(
+                    CWD, "downloads", "macos", "ffplay-latest-arm64.zip"
+                )
+            }
         }
     }
 }
@@ -92,24 +246,22 @@ class FFMPEGDownloader:
         RuntimeError: _description_
     """
 
-    ffmpeg_folder_name: str = "ffmpeg"
+    available_binaries: list = [FFMPEG_KEY, FFPROBE_KEY, FFPLAY_KEY]
 
-    def __init__(self, query_timeout: int = 10, success: int = 0, error: int = 84, debug: bool = False):
-        self.success: int = success
+    def __init__(self, cwd: str = os.getcwd(), query_timeout: int = 10, success: int = 0, error: int = 84, debug: bool = False):
+        self.cwd: str = cwd
         self.error: int = error
         self.debug: bool = debug
-        self.cwd: str = os.getcwd()
-        self.system: str = self.get_system_name()
-        self.architecture: str = self.get_platform()
-        self.file_path: str = None
+        self.success: int = success
         self.file_url: str = None
+        self.file_path: str = None
         self.fold_path: str = None
         self.query_timeout: int = query_timeout
-        self.ffmpeg_folder_name: str = FFMPEGDownloader.ffmpeg_folder_name
-        self.extract_to: str = os.path.join(self.cwd, self.ffmpeg_folder_name)
-        self.extracted_folder: str = None
-        self.new_folder_name: str = f"{self.ffmpeg_folder_name}_{self.system}"
         self.new_folder_path: str = None
+        self.extracted_folder: str = None
+        self.system: str = self.get_system_name()
+        self.architecture: str = self.get_platform()
+        self.available_binaries: list = FFMPEGDownloader.available_binaries
 
     @staticmethod
     def _extract_package(file_path: str, destination: str) -> None:
@@ -215,12 +367,14 @@ class FFMPEGDownloader:
             shutil.move(old_name, new_name)
 
     @staticmethod
-    def get_ff_family_path(download_if_not_present: bool = True, success: int = 0, error: int = 1, debug: bool = False) -> str:
+    def get_ff_family_path(download_if_not_present: bool = True, cwd: str = os.getcwd(), query_timeout: int = 10,  success: int = 0, error: int = 1, debug: bool = False) -> str:
         """_summary_
             The general path for ff related libraries
 
         Args:
             download_if_not_present (bool, optional): _description_. Defaults to True.
+            cwd (str, optional): _description_. Defaults to os.getcwd().
+            query_timeout (int, optional): _description_. Defaults to 10.
             success (int, optional): _description_. Defaults to 0.
             error (int, optional): _description_. Defaults to 1.
             debug (bool, optional): _description_. Defaults to False.
@@ -237,75 +391,37 @@ class FFMPEGDownloader:
             str: _description_
         """
         system = FFMPEGDownloader.get_system_name()
-        cwd = os.getcwd()
-        ffmpeg_folder_name = FFMPEGDownloader.ffmpeg_folder_name
-        new_folder_name: str = f"ffmpeg_{system}"
-        precompiled_path = os.path.join(
-            cwd,
-            ffmpeg_folder_name,
-            new_folder_name
-        )
         if system not in ("windows", "linux", "darwin"):
             raise PackageNotSupported("Unsupported system")
-        if not os.path.exists(precompiled_path) and not os.path.isdir(precompiled_path):
+        precompiled_ffmpeg = os.path.join(cwd, "ffmpeg", system)
+        precompiled_ffprobe = os.path.join(cwd, "ffprobe", system)
+        precompiled_ffplay = os.path.join(cwd, "ffplay", system)
+        if not os.path.isdir(precompiled_ffmpeg) or not os.path.isdir(precompiled_ffprobe) or not os.path.isdir(precompiled_ffplay):
             if not download_if_not_present:
-                raise PackageNotInstalled("FFmpeg not found")
-            print("FFmpeg not found in precompiled path, setting up")
+                raise PackageNotInstalled("FF_family not found")
+            print("FF_family not found in precompiled paths, setting up")
             fdi = FFMPEGDownloader(
-                success=success, error=error, debug=debug
+                cwd=cwd,
+                query_timeout=query_timeout,
+                success=success,
+                error=error,
+                debug=debug
             )
             status = fdi.main()
             if status != 0:
-                raise RuntimeError("FFmpeg could not be installed")
-        if os.path.exists(precompiled_path) and os.path.isdir(precompiled_path):
-            return precompiled_path
-        raise PackageNotInstalled("FFmpeg not found")
+                raise RuntimeError("FF_family could not be installed")
+        if os.path.exists(cwd) and os.path.isdir(cwd):
+            return cwd
+        raise PackageNotInstalled("FF_family not found")
 
     @staticmethod
-    def get_ffmpeg_binary_path(download_if_not_present: bool = True, success: int = 0, error: int = 1, debug: bool = False) -> str:
-        """_summary_
-
-        Returns:
-            str: _description_
-        """
-        system = FFMPEGDownloader.get_system_name()
-        ffmpeg_system_path = FFMPEGDownloader.get_ff_family_path(
-            download_if_not_present=download_if_not_present,
-            success=success,
-            error=error,
-            debug=debug
-        )
-        path = None
-        if system == "windows":
-            path = os.path.join(
-                ffmpeg_system_path,
-                "ffmpeg.exe"
-            )
-        elif system == "linux":
-            path = os.path.join(
-                ffmpeg_system_path,
-                "ffmpeg"
-            )
-        elif system == "darwin":
-            path = os.path.join(
-                ffmpeg_system_path,
-                "ffmpeg"
-            )
-        else:
-            raise PackageNotSupported("Unsupported OS")
-        print(f"FFmpeg path = '{path}'")
-        if os.path.exists(path):
-            if os.path.isfile(path):
-                return path
-            raise PackageNotSupported("Path is not a file")
-        raise PackageNotInstalled("ffmpeg is not properly installed")
-
-    @staticmethod
-    def get_ffplay_binary_path(download_if_not_present: bool = True, success: int = 0, error: int = 1, debug: bool = False) -> str:
+    def get_ffmpeg_binary_path(download_if_not_present: bool = True, cwd: str = os.getcwd(), query_timeout: int = 10,  success: int = 0, error: int = 1, debug: bool = False) -> str:
         """_summary_
 
         Args:
             download_if_not_present (bool, optional): _description_. Defaults to True.
+            cwd (str, optional): _description_. Defaults to os.getcwd().
+            query_timeout (int, optional): _description_. Defaults to 10.
             success (int, optional): _description_. Defaults to 0.
             error (int, optional): _description_. Defaults to 1.
             debug (bool, optional): _description_. Defaults to False.
@@ -321,24 +437,29 @@ class FFMPEGDownloader:
         system = FFMPEGDownloader.get_system_name()
         ffmpeg_system_path = FFMPEGDownloader.get_ff_family_path(
             download_if_not_present=download_if_not_present,
+            cwd=cwd,
+            query_timeout=query_timeout,
             success=success,
             error=error,
             debug=debug
         )
+        ffmpeg_precompiled_path = os.path.join(
+            ffmpeg_system_path, "ffmpeg", system
+        )
         path = None
         if system == "windows":
             path = os.path.join(
-                ffmpeg_system_path,
+                ffmpeg_precompiled_path,
                 "ffmpeg.exe"
             )
         elif system == "linux":
             path = os.path.join(
-                ffmpeg_system_path,
+                ffmpeg_precompiled_path,
                 "ffmpeg"
             )
         elif system == "darwin":
             path = os.path.join(
-                ffmpeg_system_path,
+                ffmpeg_precompiled_path,
                 "ffmpeg"
             )
         else:
@@ -351,11 +472,13 @@ class FFMPEGDownloader:
         raise PackageNotInstalled("ffmpeg is not properly installed")
 
     @staticmethod
-    def get_ffprobe_binary_path(download_if_not_present: bool = True, success: int = 0, error: int = 1, debug: bool = False) -> str:
+    def get_ffplay_binary_path(download_if_not_present: bool = True, cwd: str = os.getcwd(), query_timeout: int = 10,  success: int = 0, error: int = 1, debug: bool = False) -> str:
         """_summary_
 
         Args:
             download_if_not_present (bool, optional): _description_. Defaults to True.
+            cwd (str, optional): _description_. Defaults to os.getcwd().
+            query_timeout (int, optional): _description_. Defaults to 10.
             success (int, optional): _description_. Defaults to 0.
             error (int, optional): _description_. Defaults to 1.
             debug (bool, optional): _description_. Defaults to False.
@@ -371,34 +494,157 @@ class FFMPEGDownloader:
         system = FFMPEGDownloader.get_system_name()
         ffmpeg_system_path = FFMPEGDownloader.get_ff_family_path(
             download_if_not_present=download_if_not_present,
+            cwd=cwd,
+            query_timeout=query_timeout,
             success=success,
             error=error,
             debug=debug
         )
+        ffmpeg_precompiled_path = os.path.join(
+            ffmpeg_system_path, "ffplay", system
+        )
         path = None
         if system == "windows":
             path = os.path.join(
-                ffmpeg_system_path,
-                "ffmpeg.exe"
+                ffmpeg_precompiled_path,
+                "ffplay.exe"
             )
         elif system == "linux":
             path = os.path.join(
-                ffmpeg_system_path,
-                "ffmpeg"
+                ffmpeg_precompiled_path,
+                "ffplay"
             )
         elif system == "darwin":
             path = os.path.join(
-                ffmpeg_system_path,
-                "ffmpeg"
+                ffmpeg_precompiled_path,
+                "ffplay"
             )
         else:
             raise PackageNotSupported("Unsupported OS")
-        print(f"FFmpeg path = '{path}'")
+        print(f"FFplay path = '{path}'")
         if os.path.exists(path):
             if os.path.isfile(path):
                 return path
             raise PackageNotSupported("Path is not a file")
-        raise PackageNotInstalled("ffmpeg is not properly installed")
+        raise PackageNotInstalled("ffplay is not properly installed")
+
+    @staticmethod
+    def get_ffprobe_binary_path(download_if_not_present: bool = True, cwd: str = os.getcwd(), query_timeout: int = 10,  success: int = 0, error: int = 1, debug: bool = False) -> str:
+        """_summary_
+
+        Args:
+            download_if_not_present (bool, optional): _description_. Defaults to True.
+            cwd (str, optional): _description_. Defaults to os.getcwd().
+            query_timeout (int, optional): _description_. Defaults to 10.
+            success (int, optional): _description_. Defaults to 0.
+            error (int, optional): _description_. Defaults to 1.
+            debug (bool, optional): _description_. Defaults to False.
+
+        Raises:
+            PackageNotSupported: _description_
+            PackageNotSupported: _description_
+            PackageNotInstalled: _description_
+
+        Returns:
+            str: _description_
+        """
+        system = FFMPEGDownloader.get_system_name()
+        ffmpeg_system_path = FFMPEGDownloader.get_ff_family_path(
+            download_if_not_present=download_if_not_present,
+            cwd=cwd,
+            query_timeout=query_timeout,
+            success=success,
+            error=error,
+            debug=debug
+        )
+        ffmpeg_precompiled_path = os.path.join(
+            ffmpeg_system_path, "ffprobe", system
+        )
+        path = None
+        if system == "windows":
+            path = os.path.join(
+                ffmpeg_precompiled_path,
+                "ffprobe.exe"
+            )
+        elif system == "linux":
+            path = os.path.join(
+                ffmpeg_precompiled_path,
+                "ffprobe"
+            )
+        elif system == "darwin":
+            path = os.path.join(
+                ffmpeg_precompiled_path,
+                "ffprobe"
+            )
+        else:
+            raise PackageNotSupported("Unsupported OS")
+        print(f"FFprobe path = '{path}'")
+        if os.path.exists(path):
+            if os.path.isfile(path):
+                return path
+            raise PackageNotSupported("Path is not a file")
+        raise PackageNotInstalled("ffprobe is not properly installed")
+
+    @staticmethod
+    def add_ff_family_to_path(ffmpeg_path: str = None, ffplay_path: str = None, ffprobe_path: str = None, download_if_not_present: bool = True, cwd: str = os.getcwd(), query_timeout: int = 10,  success: int = 0, error: int = 1, debug: bool = False) -> None:
+        """_summary_
+            Add the FF family to the system path.
+
+        Args:
+            ffmpeg_path (str, optional): _description_. Defaults to None.
+            ffplay_path (str, optional): _description_. Defaults to None.
+            ffprobe_path (str, optional): _description_. Defaults to None.
+            download_if_not_present (bool, optional): _description_. Defaults to True.
+            cwd (str, optional): _description_. Defaults to os.getcwd().
+            query_timeout (int, optional): _description_. Defaults to 10.
+            success (int, optional): _description_. Defaults to 0.
+            error (int, optional): _description_. Defaults to 1.
+            debug (bool, optional): _description_. Defaults to False.
+        """
+        if ffmpeg_path is None:
+            print("Getting ffmpeg path")
+            ffmpeg_path = FFMPEGDownloader.get_ffmpeg_binary_path(
+                download_if_not_present=download_if_not_present,
+                cwd=cwd,
+                query_timeout=query_timeout,
+                success=success,
+                error=error,
+                debug=debug
+            )
+        if ffplay_path is None:
+            print("Getting ffplay path")
+            ffplay_path = FFMPEGDownloader.get_ffplay_binary_path(
+                download_if_not_present=download_if_not_present,
+                cwd=cwd,
+                query_timeout=query_timeout,
+                success=success,
+                error=error,
+                debug=debug
+            )
+        if ffprobe_path is None:
+            print("Getting ffprobe path")
+            ffprobe_path = FFMPEGDownloader.get_ffprobe_binary_path(
+                download_if_not_present=download_if_not_present,
+                cwd=cwd,
+                query_timeout=query_timeout,
+                success=success,
+                error=error,
+                debug=debug
+            )
+        print("Adding FF family to PATH")
+        for ff_path in [ffmpeg_path, ffplay_path, ffprobe_path]:
+            if ff_path not in os.environ["PATH"]:
+                print(f"Adding {ff_path} to PATH")
+                os.environ["PATH"] = ff_path + os.pathsep + os.environ["PATH"]
+                print(f"Added {ff_path} to PATH")
+            else:
+                print(f"{ff_path} is already in PATH")
+            if ff_path not in sys.path:
+                print(f"Adding {ff_path} to sys.path")
+                sys.path.append(ff_path)
+                print(f"Added {ff_path} to sys.path")
+            else:
+                print(f"{ff_path} is already in sys.path")
 
     def _clean_platform_name(self) -> None:
         """_summary_
@@ -420,25 +666,96 @@ class FFMPEGDownloader:
         msg += f"{self.system} {self.architecture}"
         print(msg)
 
-    def _get_correct_download_and_file_path(self) -> None:
+    def _get_correct_download_and_file_path(self, binary_name: str = FFMPEG_KEY) -> None:
         """_summary_
+
+        Args:
+            binary_name (str, optional): _description_. Defaults to FFMPEG_KEY.
 
         Raises:
             ArchitectureNotSupported: _description_
             PackageNotSupported: _description_
             PackageNotInstalled: _description_
         """
-        if self.system in BUNDLE_DOWNLOAD:
-            if self.architecture in BUNDLE_DOWNLOAD[self.system]:
-                self.file_path = BUNDLE_DOWNLOAD[self.system][self.architecture][FILE_PATH_TOKEN]
-                self.file_url = BUNDLE_DOWNLOAD[self.system][self.architecture][FILE_URL_TOKEN]
+        if binary_name not in BUNDLE_DOWNLOAD:
+            raise PackageNotSupported("Unknown binary choice" + binary_name)
+        if self.system in BUNDLE_DOWNLOAD[binary_name]:
+            if self.architecture in BUNDLE_DOWNLOAD[binary_name][self.system]:
+                self.file_path = BUNDLE_DOWNLOAD[binary_name][self.system][self.architecture][FILE_PATH_TOKEN]
+                self.file_url = BUNDLE_DOWNLOAD[binary_name][self.system][self.architecture][FILE_URL_TOKEN]
             else:
                 raise ArchitectureNotSupported("Unknown architecture")
         else:
             raise PackageNotSupported("Unknown system")
 
+    def _get_all_binaries(self) -> None:
+        """_summary_
+
+        Raises:
+            PackageNotSupported: _description_
+            PackageNotSupported: _description_
+            PackageNotInstalled: _description_
+        """
+        for binary in self.available_binaries:
+            print(f"Downloading {binary}")
+            self._get_correct_download_and_file_path(binary)
+            self.fold_path = os.path.dirname(self.file_path)
+            self._create_path_if_not_exists(self.fold_path)
+            if os.path.exists(self.file_path):
+                print(f"{binary} already downloaded")
+                continue
+            self._download_file(
+                self.file_url,
+                self.file_path,
+                self.query_timeout
+            )
+
+    def _install_all_binaries(self) -> None:
+        """_summary_
+            This is the function that will install all the FF_family binaries is they are already downloaded.
+        """
+        for binary in self.available_binaries:
+            print(f"Installing {binary}")
+            self._get_correct_download_and_file_path(binary)
+            self.fold_path = os.path.dirname(self.file_path)
+            extract_to = os.path.join(
+                self.cwd,
+                binary
+            )
+            final_name = os.path.join(
+                extract_to,
+                self.system
+            )
+            if os.path.isdir(final_name):
+                print(f"{binary} already installed")
+                continue
+            if binary == FFPLAY_KEY:
+                extract_to = os.path.join(
+                    extract_to,
+                    self.system
+                )
+            self._create_path_if_not_exists(extract_to)
+            self._extract_package(self.file_path, extract_to)
+            self.extracted_folder = os.listdir(extract_to)[0]
+            new_folder_path = os.path.join(
+                self.cwd,
+                binary,
+                self.system
+            )
+            old_folder_path = os.path.join(
+                extract_to,
+                self.extracted_folder
+            )
+            if binary != FFPLAY_KEY:
+                self._rename_extracted_folder(
+                    old_folder_path,
+                    new_folder_path
+                )
+            print(f"{binary} installed")
+
     def main(self, audio_segment_node: AudioSegment = None) -> int:
         """_summary_
+            The function in charge of downloading and extracting the FF_family binaries for the current system.
 
         Raises:
             PackageNotInstalled: _description_
@@ -450,11 +767,24 @@ class FFMPEGDownloader:
         """
         try:
             found_path = self.get_ff_family_path(download_if_not_present=False)
-            print(f"FFmpeg already installed at {found_path}")
+            print(f"FF_family already installed at {found_path}")
+            ffmpeg_path = self.get_ffmpeg_binary_path(
+                download_if_not_present=False
+            )
+            ffplay_path = self.get_ffplay_binary_path(
+                download_if_not_present=False
+            )
+            ffprobe_path = self.get_ffprobe_binary_path(
+                download_if_not_present=False
+            )
             print("Updating pydub ffmpeg path")
             if audio_segment_node is not None:
-                audio_segment_node.ffmpeg = found_path
-            AudioSegment.ffmpeg = found_path
+                audio_segment_node.ffmpeg = ffmpeg_path
+            AudioSegment.ffmpeg = ffmpeg_path
+            self.add_ff_family_to_path(
+                ffmpeg_path, ffplay_path, ffprobe_path, download_if_not_present=False
+            )
+            print("FF_family already installed and ready to use!")
             return self.success
         except PackageNotInstalled:
             print("FFmpeg not found. Installing...")
@@ -463,37 +793,27 @@ class FFMPEGDownloader:
                 "FFmpeg cannot be installed on this device because the system is unknown to this script."
             ) from e
         self._clean_platform_name()
-        self._get_correct_download_and_file_path()
-        self.fold_path = os.path.dirname(self.file_path)
-        self._create_path_if_not_exists(self.fold_path)
-        if not os.path.exists(self.file_path):
-            self._download_file(
-                self.file_url,
-                self.file_path,
-                self.query_timeout
-            )
-        self._create_path_if_not_exists(self.extract_to)
-        self._extract_package(self.file_path, self.extract_to)
-        self.extracted_folder = os.listdir(self.extract_to)[0]
-        self.new_folder_path = os.path.join(
-            self.cwd,
-            self.ffmpeg_folder_name,
-            self.new_folder_name
+        self._get_all_binaries()
+        self._install_all_binaries()
+        ffmpeg_path = self.get_ffmpeg_binary_path(
+            download_if_not_present=False
         )
-        old_folder_path = os.path.join(
-            self.extract_to,
-            self.extracted_folder
+        ffplay_path = self.get_ffplay_binary_path(
+            download_if_not_present=False
         )
-        self._rename_extracted_folder(
-            old_folder_path,
-            self.new_folder_path
+        ffprobe_path = self.get_ffprobe_binary_path(
+            download_if_not_present=False
         )
-        ffmpeg_path = self.get_ff_family_path(download_if_not_present=False)
         print(f"FFmpeg installed at {ffmpeg_path}")
+        print(f"FFplay installed at {ffplay_path}")
+        print(f"FFprobe installed at {ffprobe_path}")
         if audio_segment_node is not None:
             audio_segment_node.ffmpeg = ffmpeg_path
         AudioSegment.ffmpeg = ffmpeg_path
-        print("FFmpeg installed and ready to use!")
+        self.add_ff_family_to_path(
+            ffmpeg_path, ffplay_path, ffprobe_path, download_if_not_present=False
+        )
+        print("FF_family installed and ready to use!")
         return self.success
 
 
