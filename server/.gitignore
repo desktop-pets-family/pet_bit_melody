@@ -30,11 +30,13 @@ binarea_server
 # Ignore google cloud authorisations
 client_secret*.json
 
-# Ignore the ffmpeg binaries
-ffmpeg/ffmpeg/**
-ffmpeg/linux/**
-!ffmpeg/linux/.gitkeep
-ffmpeg/macos/**
-!ffmpeg/macos/.gitkeep
-ffmpeg/windows/**
-!ffmpeg/windows/.gitkeep
+# Ignore the ffmpeg and similar binaries
+ff_family/ffmpeg/**
+ff_family/ffplay/**
+ff_family/ffprobe/**
+ff_family/downloads/linux/**
+!ff_family/downloads/linux/.gitkeep
+ff_family/downloads/macos/**
+!ff_family/downloads/macos/.gitkeep
+ff_family/downloads/windows/**
+!ff_family/downloads/windows/.gitkeep
