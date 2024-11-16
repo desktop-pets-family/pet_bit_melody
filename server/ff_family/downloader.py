@@ -12,12 +12,14 @@ Raises:
 """
 import os
 import sys
+import math
+import struct
 import shutil
 import zipfile
 import tarfile
 import platform
 import requests
-from pydub import AudioSegment
+from pydub import AudioSegment, playback
 
 
 class ArchitectureNotSupported(Exception):
@@ -264,6 +266,74 @@ class FFMPEGDownloader:
         self.available_binaries: list = FFMPEGDownloader.available_binaries
 
     @staticmethod
+    def generate_audio_sample(tone: int) -> AudioSegment:
+        """
+        Generates a pure tone audio sample using the pydub library.
+
+        Args:
+            tone (int): Frequency of the tone in Hz.
+
+        Returns:
+            AudioSegment: The generated audio segment.
+        """
+        print(f"Generating audio sample for tone {tone} Hz")
+        sample_rate = 44100  # Hz
+        frequency = tone  # Hz
+        duration = 3.0  # seconds
+
+        # Generate samples manually
+        num_samples = int(sample_rate * duration)
+        samples = []
+        for i in range(num_samples):
+            t = i / sample_rate
+            # Generate a sine wave
+            sample_value = 0.5 * math.sin(2 * math.pi * frequency * t)
+            # Convert to 16-bit integer
+            waveform_integer = int(sample_value * 32767)
+            samples.append(waveform_integer)
+
+        # Pack the waveform integers into a byte array
+        raw_audio_data = struct.pack("<" + "h" * len(samples), *samples)
+
+        # Create the AudioSegment
+        audio_segment = AudioSegment(
+            raw_audio_data,
+            frame_rate=sample_rate,
+            sample_width=2,  # 16-bit audio is 2 bytes
+            channels=1  # Mono audio
+        )
+        print("Audio sample generated")
+        return audio_segment
+
+    @staticmethod
+    def play_audio_sample(audio_segment: AudioSegment) -> None:
+        """
+        Plays an audio sample using the pydub library.
+
+        Args:
+            audio_segment (AudioSegment): The audio segment to play.
+        """
+        print("Plying audio sample")
+        playback.play(audio_segment)
+        print("Audio sample played")
+
+    @staticmethod
+    def save_audio_sample(audio_segment: AudioSegment, file_path: str) -> None:
+        """
+            Saves an audio sample to a file using the pydub library.
+
+        Args:
+            audio_segment (AudioSegment): _description_
+            file_path (str): _description_
+
+        Returns:
+            _type_: _description_
+        """
+        print(f"Saving audio sample to {file_path}")
+        audio_segment.export(file_path, format="wav")
+        print(f"Audio sample saved to {file_path}")
+
+    @staticmethod
     def _extract_package(file_path: str, destination: str) -> None:
         """_summary_
 
@@ -352,6 +422,22 @@ class FFMPEGDownloader:
         with open(file_path, "wb") as file_descriptor:
             file_descriptor.write(response_data.content)
         print("Download complete")
+
+    @staticmethod
+    def _grant_executable_rights(file_path: str = None) -> None:
+        """_summary_
+
+        Args:
+            file_path (str, optional): _description_. Defaults to None.
+        """
+        if file_path is None:
+            return
+        print(f"Giving executable rights to {file_path}")
+        if os.path.exists(file_path):
+            os.chmod(file_path, 0o755)
+            print(f"Executable rights granted to {file_path}")
+        else:
+            print(f"{file_path} does not exist, could not grant executable rights")
 
     @staticmethod
     def _rename_extracted_folder(old_name: str, new_name: str) -> None:
@@ -457,11 +543,13 @@ class FFMPEGDownloader:
                 ffmpeg_precompiled_path,
                 "ffmpeg"
             )
+            FFMPEGDownloader._grant_executable_rights(path)
         elif system == "darwin":
             path = os.path.join(
                 ffmpeg_precompiled_path,
                 "ffmpeg"
             )
+            FFMPEGDownloader._grant_executable_rights(path)
         else:
             raise PackageNotSupported("Unsupported OS")
         print(f"FFmpeg path = '{path}'")
@@ -514,11 +602,13 @@ class FFMPEGDownloader:
                 ffmpeg_precompiled_path,
                 "ffplay"
             )
+            FFMPEGDownloader._grant_executable_rights(path)
         elif system == "darwin":
             path = os.path.join(
                 ffmpeg_precompiled_path,
                 "ffplay"
             )
+            FFMPEGDownloader._grant_executable_rights(path)
         else:
             raise PackageNotSupported("Unsupported OS")
         print(f"FFplay path = '{path}'")
@@ -571,11 +661,13 @@ class FFMPEGDownloader:
                 ffmpeg_precompiled_path,
                 "ffprobe"
             )
+            FFMPEGDownloader._grant_executable_rights(path)
         elif system == "darwin":
             path = os.path.join(
                 ffmpeg_precompiled_path,
                 "ffprobe"
             )
+            FFMPEGDownloader._grant_executable_rights(path)
         else:
             raise PackageNotSupported("Unsupported OS")
         print(f"FFprobe path = '{path}'")
@@ -631,6 +723,11 @@ class FFMPEGDownloader:
                 error=error,
                 debug=debug
             )
+        msg = "Converting the direct paths (which include the binaries at the end) into system paths (which only include the directories containing the binaries)"
+        print(msg)
+        ffmpeg_path = os.path.dirname(ffmpeg_path)
+        ffplay_path = os.path.dirname(ffplay_path)
+        ffprobe_path = os.path.dirname(ffprobe_path)
         print("Adding FF family to PATH")
         for ff_path in [ffmpeg_path, ffplay_path, ffprobe_path]:
             if ff_path not in os.environ["PATH"]:
@@ -820,3 +917,8 @@ class FFMPEGDownloader:
 if __name__ == "__main__":
     FDI = FFMPEGDownloader()
     FDI.main()
+    AUDIO_WAVE = 440
+    AUDIO_SAMPLE_PATH = f"./{AUDIO_WAVE}.wav"
+    AUDIO_SAMPLE = FDI.generate_audio_sample(AUDIO_WAVE)
+    FDI.save_audio_sample(AUDIO_SAMPLE, AUDIO_SAMPLE_PATH)
+    FDI.play_audio_sample(AUDIO_SAMPLE)
