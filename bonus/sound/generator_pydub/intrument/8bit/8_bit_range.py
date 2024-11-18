@@ -16,7 +16,7 @@ def process_ffmpeg_path():
     """
     print("Adding local ff family binaries to path.")
     ffmpeg_base_path = os.path.join(
-        "..", "..", "..", "server", "ff_family"
+        "..", "..", "..", "..", "server", "ff_family"
     )
     if system() == "Windows":
         sys_name = "windows"
