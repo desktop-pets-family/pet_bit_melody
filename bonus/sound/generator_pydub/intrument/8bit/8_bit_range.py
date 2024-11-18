@@ -79,7 +79,7 @@ class NoteEquivalence8bit:
     This class contains the equivalence of the notes in the 8-bit range.
     All frequencies are scaled to fit within the range of 31–255 Hz.
     """
-    MUTE = 0
+    MUTE = 1
 
     # Notes in the 8-bit range
     C0 = 31
