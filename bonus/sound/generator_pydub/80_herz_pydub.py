@@ -71,14 +71,14 @@ except Exception as e:
 
 
 # Parameters
-frequency = 80  # Frequency in Hz
-duration = 3.0  # Duration in seconds
-sample_rate = 44100  # Samples per second (standard for audio)
+FREQUENCY = 80  # FREQUENCY in Hz
+DURATION = 3.0  # Duration in seconds
+SAMPLE_RATE = 44100  # Samples per second (standard for audio)
 
 # Generate the samples for the sine wave
-t = np.linspace(0, duration, int(sample_rate * duration), endpoint=False)
+t = np.linspace(0, DURATION, int(SAMPLE_RATE * DURATION), endpoint=False)
 # 0.5 to keep volume manageable
-waveform = 0.5 * np.sin(2 * np.pi * frequency * t)
+waveform = 0.5 * np.sin(2 * np.pi * FREQUENCY * t)
 
 # Convert to 16-bit PCM (required by PyDub)
 waveform_integers = np.int16(waveform * 32767)
@@ -86,7 +86,7 @@ waveform_integers = np.int16(waveform * 32767)
 # Create an AudioSegment from the waveform
 audio_segment = AudioSegment(
     waveform_integers.tobytes(),  # raw audio data
-    frame_rate=sample_rate,
+    frame_rate=SAMPLE_RATE,
     sample_width=waveform_integers.dtype.itemsize,
     channels=1
 )
