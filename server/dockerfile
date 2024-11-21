@@ -1,6 +1,6 @@
-FROM ubuntu:latest
+FROM python:3.13.0-bookworm
 
-ENV LOCATION=docker-server \
+ENV LOCATION=server \
     DEBIAN_FRONTEND=noninteractive \
     HOME=/srv \
     ENV_NAME=server_env \
@@ -23,9 +23,7 @@ RUN apt update && apt upgrade -y \
     && apt-get install -y tzdata \
     && ln -fs /usr/share/zoneinfo/Europe/Paris /etc/localtime \
     && dpkg-reconfigure --frontend noninteractive tzdata \
-    && apt-get install -y libmariadb-dev \
     && apt install -y \
-    python3 \
     python3-pip \
     python3-dev \
     python3-venv \
@@ -33,6 +31,9 @@ RUN apt update && apt upgrade -y \
 
 # Go to the working folder
 WORKDIR ${HOME}
+
+# Copying the content of the requirements file into the container (this is a failsafe in case the requirements file is not in the backend folder)
+COPY ./requirements.txt ${HOME}
 
 # Copy the content of the backend into the container
 COPY . ${HOME}
