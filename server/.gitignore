@@ -34,3 +34,5 @@ client_secret*.json
 # Ignore the ffmpeg and similar binaries
 src/lib/components/ff_family/**
 !src/lib/components/ff_family/downloader.py
+!src/lib/components/ff_family/__main__.py
+!src/lib/components/ff_family/__init__.py
