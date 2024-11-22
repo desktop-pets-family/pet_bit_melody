@@ -159,3 +159,35 @@ class Secrets:
             _type_: _description_
         """
         return datetime.now().astimezone().time().replace(microsecond=0).isoformat()
+
+
+# ---------------------------------- Secrets  ----------------------------------
+SECRETS_EQUIVALENCE = {
+    "secrets.now": Secrets.now_server,
+    "secrets.current_date": Secrets.current_date,
+    "secrets.current_time": Secrets.current_time,
+    "secrets.now_utc": Secrets.now_utc,
+    "secrets.current_date_utc": Secrets.current_date_utc,
+    "secrets.current_time_utc": Secrets.current_time_utc,
+    "secrets.now_server": Secrets.now_server,
+    "secrets.current_date_server": Secrets.current_date_server,
+    "secrets.current_time_server": Secrets.current_time_server,
+    "secret.now": Secrets.now_server,
+    "secret.current_date": Secrets.current_date,
+    "secret.current_time": Secrets.current_time,
+    "secret.now_utc": Secrets.now_utc,
+    "secret.current_date_utc": Secrets.current_date_utc,
+    "secret.current_time_utc": Secrets.current_time_utc,
+    "secret.now_server": Secrets.now_server,
+    "secret.current_date_server": Secrets.current_date_server,
+    "secret.current_time_server": Secrets.current_time_server,
+    "now": Secrets.now_server,
+    "current_date": Secrets.current_date,
+    "current_time": Secrets.current_time,
+    "now_utc": Secrets.now_utc,
+    "current_date_utc": Secrets.current_date_utc,
+    "current_time_utc": Secrets.current_time_utc,
+    "now_server": Secrets.now_server,
+    "current_date_server": Secrets.current_date_server,
+    "current_time_server": Secrets.current_time_server
+}

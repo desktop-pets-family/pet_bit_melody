@@ -17,7 +17,6 @@ if TYPE_CHECKING:
     from .oauth_authentication import OAuthAuthentication
     from .mail_management import MailManagement
     from ..boilerplates import BoilerplateIncoming, BoilerplateNonHTTP, BoilerplateResponses
-    from ..actions import ActionsMain
 
 
 class RuntimeData:
@@ -65,6 +64,5 @@ class RuntimeData:
         self.boilerplate_incoming_initialised: 'BoilerplateIncoming' = None
         self.boilerplate_non_http_initialised: 'BoilerplateNonHTTP' = None
         self.oauth_authentication_initialised: 'OAuthAuthentication' = None
-        self.actions_main_initialised: 'ActionsMain' = None
         self.mail_management_initialised: 'MailManagement' = None
         self.ff_family_initialised: FFFamily = None

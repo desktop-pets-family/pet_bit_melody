@@ -8,7 +8,7 @@ import requests
 
 from display_tty import Disp, TOML_CONF, FILE_DESCRIPTOR, SAVE_TO_FILE, FILE_NAME
 
-from . import constants as ACONST
+from . import constants as QCONST
 
 
 class UnknownContentTypeError(Exception):
@@ -298,8 +298,8 @@ class QueryEndpoint:
         Returns:
             Dict[str, Union[str, bytes, Dict[str, Any], None]]: A dictionary with parsed response content.
             Contains two keys:
-                - ACONST.CONTENT_TYPE_KEY: str - The content type of the response.
-                - ACONST.CONTENT_KEY: Union[Dict[str, Any], str, bytes, None] - Parsed content.
+                - QCONST.CONTENT_TYPE_KEY: str - The content type of the response.
+                - QCONST.CONTENT_KEY: Union[Dict[str, Any], str, bytes, None] - Parsed content.
                     - JSON (application/json, application/ld+json) -> Dict
                     - Text (text/html, text/plain, text/csv, text/xml) -> str
                     - XML (application/xml) -> str
@@ -315,28 +315,28 @@ class QueryEndpoint:
             self.disp.log_error(
                 f"Response content type is unknown, {e}", title
             )
-            return {ACONST.CONTENT_TYPE_KEY: None, ACONST.CONTENT_KEY: None}
+            return {QCONST.CONTENT_TYPE_KEY: None, QCONST.CONTENT_KEY: None}
 
-        if node in ACONST.CONTENT_TYPES_JSON:
+        if node in QCONST.CONTENT_TYPES_JSON:
             try:
-                return {ACONST.CONTENT_TYPE_KEY: content_type, ACONST.CONTENT_KEY: response.json()}
+                return {QCONST.CONTENT_TYPE_KEY: content_type, QCONST.CONTENT_KEY: response.json()}
             except ValueError as e:
                 raise ValueError("Response content is not valid JSON") from e
-        elif node in ACONST.CONTENT_TYPES_TEXT:
-            return {ACONST.CONTENT_TYPE_KEY: content_type, ACONST.CONTENT_KEY: response.text}
-        elif node in ACONST.CONTENT_TYPES_XML:
-            return {ACONST.CONTENT_TYPE_KEY: content_type, ACONST.CONTENT_KEY: response.text}
-        elif node in ACONST.CONTENT_TYPES_BINARY:
-            return {ACONST.CONTENT_TYPE_KEY: content_type, ACONST.CONTENT_KEY: response.content}
-        elif node in ACONST.CONTENT_TYPES_AUDIO:
-            return {ACONST.CONTENT_TYPE_KEY: content_type, ACONST.CONTENT_KEY: response.content}
-        elif node in ACONST.CONTENT_TYPES_IMAGES:
-            return {ACONST.CONTENT_TYPE_KEY: content_type, ACONST.CONTENT_KEY: response.content}
-        elif node in ACONST.CONTENT_TYPES_VIDEO:
-            return {ACONST.CONTENT_TYPE_KEY: content_type, ACONST.CONTENT_KEY: response.content}
+        elif node in QCONST.CONTENT_TYPES_TEXT:
+            return {QCONST.CONTENT_TYPE_KEY: content_type, QCONST.CONTENT_KEY: response.text}
+        elif node in QCONST.CONTENT_TYPES_XML:
+            return {QCONST.CONTENT_TYPE_KEY: content_type, QCONST.CONTENT_KEY: response.text}
+        elif node in QCONST.CONTENT_TYPES_BINARY:
+            return {QCONST.CONTENT_TYPE_KEY: content_type, QCONST.CONTENT_KEY: response.content}
+        elif node in QCONST.CONTENT_TYPES_AUDIO:
+            return {QCONST.CONTENT_TYPE_KEY: content_type, QCONST.CONTENT_KEY: response.content}
+        elif node in QCONST.CONTENT_TYPES_IMAGES:
+            return {QCONST.CONTENT_TYPE_KEY: content_type, QCONST.CONTENT_KEY: response.content}
+        elif node in QCONST.CONTENT_TYPES_VIDEO:
+            return {QCONST.CONTENT_TYPE_KEY: content_type, QCONST.CONTENT_KEY: response.content}
         else:
             self.disp.log_error(f"Unhandled content type: {content_type}")
-            return {ACONST.CONTENT_TYPE_KEY: content_type, ACONST.CONTENT_KEY: None}
+            return {QCONST.CONTENT_TYPE_KEY: content_type, QCONST.CONTENT_KEY: None}
 
     def compile_response_data(self, response: requests.Response) -> Dict[str, Union[int, Dict[str, Union[str, bytes, Dict[str, Any], None]]]]:
         """
@@ -354,18 +354,19 @@ class QueryEndpoint:
         compiled = {}
         data = self.get_content(response)
         self.disp.log_debug(f"data = {data}", title)
-        compiled[ACONST.RESPONSE_NODE_BODY_KEY] = data[ACONST.CONTENT_KEY]
-        compiled[ACONST.RESPONSE_NODE_BODY_TYPE_KEY] = data[ACONST.CONTENT_TYPE_KEY]
-        compiled[ACONST.RESPONSE_NODE_STATUS_CODE_KEY] = response.status_code
-        compiled[ACONST.RESPONSE_NODE_HEADERS_KEY] = response.headers
-        compiled[ACONST.RESPONSE_NODE_HEADERS_TYPE_KEY] = type(
-            response.headers)
-        compiled[ACONST.RESPONSE_NODE_ENCODING_KEY] = response.encoding
-        compiled[ACONST.RESPONSE_NODE_HISTORY_KEY] = response.history
-        compiled[ACONST.RESPONSE_NODE_COOKIES_KEY] = response.cookies
-        compiled[ACONST.RESPONSE_NODE_ELAPSED_KEY] = response.elapsed
-        compiled[ACONST.RESPONSE_NODE_REASON_KEY] = response.reason
-        compiled[ACONST.RESPONSE_NODE_URL_KEY] = response.url
-        compiled[ACONST.RESPONSE_NODE_URL_KEY] = response.request.method
+        compiled[QCONST.RESPONSE_NODE_BODY_KEY] = data[QCONST.CONTENT_KEY]
+        compiled[QCONST.RESPONSE_NODE_BODY_TYPE_KEY] = data[QCONST.CONTENT_TYPE_KEY]
+        compiled[QCONST.RESPONSE_NODE_STATUS_CODE_KEY] = response.status_code
+        compiled[QCONST.RESPONSE_NODE_HEADERS_KEY] = response.headers
+        compiled[QCONST.RESPONSE_NODE_HEADERS_TYPE_KEY] = type(
+            response.headers
+        )
+        compiled[QCONST.RESPONSE_NODE_ENCODING_KEY] = response.encoding
+        compiled[QCONST.RESPONSE_NODE_HISTORY_KEY] = response.history
+        compiled[QCONST.RESPONSE_NODE_COOKIES_KEY] = response.cookies
+        compiled[QCONST.RESPONSE_NODE_ELAPSED_KEY] = response.elapsed
+        compiled[QCONST.RESPONSE_NODE_REASON_KEY] = response.reason
+        compiled[QCONST.RESPONSE_NODE_URL_KEY] = response.url
+        compiled[QCONST.RESPONSE_NODE_URL_KEY] = response.request.method
         self.disp.log_debug(f"compiled = {compiled}", title)
         return compiled

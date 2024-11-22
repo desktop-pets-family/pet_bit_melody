@@ -1,6 +1,6 @@
 FROM python:3.12.0-bookworm
 
-LABEL Autho="Henry Letellier" \
+LABEL Author="Henry Letellier" \
     Description="This is a dockerfile for the server side of the project" \
     Version="2.0.0"
 
@@ -33,7 +33,7 @@ RUN apt update && apt upgrade -y \
     build-essential
 
 # Add alias commands to the bash launchers
-ARG alias_dumper=/alias_dumper.sh
+ARG alias_dumper=/tmp/alias_dumper.sh
 RUN echo '#!/bin/bash' > ${alias_dumper} \
     && echo "function add_alias {" >> ${alias_dumper} \
     && echo "  echo \"alias \$1='\$2'\"" >> ${alias_dumper} \
