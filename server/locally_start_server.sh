@@ -1,15 +1,19 @@
 #!/bin/bash
-if [[ -f ". ./server_env/bin/activate" ]]; then
-    . ./server_env/bin/activate
+# Author: Henry Letellier
+
+ENVIRONEMENT_PATH=./server_env/bin/activate
+if [[ -f "$ENVIRONEMENT_PATH" ]]; then
+    . $ENVIRONEMENT_PATH
 else
     make create_environement install_dependencies
-    if [[ -x ". ./server_env/bin/activate" ]]; then
-        . ./server_env/bin/activate
+    if [[ -f "$ENVIRONEMENT_PATH" ]]; then
+        . $ENVIRONEMENT_PATH
     fi
     echo "Error: Unable to activate environment"
 fi
 
-python3 ./main.py \
+python3 -m src \
     --host 0.0.0.0 \
     --port 5000 \
     --debug
+deactivate
