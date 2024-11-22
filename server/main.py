@@ -4,7 +4,7 @@
 
 import sys
 from typing import Any, List
-from .src import ServerMain, CONST
+from src import ServerMain, CONST
 
 
 class Main:

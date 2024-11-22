@@ -5,7 +5,6 @@ LABEL Autho="Henry Letellier" \
     Version="2.0.0"
 
 ENV LOCATION=server \
-    DEBIAN_FRONTEND=noninteractive \
     HOME=/srv \
     ENV_NAME=server_env \
     LAUNCH_FILE=./src \
