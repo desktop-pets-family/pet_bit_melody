@@ -46,3 +46,7 @@ bcrypt == 4.2.0
 
 # FastAPI dependency
 python-multipart == 0.0.9
+
+# For music generation
+pydub == 0.25.1
+numpy == 2.1.3
