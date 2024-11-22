@@ -313,7 +313,7 @@ class FFMPEGDownloader:
         Args:
             audio_segment (AudioSegment): The audio segment to play.
         """
-        print("Plying audio sample")
+        print("Playing audio sample")
         playback.play(audio_segment)
         print("Audio sample played")
 
