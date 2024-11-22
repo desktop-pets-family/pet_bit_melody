@@ -13,6 +13,7 @@ Raises:
 import os
 import sys
 import math
+from typing import Any, Dict, Union
 import struct
 import shutil
 import zipfile
@@ -277,7 +278,7 @@ class FFFamilyDownloader:
 
     available_binaries: list = [FFMPEG_KEY, FFPROBE_KEY, FFPLAY_KEY]
 
-    def __init__(self, cwd: str = os.getcwd(), query_timeout: int = 10, success: int = 0, error: int = 84, debug: bool = False):
+    def __init__(self, cwd: str = os.getcwd(), query_timeout: int = 10, success: int = 0, error: int = 84, bundle_download: Union[Dict[str, Dict[str, Dict[str, Dict[str, str]]]], None] = None, debug: bool = False):
         self.cwd: str = cwd
         self.error: int = error
         self.debug: bool = debug
@@ -288,9 +289,21 @@ class FFFamilyDownloader:
         self.query_timeout: int = query_timeout
         self.new_folder_path: str = None
         self.extracted_folder: str = None
+        # --------------------- Getting system information ---------------------
         self.system: str = self.get_system_name()
         self.architecture: str = self.get_platform()
+        # ------------------------- FF Family url list -------------------------
         self.available_binaries: list = FFFamilyDownloader.available_binaries
+        if not bundle_download:
+            self.bundle_download: Dict[str, Any] = BUNDLE_DOWNLOAD
+        else:
+            self.bundle_download: Dict[str, Any] = bundle_download
+        if self.bundle_download is None:
+            raise Warning("The bundle download variable is not defined")
+        # -------------------------- FF Family paths  --------------------------
+        self.ffmpeg_path: str = None
+        self.ffprobe_path: str = None
+        self.ffplay_path: str = None
         # ------------------------ The logging function ------------------------
         self.disp: Disp = Disp(
             TOML_CONF,
@@ -381,12 +394,12 @@ class FFFamilyDownloader:
             Extracts a package from a file using different unpacking libraries.
 
         Args:
-            file_path (_type_): _description_
-            destination (_type_): _description_
+            file_path (_type_): The path to the file to extract.
+            destination (_type_): The path to extract the file to.
 
         Raises:
-            NotImplementedError: _description_
-            ValueError: _description_
+            NotImplementedError: The provided file format is not supported.
+            ValueError: The provided file format is not supported.
         """
         title = "_extract_package"
         FF_FAMILY_DISP.log_debug(
@@ -412,7 +425,7 @@ class FFFamilyDownloader:
             Get the name of the current system.
 
         Returns:
-            str: _description_
+            str: the name of the current system.
         """
         return platform.system().lower()
 
@@ -422,7 +435,7 @@ class FFFamilyDownloader:
             Get the platform of the current system.
 
         Returns:
-            str: _description_
+            str: the platform of the current system.
         """
         return platform.architecture()[0]
 
@@ -856,12 +869,12 @@ class FFFamilyDownloader:
             ArchitectureNotSupported: Unknown architecture
             PackageNotSupported: Unknown system
         """
-        if binary_name not in BUNDLE_DOWNLOAD:
+        if binary_name not in self.bundle_download:
             raise PackageNotSupported("Unknown binary choice" + binary_name)
-        if self.system in BUNDLE_DOWNLOAD[binary_name]:
-            if self.architecture in BUNDLE_DOWNLOAD[binary_name][self.system]:
-                self.file_path = BUNDLE_DOWNLOAD[binary_name][self.system][self.architecture][FILE_PATH_TOKEN]
-                self.file_url = BUNDLE_DOWNLOAD[binary_name][self.system][self.architecture][FILE_URL_TOKEN]
+        if self.system in self.bundle_download[binary_name]:
+            if self.architecture in self.bundle_download[binary_name][self.system]:
+                self.file_path = self.bundle_download[binary_name][self.system][self.architecture][FILE_PATH_TOKEN]
+                self.file_url = self.bundle_download[binary_name][self.system][self.architecture][FILE_URL_TOKEN]
             else:
                 raise ArchitectureNotSupported("Unknown architecture")
         else:
@@ -966,21 +979,21 @@ class FFFamilyDownloader:
                 f"FF_family already installed at {found_path}",
                 title
             )
-            ffmpeg_path = self.get_ffmpeg_binary_path(
+            self.ffmpeg_path = self.get_ffmpeg_binary_path(
                 download_if_not_present=False
             )
-            ffplay_path = self.get_ffplay_binary_path(
+            self.ffplay_path = self.get_ffplay_binary_path(
                 download_if_not_present=False
             )
-            ffprobe_path = self.get_ffprobe_binary_path(
+            self.ffprobe_path = self.get_ffprobe_binary_path(
                 download_if_not_present=False
             )
             self.disp.log_info("Updating pydub ffmpeg path", title)
             if audio_segment_node is not None:
-                audio_segment_node.ffmpeg = ffmpeg_path
-            AudioSegment.ffmpeg = ffmpeg_path
+                audio_segment_node.ffmpeg = self.ffmpeg_path
+            AudioSegment.ffmpeg = self.ffmpeg_path
             self.add_ff_family_to_path(
-                ffmpeg_path, ffplay_path, ffprobe_path, download_if_not_present=False
+                self.ffmpeg_path, self.ffplay_path, self.ffprobe_path, download_if_not_present=False
             )
             self.disp.log_info(
                 "FF_family already installed and ready to use!", title
@@ -995,23 +1008,23 @@ class FFFamilyDownloader:
         self._clean_platform_name()
         self._get_all_binaries()
         self._install_all_binaries()
-        ffmpeg_path = self.get_ffmpeg_binary_path(
+        self.ffmpeg_path = self.get_ffmpeg_binary_path(
             download_if_not_present=False
         )
-        ffplay_path = self.get_ffplay_binary_path(
+        self.ffplay_path = self.get_ffplay_binary_path(
             download_if_not_present=False
         )
-        ffprobe_path = self.get_ffprobe_binary_path(
+        self.ffprobe_path = self.get_ffprobe_binary_path(
             download_if_not_present=False
         )
-        self.disp.log_info(f"FFmpeg installed at {ffmpeg_path}", title)
-        self.disp.log_info(f"FFplay installed at {ffplay_path}", title)
-        self.disp.log_info(f"FFprobe installed at {ffprobe_path}", title)
+        self.disp.log_info(f"FFmpeg installed at {self.ffmpeg_path}", title)
+        self.disp.log_info(f"FFplay installed at {self.ffplay_path}", title)
+        self.disp.log_info(f"FFprobe installed at {self.ffprobe_path}", title)
         if audio_segment_node is not None:
-            audio_segment_node.ffmpeg = ffmpeg_path
-        AudioSegment.ffmpeg = ffmpeg_path
+            audio_segment_node.ffmpeg = self.ffmpeg_path
+        AudioSegment.ffmpeg = self.ffmpeg_path
         self.add_ff_family_to_path(
-            ffmpeg_path, ffplay_path, ffprobe_path, download_if_not_present=False
+            self.ffmpeg_path, self.ffplay_path, self.ffprobe_path, download_if_not_present=False
         )
         self.disp.log_info("FF_family installed and ready to use!", title)
         return self.success

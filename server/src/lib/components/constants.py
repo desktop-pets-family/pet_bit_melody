@@ -216,6 +216,33 @@ FF_FAMILY_CWD = _get_toml_variable(
 FF_FAMILY_QUERY_TIMEOUT = int(_get_toml_variable(
     TOML_CONF, "Server_configuration.ff_family", "query_timeout", 10
 ))
+FF_FAMILY_FFMPEG_KEY = _get_toml_variable(
+    TOML_CONF, "Server_configuration.ff_family", "ffmpeg", "ffmpeg"
+)
+FF_FAMILY_FFPROBE_KEY = _get_toml_variable(
+    TOML_CONF, "Server_configuration.ff_family", "ffprobe", "ffprobe"
+)
+FF_FAMILY_FFPLAY_KEY = _get_toml_variable(
+    TOML_CONF, "Server_configuration.ff_family", "ffplay", "ffplay"
+)
+FF_FAMILY_MAC_KEY = _get_toml_variable(
+    TOML_CONF, "Server_configuration.ff_family", "mac_key", "macos"
+)
+FF_FAMILY_LINUX_KEY = _get_toml_variable(
+    TOML_CONF, "Server_configuration.ff_family", "linux_key", "linux"
+)
+FF_FAMILY_WINDOWS_KEY = _get_toml_variable(
+    TOML_CONF, "Server_configuration.ff_family", "windows_key", "windows"
+)
+FF_FAMILY_FILE_URL_TOKEN = _get_toml_variable(
+    TOML_CONF, "Server_configuration.ff_family", "file_url_token", "file_url"
+)
+FF_FAMILY_FILE_PATH_TOKEN = _get_toml_variable(
+    TOML_CONF, "Server_configuration.ff_family", "file_path_token", "file_path"
+)
+FF_FAMILY_BUNDLE_DOWNLOAD = _get_toml_variable(
+    TOML_CONF, "Server_configuration.ff_family", "bundle_download", {}
+)
 
 # |- Cron settings
 CLEAN_TOKENS = _get_toml_variable(TOML_CONF, "Crons", "clean_tokens", True)

@@ -55,12 +55,13 @@ class Server:
             success=self.success
         )
         # ----- The classes that need to be tracked for the server to run  -----
-        self.runtime_data_initialised.ff_family_initialised = FFFamily.FFFamilyDownloader(
+        self.runtime_data_initialised.ff_family_initialised = FFFamily(
             cwd=CONST.FF_FAMILY_CWD,
             query_timeout=CONST.FF_FAMILY_QUERY_TIMEOUT,
             success=self.success,
             error=self.error,
-            debug=self.debug
+            debug=self.debug,
+            bundle_download=CONST.FF_FAMILY_BUNDLE_DOWNLOAD
         )
         self.runtime_data_initialised.background_tasks_initialised = BackgroundTasks(
             success=self.success,
@@ -148,15 +149,29 @@ class Server:
         self.disp.log_info("The server is shutting down.", "__del__")
         self.stop_server()
 
-    def get_ffmpeg(self) -> int:
+    def get_ff_family(self) -> int:
         """_summary_
             The function in charge of downloading the ffmpeg library.
 
         Returns:
             int: _description_: Returns 0 if the download was successful.
         """
-        self.disp.log_warning(
-            "Fininsh implementing the download of the ffmpeg library.", "get_ffmpeg")
+        title = "get_ffmpeg"
+        self.disp.log_info("Downloading ffmpeg", title)
+        try:
+            self.runtime_data_initialised.ff_family_initialised.ff_family_downloader_initialised()
+        except (
+            self.runtime_data_initialised.ff_family_initialised.package_not_installed,
+            self.runtime_data_initialised.ff_family_initialised.package_not_supported,
+            self.runtime_data_initialised.ff_family_initialised.architecture_not_supported,
+            self.runtime_data_initialised.ff_family_initialised.not_implemented,
+            RuntimeError,
+            ValueError
+        ) as e:
+            self.disp.log_critical(f"Error: {e}", title)
+            return self.error
+        self.disp.log_info("Downloaded ffmpeg", title)
+        return self.success
 
     def main(self) -> int:
         """_summary_
@@ -166,7 +181,14 @@ class Server:
         Returns:
             int: _description_
         """
-        self.get_ffmpeg()
+        title = "main"
+        status = self.get_ff_family()
+        if status != self.success:
+            self.disp.log_critical(
+                "Error: failed to download ff binaries.\nAborting server startup.",
+                title
+            )
+            return status
         self.runtime_data_initialised.server_management_initialised.initialise_classes()
         self.runtime_data_initialised.paths_initialised.load_default_paths_initialised()
         self.runtime_data_initialised.paths_initialised.inject_routes()
@@ -175,13 +197,13 @@ class Server:
         if status != self.success:
             self.disp.log_error(
                 "Error: background tasks failed to start.",
-                "main"
+                title
             )
             return status
         try:
             self.runtime_data_initialised.server.run()
         except Exception as e:
-            self.disp.log_error(f"Error: {e}", "main")
+            self.disp.log_error(f"Error: {e}", title)
             return self.error
         return self.success
 
