@@ -21,17 +21,34 @@ import platform
 import requests
 from pydub import AudioSegment, playback
 
+from display_tty import Disp, TOML_CONF, FILE_DESCRIPTOR, SAVE_TO_FILE, FILE_NAME
+
 
 class ArchitectureNotSupported(Exception):
-    pass
+    """
+    Exception raised when the current system architecture is not supported.
+
+    Args:
+        Exception (Exception): The base exception class.
+    """
 
 
 class PackageNotInstalled(Exception):
-    pass
+    """
+    Exception raised when the package is not installed.
+
+    Args:
+        Exception (Exception): The base exception class.
+    """
 
 
 class PackageNotSupported(Exception):
-    pass
+    """
+    Exception raised when the package is not supported.
+
+    Args:
+        Exception (Exception): The base exception class.
+    """
 
 
 # Function to extract files based on archive type
@@ -230,8 +247,18 @@ BUNDLE_DOWNLOAD = {
     }
 }
 
+# ------------------------ The logging function ------------------------
+FF_FAMILY_DISP: Disp = Disp(
+    TOML_CONF,
+    FILE_DESCRIPTOR,
+    SAVE_TO_FILE,
+    FILE_NAME,
+    debug=False,
+    logger="FF_FAMILY"
+)
 
-class FFMPEGDownloader:
+
+class FFFamilyDownloader:
     """
         The class in charge of downloading and extracting the FFmpeg binaries for the current system.
         This class is there so that ffmpeg (and it's familly binaries) ca be run without requiring the user to install it.
@@ -263,7 +290,16 @@ class FFMPEGDownloader:
         self.extracted_folder: str = None
         self.system: str = self.get_system_name()
         self.architecture: str = self.get_platform()
-        self.available_binaries: list = FFMPEGDownloader.available_binaries
+        self.available_binaries: list = FFFamilyDownloader.available_binaries
+        # ------------------------ The logging function ------------------------
+        self.disp: Disp = Disp(
+            TOML_CONF,
+            FILE_DESCRIPTOR,
+            SAVE_TO_FILE,
+            FILE_NAME,
+            debug=self.debug,
+            logger=self.__class__.__name__
+        )
 
     @staticmethod
     def generate_audio_sample(tone: int) -> AudioSegment:
@@ -276,7 +312,11 @@ class FFMPEGDownloader:
         Returns:
             AudioSegment: The generated audio segment.
         """
-        print(f"Generating audio sample for tone {tone} Hz")
+        title = "generate_audio_sample"
+        FF_FAMILY_DISP.log_debug(
+            f"Generating audio sample for tone {tone} Hz",
+            title
+        )
         sample_rate = 44100  # Hz
         frequency = tone  # Hz
         duration = 3.0  # seconds
@@ -302,7 +342,7 @@ class FFMPEGDownloader:
             sample_width=2,  # 16-bit audio is 2 bytes
             channels=1  # Mono audio
         )
-        print("Audio sample generated")
+        FF_FAMILY_DISP.log_debug("Audio sample generated", title)
         return audio_segment
 
     @staticmethod
@@ -313,9 +353,10 @@ class FFMPEGDownloader:
         Args:
             audio_segment (AudioSegment): The audio segment to play.
         """
-        print("Plying audio sample")
+        title = "play_audio_sample"
+        FF_FAMILY_DISP.log_debug("Playing audio sample", title)
         playback.play(audio_segment)
-        print("Audio sample played")
+        FF_FAMILY_DISP.log_debug("Audio sample played", title)
 
     @staticmethod
     def save_audio_sample(audio_segment: AudioSegment, file_path: str) -> None:
@@ -329,13 +370,15 @@ class FFMPEGDownloader:
         Returns:
             _type_: _description_
         """
-        print(f"Saving audio sample to {file_path}")
+        title = "save_audio_sample"
+        FF_FAMILY_DISP.log_debug(f"Saving audio sample to {file_path}", title)
         audio_segment.export(file_path, format="wav")
-        print(f"Audio sample saved to {file_path}")
+        FF_FAMILY_DISP.log_debug(f"Audio sample saved to {file_path}", title)
 
     @staticmethod
     def _extract_package(file_path: str, destination: str) -> None:
-        """_summary_
+        """
+            Extracts a package from a file using different unpacking libraries.
 
         Args:
             file_path (_type_): _description_
@@ -345,7 +388,11 @@ class FFMPEGDownloader:
             NotImplementedError: _description_
             ValueError: _description_
         """
-        print(f"Extracting {file_path} to {destination}")
+        title = "_extract_package"
+        FF_FAMILY_DISP.log_debug(
+            f"Extracting {file_path} to {destination}",
+            title
+        )
         if file_path.endswith(".zip"):
             with zipfile.ZipFile(file_path, 'r') as zip_ref:
                 zip_ref.extractall(destination)
@@ -357,18 +404,12 @@ class FFMPEGDownloader:
             raise NotImplementedError("7z extraction not implemented")
         else:
             raise ValueError("Unsupported file format")
-        print("Extraction complete")
+        FF_FAMILY_DISP.log_debug("Extraction complete", title)
 
     @staticmethod
     def get_system_name() -> str:
-        """_summary_
-
-        Raises:
-            ArchitectureNotSupported: _description_
-            PackageNotSupported: _description_
-            PackageNotInstalled: _description_
-            PackageNotSupported: _description_
-            PackageNotInstalled: _description_
+        """
+            Get the name of the current system.
 
         Returns:
             str: _description_
@@ -377,11 +418,8 @@ class FFMPEGDownloader:
 
     @staticmethod
     def get_platform() -> str:
-        """_summary_
-
-        Raises:
-            NotImplementedError: _description_
-            ValueError: _description_
+        """
+            Get the platform of the current system.
 
         Returns:
             str: _description_
@@ -390,93 +428,113 @@ class FFMPEGDownloader:
 
     @staticmethod
     def _create_path_if_not_exists(path: str) -> None:
-        """_summary_
+        """
+        Create a directory if it does not exist.
 
         Args:
-            path (_type_): _description_
+            path (str): The path to create.
 
-        Raises:
-            NotImplementedError: _description_
-            ValueError: _description_
         """
+        title = "_create_path_if_not_exists"
         if not os.path.exists(path):
-            print(f"Creating directory: {path}")
+            FF_FAMILY_DISP.log_debug(f"Creating directory: {path}", title)
             os.makedirs(path, exist_ok=True)
 
     @staticmethod
     def _download_file(file_url: str, file_path: str, query_timeout: int = 10) -> None:
-        """_summary_
+        """
+        Download a file from a URL.
 
         Args:
-            file_url (_type_): _description_
-            file_path (_type_): _description_
+            file_url (str): The URL of the file to download.
+            file_path (str): The path to save the downloaded file.
+            query_timeout (int, optional): The timeout for the query. Defaults to 10.
 
         Raises:
-            PackageNotInstalled: _description_
+            PackageNotInstalled: If the package could not be downloaded.
         """
-        print(f"Downloading FFmpeg from {file_url}")
+        title = "_download_file"
+        FF_FAMILY_DISP.log_info(f"Downloading FFmpeg from {file_url}", title)
         response_data = requests.get(file_url, timeout=query_timeout)
         if response_data.status_code != 200:
+            FF_FAMILY_DISP.log_error(
+                "Failed to download FFmpeg." +
+                f"Status code: {response_data.status_code}",
+                title
+            )
             raise PackageNotInstalled("Could not download the package")
-        print(f"Saving to {file_path}")
+        FF_FAMILY_DISP.log_info(f"Saving to {file_path}", title)
         with open(file_path, "wb") as file_descriptor:
             file_descriptor.write(response_data.content)
-        print("Download complete")
+        FF_FAMILY_DISP.log_info("Download complete", title)
 
     @staticmethod
     def _grant_executable_rights(file_path: str = None) -> None:
-        """_summary_
+        """
+        Grant executable rights to a file
 
         Args:
-            file_path (str, optional): _description_. Defaults to None.
+            file_path (str, optional): The path to the file. Defaults to None.
         """
+        title = "_grant_executable_rights"
         if file_path is None:
             return
-        print(f"Giving executable rights to {file_path}")
+        FF_FAMILY_DISP.log_debug(
+            f"Giving executable rights to {file_path}",
+            title
+        )
         if os.path.exists(file_path):
             os.chmod(file_path, 0o755)
-            print(f"Executable rights granted to {file_path}")
+            FF_FAMILY_DISP.log_debug(
+                f"Executable rights granted to {file_path}",
+                title
+            )
         else:
-            print(f"{file_path} does not exist, could not grant executable rights")
+            FF_FAMILY_DISP.log_error(
+                f"{file_path} does not exist, could not grant executable rights",
+                title
+            )
 
     @staticmethod
     def _rename_extracted_folder(old_name: str, new_name: str) -> None:
-        """_summary_
+        """
+        Rename an extracted folder.
 
         Args:
-            old_name (str): _description_
-            new_name (str): _description_
+            old_name (str): The old name of the folder.
+            new_name (str): The new name of the folder.
         """
-
+        title = "_rename_extracted_folder"
         if os.path.exists(old_name):
-            print(f"Renaming {old_name} to {new_name}")
+            FF_FAMILY_DISP.log_debug(
+                f"Renaming {old_name} to {new_name}", title
+            )
             shutil.move(old_name, new_name)
 
     @staticmethod
     def get_ff_family_path(download_if_not_present: bool = True, cwd: str = os.getcwd(), query_timeout: int = 10,  success: int = 0, error: int = 1, debug: bool = False) -> str:
-        """_summary_
+        """
             The general path for ff related libraries
 
         Args:
-            download_if_not_present (bool, optional): _description_. Defaults to True.
-            cwd (str, optional): _description_. Defaults to os.getcwd().
-            query_timeout (int, optional): _description_. Defaults to 10.
-            success (int, optional): _description_. Defaults to 0.
-            error (int, optional): _description_. Defaults to 1.
-            debug (bool, optional): _description_. Defaults to False.
+            download_if_not_present (bool, optional): Download the binary if it is not found. Defaults to True.
+            cwd (str, optional): The current working directory. Defaults to os.getcwd().
+            query_timeout (int, optional): The time before a package is considered lost. Defaults to 10.
+            success (int, optional): The success status. Defaults to 0.
+            error (int, optional): The error status. Defaults to 1.
+            debug (bool, optional): The debug variable. Defaults to False.
 
         Raises:
-            PackageNotSupported: _description_
-            PackageNotSupported: _description_
-            PackageNotInstalled: _description_
-            ArchitectureNotSupported: _description_
-            PackageNotSupported: _description_
-            RuntimeError: _description_
+            PackageNotSupported: Unsupported system
+            PackageNotInstalled: FF_family not found
+            ArchitectureNotSupported: Unsupported architecture
+            PackageNotSupported: Unsupported system
+            RuntimeError: FF_family could not be installed
 
         Returns:
-            str: _description_
+            str: The path to the FF family.
         """
-        system = FFMPEGDownloader.get_system_name()
+        system = FFFamilyDownloader.get_system_name()
         if system not in ("windows", "linux", "darwin"):
             raise PackageNotSupported("Unsupported system")
         precompiled_ffmpeg = os.path.join(cwd, "ffmpeg", system)
@@ -486,7 +544,7 @@ class FFMPEGDownloader:
             if not download_if_not_present:
                 raise PackageNotInstalled("FF_family not found")
             print("FF_family not found in precompiled paths, setting up")
-            fdi = FFMPEGDownloader(
+            fdi = FFFamilyDownloader(
                 cwd=cwd,
                 query_timeout=query_timeout,
                 success=success,
@@ -502,26 +560,29 @@ class FFMPEGDownloader:
 
     @staticmethod
     def get_ffmpeg_binary_path(download_if_not_present: bool = True, cwd: str = os.getcwd(), query_timeout: int = 10,  success: int = 0, error: int = 1, debug: bool = False) -> str:
-        """_summary_
+        """
+        Get the path to the FFmpeg binary.
 
         Args:
-            download_if_not_present (bool, optional): _description_. Defaults to True.
-            cwd (str, optional): _description_. Defaults to os.getcwd().
-            query_timeout (int, optional): _description_. Defaults to 10.
-            success (int, optional): _description_. Defaults to 0.
-            error (int, optional): _description_. Defaults to 1.
-            debug (bool, optional): _description_. Defaults to False.
+            download_if_not_present (bool, optional): Download the binary if it is not found. Defaults to True.
+            cwd (str, optional): The current working directory. Defaults to os.getcwd().
+            query_timeout (int, optional): The time before a package is considered lost. Defaults to 10.
+            success (int, optional): The success status. Defaults to 0.
+            error (int, optional): The error status. Defaults to 1.
+            debug (bool, optional): The debug variable. Defaults to False.
 
         Raises:
-            PackageNotSupported: _description_
-            PackageNotSupported: _description_
-            PackageNotInstalled: _description_
+            PackageNotSupported: Unsupported system
+            PackageNotInstalled: FF_family not found
+            ArchitectureNotSupported: Unsupported architecture
+            PackageNotSupported: Unsupported system
+            RuntimeError: FF_family could not be installed
 
         Returns:
-            str: _description_
+            str: The path to the FF family.
         """
-        system = FFMPEGDownloader.get_system_name()
-        ffmpeg_system_path = FFMPEGDownloader.get_ff_family_path(
+        system = FFFamilyDownloader.get_system_name()
+        ffmpeg_system_path = FFFamilyDownloader.get_ff_family_path(
             download_if_not_present=download_if_not_present,
             cwd=cwd,
             query_timeout=query_timeout,
@@ -543,16 +604,19 @@ class FFMPEGDownloader:
                 ffmpeg_precompiled_path,
                 "ffmpeg"
             )
-            FFMPEGDownloader._grant_executable_rights(path)
+            FFFamilyDownloader._grant_executable_rights(path)
         elif system == "darwin":
             path = os.path.join(
                 ffmpeg_precompiled_path,
                 "ffmpeg"
             )
-            FFMPEGDownloader._grant_executable_rights(path)
+            FFFamilyDownloader._grant_executable_rights(path)
         else:
             raise PackageNotSupported("Unsupported OS")
-        print(f"FFmpeg path = '{path}'")
+        FF_FAMILY_DISP.log_debug(
+            f"FFmpeg path = '{path}'",
+            "get_ffmpeg_binary_path"
+        )
         if os.path.exists(path):
             if os.path.isfile(path):
                 return path
@@ -561,26 +625,29 @@ class FFMPEGDownloader:
 
     @staticmethod
     def get_ffplay_binary_path(download_if_not_present: bool = True, cwd: str = os.getcwd(), query_timeout: int = 10,  success: int = 0, error: int = 1, debug: bool = False) -> str:
-        """_summary_
+        """
+        Get the path to the FFplay binary.
 
         Args:
-            download_if_not_present (bool, optional): _description_. Defaults to True.
-            cwd (str, optional): _description_. Defaults to os.getcwd().
-            query_timeout (int, optional): _description_. Defaults to 10.
-            success (int, optional): _description_. Defaults to 0.
-            error (int, optional): _description_. Defaults to 1.
-            debug (bool, optional): _description_. Defaults to False.
+            download_if_not_present (bool, optional): Download the binary if it is not found. Defaults to True.
+            cwd (str, optional): The current working directory. Defaults to os.getcwd().
+            query_timeout (int, optional): The time before a package is considered lost. Defaults to 10.
+            success (int, optional): The success status. Defaults to 0.
+            error (int, optional): The error status. Defaults to 1.
+            debug (bool, optional): The debug variable. Defaults to False.
 
         Raises:
-            PackageNotSupported: _description_
-            PackageNotSupported: _description_
-            PackageNotInstalled: _description_
+            PackageNotSupported: Unsupported system
+            PackageNotInstalled: FF_family not found
+            ArchitectureNotSupported: Unsupported architecture
+            PackageNotSupported: Unsupported system
+            RuntimeError: FF_family could not be installed
 
         Returns:
-            str: _description_
+            str: The path to the FF family.
         """
-        system = FFMPEGDownloader.get_system_name()
-        ffmpeg_system_path = FFMPEGDownloader.get_ff_family_path(
+        system = FFFamilyDownloader.get_system_name()
+        ffmpeg_system_path = FFFamilyDownloader.get_ff_family_path(
             download_if_not_present=download_if_not_present,
             cwd=cwd,
             query_timeout=query_timeout,
@@ -602,16 +669,19 @@ class FFMPEGDownloader:
                 ffmpeg_precompiled_path,
                 "ffplay"
             )
-            FFMPEGDownloader._grant_executable_rights(path)
+            FFFamilyDownloader._grant_executable_rights(path)
         elif system == "darwin":
             path = os.path.join(
                 ffmpeg_precompiled_path,
                 "ffplay"
             )
-            FFMPEGDownloader._grant_executable_rights(path)
+            FFFamilyDownloader._grant_executable_rights(path)
         else:
             raise PackageNotSupported("Unsupported OS")
-        print(f"FFplay path = '{path}'")
+        FF_FAMILY_DISP.log_debug(
+            f"FFplay path = '{path}'",
+            "get_ffplay_binary_path"
+        )
         if os.path.exists(path):
             if os.path.isfile(path):
                 return path
@@ -620,26 +690,29 @@ class FFMPEGDownloader:
 
     @staticmethod
     def get_ffprobe_binary_path(download_if_not_present: bool = True, cwd: str = os.getcwd(), query_timeout: int = 10,  success: int = 0, error: int = 1, debug: bool = False) -> str:
-        """_summary_
+        """
+        Get the path to the ffprobe binary.
 
         Args:
-            download_if_not_present (bool, optional): _description_. Defaults to True.
-            cwd (str, optional): _description_. Defaults to os.getcwd().
-            query_timeout (int, optional): _description_. Defaults to 10.
-            success (int, optional): _description_. Defaults to 0.
-            error (int, optional): _description_. Defaults to 1.
-            debug (bool, optional): _description_. Defaults to False.
+            download_if_not_present (bool, optional): Download the binary if it is not found. Defaults to True.
+            cwd (str, optional): The current working directory. Defaults to os.getcwd().
+            query_timeout (int, optional): The time before a package is considered lost. Defaults to 10.
+            success (int, optional): The success status. Defaults to 0.
+            error (int, optional): The error status. Defaults to 1.
+            debug (bool, optional): The debug variable. Defaults to False.
 
         Raises:
-            PackageNotSupported: _description_
-            PackageNotSupported: _description_
-            PackageNotInstalled: _description_
+            PackageNotSupported: Unsupported system
+            PackageNotInstalled: FF_family not found
+            ArchitectureNotSupported: Unsupported architecture
+            PackageNotSupported: Unsupported system
+            RuntimeError: FF_family could not be installed
 
         Returns:
-            str: _description_
+            str: The path to the FF family.
         """
-        system = FFMPEGDownloader.get_system_name()
-        ffmpeg_system_path = FFMPEGDownloader.get_ff_family_path(
+        system = FFFamilyDownloader.get_system_name()
+        ffmpeg_system_path = FFFamilyDownloader.get_ff_family_path(
             download_if_not_present=download_if_not_present,
             cwd=cwd,
             query_timeout=query_timeout,
@@ -661,16 +734,19 @@ class FFMPEGDownloader:
                 ffmpeg_precompiled_path,
                 "ffprobe"
             )
-            FFMPEGDownloader._grant_executable_rights(path)
+            FFFamilyDownloader._grant_executable_rights(path)
         elif system == "darwin":
             path = os.path.join(
                 ffmpeg_precompiled_path,
                 "ffprobe"
             )
-            FFMPEGDownloader._grant_executable_rights(path)
+            FFFamilyDownloader._grant_executable_rights(path)
         else:
             raise PackageNotSupported("Unsupported OS")
-        print(f"FFprobe path = '{path}'")
+        FF_FAMILY_DISP.log_debug(
+            f"FFprobe path = '{path}'",
+            "get_ffprobe_binary_path"
+        )
         if os.path.exists(path):
             if os.path.isfile(path):
                 return path
@@ -683,19 +759,20 @@ class FFMPEGDownloader:
             Add the FF family to the system path.
 
         Args:
-            ffmpeg_path (str, optional): _description_. Defaults to None.
-            ffplay_path (str, optional): _description_. Defaults to None.
-            ffprobe_path (str, optional): _description_. Defaults to None.
+            ffmpeg_path (str, optional): The path to the ffmpeg library. Defaults to None.
+            ffplay_path (str, optional): The path to the ffplay library. Defaults to None.
+            ffprobe_path (str, optional): The path to the ffprobe library. Defaults to None.
             download_if_not_present (bool, optional): _description_. Defaults to True.
-            cwd (str, optional): _description_. Defaults to os.getcwd().
-            query_timeout (int, optional): _description_. Defaults to 10.
-            success (int, optional): _description_. Defaults to 0.
-            error (int, optional): _description_. Defaults to 1.
-            debug (bool, optional): _description_. Defaults to False.
+            cwd (str, optional): The current working directory. Defaults to os.getcwd().
+            query_timeout (int, optional): The delay before a paquet is considered invalid. Defaults to 10.
+            success (int, optional): The default success status. Defaults to 0.
+            error (int, optional): The default error status. Defaults to 1.
+            debug (bool, optional): If to activate debug or not. Defaults to False.
         """
+        title = "add_ff_family_to_path"
         if ffmpeg_path is None:
-            print("Getting ffmpeg path")
-            ffmpeg_path = FFMPEGDownloader.get_ffmpeg_binary_path(
+            FF_FAMILY_DISP.log_debug("Getting ffmpeg path", title)
+            ffmpeg_path = FFFamilyDownloader.get_ffmpeg_binary_path(
                 download_if_not_present=download_if_not_present,
                 cwd=cwd,
                 query_timeout=query_timeout,
@@ -704,8 +781,8 @@ class FFMPEGDownloader:
                 debug=debug
             )
         if ffplay_path is None:
-            print("Getting ffplay path")
-            ffplay_path = FFMPEGDownloader.get_ffplay_binary_path(
+            FF_FAMILY_DISP.log_debug("Getting ffplay path", title)
+            ffplay_path = FFFamilyDownloader.get_ffplay_binary_path(
                 download_if_not_present=download_if_not_present,
                 cwd=cwd,
                 query_timeout=query_timeout,
@@ -714,8 +791,8 @@ class FFMPEGDownloader:
                 debug=debug
             )
         if ffprobe_path is None:
-            print("Getting ffprobe path")
-            ffprobe_path = FFMPEGDownloader.get_ffprobe_binary_path(
+            FF_FAMILY_DISP.log_debug("Getting ffprobe path", title)
+            ffprobe_path = FFFamilyDownloader.get_ffprobe_binary_path(
                 download_if_not_present=download_if_not_present,
                 cwd=cwd,
                 query_timeout=query_timeout,
@@ -724,35 +801,39 @@ class FFMPEGDownloader:
                 debug=debug
             )
         msg = "Converting the direct paths (which include the binaries at the end) into system paths (which only include the directories containing the binaries)"
-        print(msg)
+        FF_FAMILY_DISP.log_debug(msg, title)
         ffmpeg_path = os.path.dirname(ffmpeg_path)
         ffplay_path = os.path.dirname(ffplay_path)
         ffprobe_path = os.path.dirname(ffprobe_path)
-        print("Adding FF family to PATH")
+        FF_FAMILY_DISP.log_debug("Adding FF family to PATH", title)
         for ff_path in [ffmpeg_path, ffplay_path, ffprobe_path]:
             if ff_path not in os.environ["PATH"]:
-                print(f"Adding {ff_path} to PATH")
+                FF_FAMILY_DISP.log_debug(f"Adding {ff_path} to PATH", title)
                 os.environ["PATH"] = ff_path + os.pathsep + os.environ["PATH"]
-                print(f"Added {ff_path} to PATH")
+                FF_FAMILY_DISP.log_debug(f"Added {ff_path} to PATH", title)
             else:
-                print(f"{ff_path} is already in PATH")
+                FF_FAMILY_DISP.log_debug(
+                    f"{ff_path} is already in PATH", title
+                )
             if ff_path not in sys.path:
-                print(f"Adding {ff_path} to sys.path")
+                FF_FAMILY_DISP.log_debug(
+                    f"Adding {ff_path} to sys.path", title
+                )
                 sys.path.append(ff_path)
-                print(f"Added {ff_path} to sys.path")
+                FF_FAMILY_DISP.log_debug(f"Added {ff_path} to sys.path", title)
             else:
-                print(f"{ff_path} is already in sys.path")
+                FF_FAMILY_DISP.log_debug(
+                    f"{ff_path} is already in sys.path", title
+                )
 
     def _clean_platform_name(self) -> None:
-        """_summary_
-
-        Raises:
-            NotImplementedError: _description_
-            ValueError: _description_
         """
+        Clean the platform name to remove any unnecessary characters.
+        """
+        title = "_clean_platform_name"
         msg = "Current system (before filtering): "
         msg += f"{self.system} {self.architecture}"
-        print(msg)
+        self.disp.log_debug(msg, title)
 
         if "bit" in self.architecture:
             self.architecture = self.architecture.replace("bit", "")
@@ -761,18 +842,19 @@ class FFMPEGDownloader:
 
         msg = "Current system (after filtering): "
         msg += f"{self.system} {self.architecture}"
-        print(msg)
+        self.disp.log_debug(msg, title)
 
     def _get_correct_download_and_file_path(self, binary_name: str = FFMPEG_KEY) -> None:
-        """_summary_
+        """
+        Get the correct download and file path for the binary.
 
         Args:
-            binary_name (str, optional): _description_. Defaults to FFMPEG_KEY.
+            binary_name (str, optional): The name of the binary to download. Defaults to FFMPEG_KEY.
 
         Raises:
-            ArchitectureNotSupported: _description_
-            PackageNotSupported: _description_
-            PackageNotInstalled: _description_
+            PackageNotSupported: Unknown binary choice
+            ArchitectureNotSupported: Unknown architecture
+            PackageNotSupported: Unknown system
         """
         if binary_name not in BUNDLE_DOWNLOAD:
             raise PackageNotSupported("Unknown binary choice" + binary_name)
@@ -786,20 +868,17 @@ class FFMPEGDownloader:
             raise PackageNotSupported("Unknown system")
 
     def _get_all_binaries(self) -> None:
-        """_summary_
-
-        Raises:
-            PackageNotSupported: _description_
-            PackageNotSupported: _description_
-            PackageNotInstalled: _description_
         """
+        Get all the binaries available for download.
+        """
+        title = "_get_all_binaries"
         for binary in self.available_binaries:
-            print(f"Downloading {binary}")
+            self.disp.log_debug(f"Downloading {binary}", title)
             self._get_correct_download_and_file_path(binary)
             self.fold_path = os.path.dirname(self.file_path)
             self._create_path_if_not_exists(self.fold_path)
             if os.path.exists(self.file_path):
-                print(f"{binary} already downloaded")
+                self.disp.log_debug(f"{binary} already downloaded", title)
                 continue
             self._download_file(
                 self.file_url,
@@ -811,8 +890,9 @@ class FFMPEGDownloader:
         """_summary_
             This is the function that will install all the FF_family binaries is they are already downloaded.
         """
+        title = "_install_all_binaries"
         for binary in self.available_binaries:
-            print(f"Installing {binary}")
+            self.disp.log_debug(f"Installing {binary}", title)
             self._get_correct_download_and_file_path(binary)
             self.fold_path = os.path.dirname(self.file_path)
             extract_to = os.path.join(
@@ -824,7 +904,7 @@ class FFMPEGDownloader:
                 self.system
             )
             if os.path.isdir(final_name):
-                print(f"{binary} already installed")
+                self.disp.log_debug(f"{binary} already installed", title)
                 continue
             if binary == FFPLAY_KEY:
                 extract_to = os.path.join(
@@ -848,23 +928,44 @@ class FFMPEGDownloader:
                     old_folder_path,
                     new_folder_path
                 )
-            print(f"{binary} installed")
+            self.disp.log_debug(f"{binary} installed", title)
 
-    def main(self, audio_segment_node: AudioSegment = None) -> int:
-        """_summary_
-            The function in charge of downloading and extracting the FF_family binaries for the current system.
+    def __call__(self, audio_segment_node: AudioSegment = None) -> int:
+        """
+        This is the main function that will be called when the class is instantiated.
 
-        Raises:
-            PackageNotInstalled: _description_
-            PackageNotSupported: _description_
-            PackageNotInstalled: _description_
+        Args:
+            audio_segment_node (AudioSegment, optional): The audio segment in which you wish to set the path to the ffmpeg library. Defaults to None.
 
         Returns:
-            int: _description_
+            int: The status of the function.
         """
+        title = "__call__"
+        self.disp.log_debug(f"Starting {title}", title)
+        status = self.main(audio_segment_node)
+        self.disp.log_debug(f"Ending {title} with status {status}", title)
+        return status
+
+    def main(self, audio_segment_node: AudioSegment = None) -> int:
+        """
+            The function in charge of downloading and extracting the FF_family binaries for the current system.
+
+        Args:
+            audio_segment_node (AudioSegment, optional): The audio segment in which you wish to set the path to the ffmpeg library. Defaults to None.
+
+        Raises:
+            RuntimeError: FFmpeg cannot be installed on this device because the system is unknown to this script.
+
+        Returns:
+            int: The status of the function.
+        """
+        title = "main"
         try:
             found_path = self.get_ff_family_path(download_if_not_present=False)
-            print(f"FF_family already installed at {found_path}")
+            self.disp.log_info(
+                f"FF_family already installed at {found_path}",
+                title
+            )
             ffmpeg_path = self.get_ffmpeg_binary_path(
                 download_if_not_present=False
             )
@@ -874,17 +975,19 @@ class FFMPEGDownloader:
             ffprobe_path = self.get_ffprobe_binary_path(
                 download_if_not_present=False
             )
-            print("Updating pydub ffmpeg path")
+            self.disp.log_info("Updating pydub ffmpeg path", title)
             if audio_segment_node is not None:
                 audio_segment_node.ffmpeg = ffmpeg_path
             AudioSegment.ffmpeg = ffmpeg_path
             self.add_ff_family_to_path(
                 ffmpeg_path, ffplay_path, ffprobe_path, download_if_not_present=False
             )
-            print("FF_family already installed and ready to use!")
+            self.disp.log_info(
+                "FF_family already installed and ready to use!", title
+            )
             return self.success
         except PackageNotInstalled:
-            print("FFmpeg not found. Installing...")
+            self.disp.log_warning("FFmpeg not found. Installing...", title)
         except PackageNotSupported as e:
             raise RuntimeError(
                 "FFmpeg cannot be installed on this device because the system is unknown to this script."
@@ -901,21 +1004,21 @@ class FFMPEGDownloader:
         ffprobe_path = self.get_ffprobe_binary_path(
             download_if_not_present=False
         )
-        print(f"FFmpeg installed at {ffmpeg_path}")
-        print(f"FFplay installed at {ffplay_path}")
-        print(f"FFprobe installed at {ffprobe_path}")
+        self.disp.log_info(f"FFmpeg installed at {ffmpeg_path}", title)
+        self.disp.log_info(f"FFplay installed at {ffplay_path}", title)
+        self.disp.log_info(f"FFprobe installed at {ffprobe_path}", title)
         if audio_segment_node is not None:
             audio_segment_node.ffmpeg = ffmpeg_path
         AudioSegment.ffmpeg = ffmpeg_path
         self.add_ff_family_to_path(
             ffmpeg_path, ffplay_path, ffprobe_path, download_if_not_present=False
         )
-        print("FF_family installed and ready to use!")
+        self.disp.log_info("FF_family installed and ready to use!", title)
         return self.success
 
 
 if __name__ == "__main__":
-    FDI = FFMPEGDownloader()
+    FDI = FFFamilyDownloader()
     FDI.main()
     AUDIO_WAVE = 440
     AUDIO_SAMPLE_PATH = f"./{AUDIO_WAVE}.wav"

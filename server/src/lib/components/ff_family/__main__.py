@@ -2,10 +2,11 @@
 This module is the main entry point for the ffmpeg family of tools.
 """
 
-from .downloader import FFMPEGDownloader
+from .downloader import FFFamilyDownloader
+
 
 if __name__ == "__main__":
-    FDI = FFMPEGDownloader()
+    FDI = FFFamilyDownloader()
     FDI.main()
     AUDIO_WAVE = 440
     AUDIO_SAMPLE_PATH = f"./{AUDIO_WAVE}.wav"

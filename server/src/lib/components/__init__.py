@@ -13,7 +13,7 @@ from .mail_management import MailManagement
 from .background_tasks import BackgroundTasks
 from .crons import Crons
 from .oauth_authentication import OAuthAuthentication
-from .ff_family import ff_family
+from .ff_family import FFFamily
 
 __all__ = [
     "HCI",
@@ -28,5 +28,5 @@ __all__ = [
     "PasswordHandling",
     "ServerManagement",
     "OAuthAuthentication",
-    "ff_family"
+    "FFFamily"
 ]
