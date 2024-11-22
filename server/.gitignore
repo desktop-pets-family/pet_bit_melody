@@ -32,5 +32,5 @@ binarea_server
 client_secret*.json
 
 # Ignore the ffmpeg and similar binaries
-src/ff_family/**
-!src/ff_family/downloader.py
+src/lib/components/ff_family/**
+!src/lib/components/ff_family/downloader.py
