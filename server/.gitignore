@@ -14,6 +14,7 @@ coverage_data/**
 .python_history
 log/**
 *my_docker_bash_launcher.sh*
+*my_local_bash_launcher.sh*
 True
 
 # Ignore all the sql files in the server
