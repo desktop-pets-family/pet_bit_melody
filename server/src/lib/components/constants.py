@@ -2,6 +2,7 @@
     This is the file in charge of containing the constants that run the server.
 """
 
+import os
 from typing import List, Any
 
 import toml
@@ -207,6 +208,14 @@ DATABASE_AUTOCOMMIT = _get_toml_variable(
 DATABASE_COLLATION = _get_toml_variable(
     TOML_CONF, "Server_configuration.database", "collation", "utf8mb4_unicode_ci"
 )
+
+# |- Server configuration -> ff_family
+FF_FAMILY_CWD = _get_toml_variable(
+    TOML_CONF, "Server_configuration.ff_family", "cwd", os.getcwd()
+)
+FF_FAMILY_QUERY_TIMEOUT = int(_get_toml_variable(
+    TOML_CONF, "Server_configuration.ff_family", "query_timeout", 10
+))
 
 # |- Cron settings
 CLEAN_TOKENS = _get_toml_variable(TOML_CONF, "Crons", "clean_tokens", True)

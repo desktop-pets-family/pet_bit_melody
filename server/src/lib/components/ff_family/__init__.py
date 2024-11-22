@@ -23,7 +23,7 @@ class FFFamily:
     QUERY_TIMEOUT = QUERY_TIMEOUT
     CWD = CWD
     BUNDLE_DOWNLOAD = BUNDLE_DOWNLOAD
-    FFMPEGDownloader = FFFamilyDownloader
+    FFFamilyDownloader = FFFamilyDownloader
 
     @staticmethod
     def download(cwd: str = os.getcwd(), query_timeout: int = 10, success: int = 0, error: int = 84, debug: bool = False, audio_segment_node: AudioSegment = None) -> int:

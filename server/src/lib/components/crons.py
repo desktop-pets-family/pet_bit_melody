@@ -45,12 +45,6 @@ class Crons:
         Returns:
             int: _description_: The overall status of the injection.
         """
-        self.runtime_data.background_tasks_initialised.safe_add_task(
-            func=self.check_actions,
-            args=None,
-            trigger='interval',
-            seconds=CONST.CHECK_ACTIONS_INTERVAL
-        )
         if CONST.ENABLE_TEST_CRONS is True:
             self.runtime_data.background_tasks_initialised.safe_add_task(
                 func=self._harass_database,
@@ -336,12 +330,3 @@ class Crons:
                     f"Token for {node_id} does not need to be renewed.", title
                 )
         self.disp.log_debug("Checked for oath that need to be renewed", title)
-
-    def check_actions(self) -> None:
-        """_summary_
-            Function in charge of checking if any actions need to be run.
-        """
-        title = "check_actions"
-        self.disp.log_debug("Checking for actions that need to be run.", title)
-        self.runtime_data.actions_main_initialised.execute_actions()
-        self.disp.log_debug("Checked for actions that needed to be run", title)

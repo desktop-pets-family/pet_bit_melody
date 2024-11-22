@@ -7,6 +7,7 @@ import uvicorn
 from . import constants as CONST
 from ..sql.sql_manager import SQL
 from ..bucket import Bucket
+from .ff_family import FFFamily, FFFamilyDownloader
 if TYPE_CHECKING:
     from .crons import Crons
     from .paths import ServerPaths
@@ -66,3 +67,4 @@ class RuntimeData:
         self.oauth_authentication_initialised: 'OAuthAuthentication' = None
         self.actions_main_initialised: 'ActionsMain' = None
         self.mail_management_initialised: 'MailManagement' = None
+        self.ff_family_initialised: FFFamilyDownloader = None

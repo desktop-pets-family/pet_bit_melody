@@ -5,11 +5,12 @@
 # pet_server.py
 ##
 
+import os
 from display_tty import Disp, TOML_CONF, FILE_DESCRIPTOR, SAVE_TO_FILE, FILE_NAME
 from .sql import SQL
 from .bucket import Bucket
 from .actions import ActionsMain
-from .components import Endpoints, ServerPaths, RuntimeData, ServerManagement, CONST, BackgroundTasks, Crons, OAuthAuthentication, MailManagement
+from .components import Endpoints, ServerPaths, RuntimeData, ServerManagement, CONST, BackgroundTasks, Crons, OAuthAuthentication, MailManagement, FFFamily
 from .boilerplates import BoilerplateIncoming, BoilerplateNonHTTP, BoilerplateResponses
 
 
@@ -54,6 +55,13 @@ class Server:
             success=self.success
         )
         # ----- The classes that need to be tracked for the server to run  -----
+        self.runtime_data_initialised.ff_family_initialised = FFFamily.FFFamilyDownloader(
+            cwd=CONST.FF_FAMILY_CWD,
+            query_timeout=CONST.FF_FAMILY_QUERY_TIMEOUT,
+            success=self.success,
+            error=self.error,
+            debug=self.debug
+        )
         self.runtime_data_initialised.background_tasks_initialised = BackgroundTasks(
             success=self.success,
             error=self.error,
@@ -140,6 +148,16 @@ class Server:
         self.disp.log_info("The server is shutting down.", "__del__")
         self.stop_server()
 
+    def get_ffmpeg(self) -> int:
+        """_summary_
+            The function in charge of downloading the ffmpeg library.
+
+        Returns:
+            int: _description_: Returns 0 if the download was successful.
+        """
+        self.disp.log_warning(
+            "Fininsh implementing the download of the ffmpeg library.", "get_ffmpeg")
+
     def main(self) -> int:
         """_summary_
             The main function of the server.
@@ -148,6 +166,7 @@ class Server:
         Returns:
             int: _description_
         """
+        self.get_ffmpeg()
         self.runtime_data_initialised.server_management_initialised.initialise_classes()
         self.runtime_data_initialised.paths_initialised.load_default_paths_initialised()
         self.runtime_data_initialised.paths_initialised.inject_routes()
