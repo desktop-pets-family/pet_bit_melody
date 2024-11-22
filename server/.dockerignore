@@ -31,10 +31,6 @@ binarea_server
 # Ignore google cloud authorisations
 client_secret*.json
 
-# Ignore the ffmpeg and similar binaries
-ff_family/**
-!ff_family/downloader.py
-
 # Docker specific files
 .dockerignore
 dockerfile
@@ -49,7 +45,7 @@ dockerfile
 .env.staging
 .aws
 
-# No unwanted environements
+# No unwanted environments
 **/.env/**
 **/env/**
 **/lenv/**
@@ -59,3 +55,8 @@ dockerfile
 **/wserver_env/**
 **/doc/**
 **/.cache/**
+**/node_modules/**
+
+# Ignore the ffmpeg and similar binaries
+src/ff_family/**
+!src/ff_family/downloader.py
