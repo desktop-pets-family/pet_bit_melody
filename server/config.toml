@@ -191,7 +191,7 @@ ffplay_key = "ffplay"
 # The corresponding names for the operating systems in the list
 mac_key = "macos"
 linux_key = "linux"
-win_key = "windows"
+windows_key = "windows"
 
 # The corresponding names for the link and the path in the list
 file_url_token = "file_url"
