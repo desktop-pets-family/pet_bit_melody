@@ -238,7 +238,7 @@ class Notes8bit(NoteEquivalence8bit):
         return list(Notes8bit.NOTE_EQUIVALENCE)
 
     @staticmethod
-    def create_note(frequency: Union[float, int, str] = 80, duration: float = 3.0, amplitude: float = 0.5, sample_rate: int = 44100) -> AudioSegment:
+    def create_note(frequency: Union[float, int, str] = 80, duration: float = 3.0, amplitude: float = 0.5, velocity: int = 100, sample_rate: int = 44100) -> AudioSegment:
         """
             Generates a single note as an AudioSegment.
 
@@ -246,6 +246,7 @@ class Notes8bit(NoteEquivalence8bit):
             frequency (float, int, str, optional): The frequency of the note to generate. Defaults to 80.
             duration (float, optional): The duration of that note. Defaults to 3.0.
             amplitude (float, optional): The amplitude of the note. Defaults to 0.5.
+            velocity (int, optional): The velocity of the note. Defaults to 100.
             sample_rate (int, optional): The sample rate. Defaults to 44100.
 
         Returns:
@@ -263,6 +264,12 @@ class Notes8bit(NoteEquivalence8bit):
 
         if amplitude < 0 or amplitude > 1:
             raise ValueError("Amplitude must be between 0 and 1.")
+
+        if not (0 <= velocity <= 127):
+            raise ValueError("Velocity must be between 0 and 127.")
+
+        # Normalize velocity (0-127) to amplitude (0.0-1.0)
+        amplitude = velocity / 127.0
 
         # Generate time array
         t = np.linspace(
@@ -311,7 +318,7 @@ class Notes8bit(NoteEquivalence8bit):
         raise ValueError("Both base_audio and note are None.")
 
     @staticmethod
-    def add_note(base_audio: Union[AudioSegment, None] = None, frequency: Union[float, int, str] = 80, duration: float = 3.0, amplitude: float = 0.5, sample_rate: int = 44100) -> AudioSegment:
+    def add_note(base_audio: Union[AudioSegment, None] = None, frequency: Union[float, int, str] = 80, duration: float = 3.0, amplitude: float = 0.5, velocity: int = 100, sample_rate: int = 44100) -> AudioSegment:
         """_summary_
         Adds a note of a given frequency and duration to the audio sequence.
 
@@ -320,6 +327,7 @@ class Notes8bit(NoteEquivalence8bit):
             frequency (float, int, str, optional): The frequency of the note in Hz. Defaults to 80.
             duration (float, optional): The duration of the note in seconds. Defaults to 3.0.
             amplitude (float, optional): The amplitude of the note (0.0 to 1.0). Defaults to 0.5.
+            velocity (int, optional): The velocity of the note (0 to 127). Defaults to
             sample_rate (int, optional): The sample rate for the audio. Defaults to 44100.
 
         Raises:
@@ -329,7 +337,7 @@ class Notes8bit(NoteEquivalence8bit):
             AudioSegment: The updated audio segment with the note added.
         """
         note_audio = Notes8bit.create_note(
-            frequency, duration, amplitude, sample_rate
+            frequency, duration, amplitude, velocity, sample_rate
         )
         return Notes8bit.append_node(base_audio, note_audio)
 

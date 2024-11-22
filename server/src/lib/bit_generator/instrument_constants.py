@@ -562,7 +562,9 @@ class NoteEquivalence16bit:
     This class contains the equivalence of the notes in the 16-bit range.
     All frequencies are scaled to fit within the range of 8.18–65535 Hz.
     """
-    MUTE = 1
+    MUTE = DEFAULT_MUTE
+    SAMPLE_RATE = 41000
+    MAX_BIT_VALUE = 65535
 
     # Notes in the 16-bit range
 
