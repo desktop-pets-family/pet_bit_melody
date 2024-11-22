@@ -58,6 +58,6 @@ dockerfile
 **/node_modules/**
 
 # Ignore the ffmpeg and similar binaries
-./ff_family/**
+ff_family/**
 src/ff_family/**
 !src/ff_family/downloader.py
