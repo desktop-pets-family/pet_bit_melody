@@ -4,7 +4,7 @@
 
 
 # --------------------- The note that represents a silence ---------------------
-DEFAULT_MUTE: int = 1
+DEFAULT_MUTE: int = -1
 
 # -------------------------- The default sample rate  --------------------------
 
@@ -553,6 +553,93 @@ class NoteEquivalenceCello:
         "C2": C2, "C#2": CSH2, "D♭2": DB2, "D2": D2, "D#2": DSH2, "E♭2": EB2, "E2": E2, "F2": F2, "F#2": FSH2, "G♭2": GB2, "G2": G2, "G#2": GSH2, "A♭2": AB2, "A2": A2, "A#2": ASH2, "B♭2": BB2, "B2": B2,
         "C3": C3, "C#3": CSH3, "D♭3": DB3, "D3": D3, "D#3": DSH3, "E♭3": EB3, "E3": E3, "F3": F3, "F#3": FSH3, "G♭3": GB3, "G3": G3, "G#3": GSH3, "A♭3": AB3, "A3": A3
     }
+
+# ------------------------------ 8bit frequencies ------------------------------
+
+
+class NoteEquivalence8bit:
+    """
+    This class contains the equivalence of the notes in the 8-bit range.
+    All frequencies are scaled to fit within the range of 31–255 Hz.
+    """
+    MUTE = DEFAULT_MUTE
+    SAMPLE_RATE = 44100
+    MAX_8BIT_VALUE = 255
+
+    # Notes in the 8-bit range
+    C0 = 31
+    CSH0 = 31
+    D0 = 31
+    DSH0 = 31
+    E0 = 31
+    F0 = 31
+    FSH0 = 31
+    G0 = 31
+    GSH0 = 31
+    A0 = 31
+    ASH0 = 31
+    B0 = 31
+    C1 = 32
+    CSH1 = 35
+    D1 = 37
+    DSH1 = 39
+    E1 = 41
+    F1 = 44
+    FSH1 = 46
+    G1 = 49
+    GSH1 = 52
+    A1 = 55
+    ASH1 = 58
+    B1 = 62
+    C2 = 65
+    CSH2 = 69
+    D2 = 73
+    DSH2 = 78
+    E2 = 82
+    F2 = 87
+    FSH2 = 93
+    G2 = 98
+    GSH2 = 104
+    A2 = 110
+    ASH2 = 117
+    B2 = 123
+    C3 = 131
+    CSH3 = 139
+    D3 = 147
+    DSH3 = 156
+    E3 = 165
+    F3 = 175
+    FSH3 = 185
+    G3 = 196
+    GSH3 = 208
+    A3 = 220
+    ASH3 = 233
+    B3 = 247
+
+    # Frequencies above 255 Hz are clipped to the max 8-bit value
+    C4 = 255
+    CSH4 = 255
+    D4 = 255
+    DSH4 = 255
+    E4 = 255
+    F4 = 255
+    FSH4 = 255
+    G4 = 255
+    GSH4 = 255
+    A4 = 255
+    ASH4 = 255
+    B4 = 255
+
+    # Dictionary of notes
+    NOTE_EQUIVALENCE = {
+        "MUTE": MUTE,
+        "C0": C0, "CSH0": CSH0, "D0": D0, "DSH0": DSH0, "E0": E0, "F0": F0, "FSH0": FSH0, "G0": G0, "GSH0": GSH0, "A0": A0, "ASH0": ASH0, "B0": B0,
+        "C1": C1, "CSH1": CSH1, "D1": D1, "DSH1": DSH1, "E1": E1, "F1": F1, "FSH1": FSH1, "G1": G1, "GSH1": GSH1, "A1": A1, "ASH1": ASH1, "B1": B1,
+        "C2": C2, "CSH2": CSH2, "D2": D2, "DSH2": DSH2, "E2": E2, "F2": F2, "FSH2": FSH2, "G2": G2, "GSH2": GSH2, "A2": A2, "ASH2": ASH2, "B2": B2,
+        "C3": C3, "CSH3": CSH3, "D3": D3, "DSH3": DSH3, "E3": E3, "F3": F3, "FSH3": FSH3, "G3": G3, "GSH3": GSH3, "A3": A3, "ASH3": ASH3, "B3": B3,
+        "C4": C4, "CSH4": CSH4, "D4": D4, "DSH4": DSH4, "E4": E4, "F4": F4, "FSH4": FSH4, "G4": G4, "GSH4": GSH4, "A4": A4, "ASH4": ASH4, "B4": B4
+    }
+
 
 # ----------------------------- 16 bit frequencies -----------------------------
 

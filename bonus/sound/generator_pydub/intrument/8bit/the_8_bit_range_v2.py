@@ -256,7 +256,7 @@ class Notes8bit(NoteEquivalence8bit):
         if isinstance(frequency, str):
             frequency = Notes8bit.NOTE_EQUIVALENCE.get(frequency.upper())
 
-        if frequency is None or frequency <= 0 or frequency > Notes8bit.MAX_8BIT_VALUE:
+        if frequency is None or (frequency <= 0 or frequency > Notes8bit.MAX_8BIT_VALUE) and frequency != Notes8bit.MUTE:
             raise ValueError("Frequency must be a note or greater than 0.")
 
         if duration < 0:

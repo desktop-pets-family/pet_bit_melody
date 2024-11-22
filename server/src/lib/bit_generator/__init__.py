@@ -5,7 +5,6 @@
 from display_tty import Disp, TOML_CONF, FILE_DESCRIPTOR, SAVE_TO_FILE, FILE_NAME
 
 from . import instrument_constants as ICONST
-from .the_8_bit_range import NoteEquivalence8bit, Notes8bit
 from .generic_generator import Notes
 
 __all__ = [
@@ -25,9 +24,6 @@ __all__ = [
     "NotesMidTomDrum",
     "NotesHighTomDrum"
 ]
-
-
-ICONST.NoteEquivalence8bit = NoteEquivalence8bit
 
 
 class NotesGuitar(Notes, ICONST.NoteEquivalenceGuitar):
@@ -163,9 +159,28 @@ class NotesHighTomDrum(Notes, ICONST.NoteEquivalenceHighTomDrum):
     )
 
 
+class Notes8bit(Notes, ICONST.NoteEquivalence8bit):
+    """
+    The class in charge of the 8 bit notes.
+
+    Args:
+        Notes (class): The base class for generating notes.
+    """
+    NOTE_EQUIVALENCE = ICONST.NoteEquivalence8bit.NOTE_EQUIVALENCE
+    MUTE = ICONST.NoteEquivalence8bit.MUTE
+    INNER_DISP: Disp = Disp(
+        TOML_CONF,
+        FILE_DESCRIPTOR,
+        SAVE_TO_FILE,
+        FILE_NAME,
+        debug=False,
+        logger="Notes8bit"
+    )
+
+
 class Notes16bit(Notes, ICONST.NoteEquivalence16bit):
     """
-    The class in charge of the 32 bit notes.
+    The class in charge of the 16 bit notes.
 
     Args:
         Notes (class): The base class for generating notes.
@@ -184,7 +199,7 @@ class Notes16bit(Notes, ICONST.NoteEquivalence16bit):
 
 class Notes24bit(Notes, ICONST.NoteEquivalence24bit):
     """
-    The class in charge of the 32 bit notes.
+    The class in charge of the 24 bit notes.
 
     Args:
         Notes (class): The base class for generating notes.

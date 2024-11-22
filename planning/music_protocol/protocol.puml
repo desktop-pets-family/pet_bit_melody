@@ -19,6 +19,7 @@ namespace http_request {
     +Float length : the duration for which the note is played (in seconds)
     +Float tn : the time (in seconds) when the note starts playing
     +Muted boolean : Indicate if the note is to be processed or not
+    +Velocity int: Indicate the velocity of the note to be processed.
   }
   class Track {
     +List<Note> notes : the notes to play

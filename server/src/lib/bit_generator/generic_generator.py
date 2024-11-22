@@ -185,6 +185,14 @@ class Notes:
         return list(Notes.NOTE_EQUIVALENCE)
 
     @staticmethod
+    def create_silent_note(duration: float = 1.0, sample_rate: int = 44100) -> AudioSegment:
+        # Create a silent AudioSegment of the given duration
+        silent_note = AudioSegment.silent(
+            duration=duration * 1000)
+        # duration in milliseconds
+        return silent_note
+
+    @staticmethod
     def create_note(frequency: Union[float, int, str] = 80, duration: float = 3.0, amplitude: float = 0.5, velocity: int = 100, sample_rate: int = 44100) -> AudioSegment:
         """
             Generates a single note as an AudioSegment.
@@ -203,7 +211,7 @@ class Notes:
         if isinstance(frequency, str):
             frequency = Notes.NOTE_EQUIVALENCE.get(frequency.upper())
 
-        if frequency is None or frequency <= 0 or frequency > Notes.MAX_BIT_VALUE:
+        if frequency is None or (frequency <= 0 or frequency > Notes.MAX_BIT_VALUE) and frequency != Notes.MUTE:
             msg = "Frequency must be a note or between 0"
             msg += f" and {Notes.MAX_BIT_VALUE}."
             raise ValueError(msg)
