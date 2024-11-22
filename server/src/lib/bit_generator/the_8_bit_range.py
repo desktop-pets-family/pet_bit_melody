@@ -432,6 +432,6 @@ if __name__ == "__main__":
     ]
     MUSIC = None
     for i in twinkle_music_list:
-        MUSIC = NODE.add_note(MUSIC, i, 0.4)
+        MUSIC = NODE.add_note(MUSIC, i, 100, 0.4)
         # MUSIC = NODE.add_note(MUSIC, "MUTE", 0.1)
     NODE.save(MUSIC, "twinkle_little_star.wav")
