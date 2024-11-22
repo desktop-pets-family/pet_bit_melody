@@ -5,7 +5,6 @@
 # pet_server.py
 ##
 
-import os
 from display_tty import Disp, TOML_CONF, FILE_DESCRIPTOR, SAVE_TO_FILE, FILE_NAME
 from .sql import SQL
 from .bucket import Bucket
