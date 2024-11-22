@@ -14,6 +14,8 @@ from .background_tasks import BackgroundTasks
 from .crons import Crons
 from .oauth_authentication import OAuthAuthentication
 from .ff_family import FFFamily
+from .querier import Querier
+from .environement import Environment
 
 __all__ = [
     "HCI",
@@ -28,5 +30,7 @@ __all__ = [
     "PasswordHandling",
     "ServerManagement",
     "OAuthAuthentication",
-    "FFFamily"
+    "FFFamily",
+    "Querier",
+    "Environment"
 ]
