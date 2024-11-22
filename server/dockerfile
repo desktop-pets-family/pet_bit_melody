@@ -1,4 +1,4 @@
-FROM python:3.13.0-bookworm
+FROM python:3.12.0-bookworm
 
 LABEL Autho="Henry Letellier" \
     Description="This is a dockerfile for the server side of the project" \
