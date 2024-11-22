@@ -547,14 +547,29 @@ class FFFamilyDownloader:
         Returns:
             str: The path to the FF family.
         """
+        title = "get_ff_family_path"
+        FF_FAMILY_DISP.log_debug(
+            f"Getting ff_family path in '{cwd}'", title
+        )
         system = FFFamilyDownloader.get_system_name()
         if system not in ("windows", "linux", "darwin"):
+            FF_FAMILY_DISP.log_error(
+                f"Unsupported system: {system}", title
+            )
             raise PackageNotSupported("Unsupported system")
         precompiled_ffmpeg = os.path.join(cwd, "ffmpeg", system)
         precompiled_ffprobe = os.path.join(cwd, "ffprobe", system)
         precompiled_ffplay = os.path.join(cwd, "ffplay", system)
+        msg = f"Checking for FFmpeg in '{precompiled_ffmpeg}'"
+        msg += f"Checking for FFprobe in '{precompiled_ffprobe}'"
+        msg += f"Checking for FFplay in '{precompiled_ffplay}'"
+        FF_FAMILY_DISP.log_debug(msg, title)
         if not os.path.isdir(precompiled_ffmpeg) or not os.path.isdir(precompiled_ffprobe) or not os.path.isdir(precompiled_ffplay):
             if not download_if_not_present:
+                FF_FAMILY_DISP.log_error(
+                    "FF_family not found",
+                    title
+                )
                 raise PackageNotInstalled("FF_family not found")
             print("FF_family not found in precompiled paths, setting up")
             fdi = FFFamilyDownloader(
@@ -566,9 +581,17 @@ class FFFamilyDownloader:
             )
             status = fdi.main()
             if status != 0:
+                FF_FAMILY_DISP.log_error(
+                    "FF_family could not be installed",
+                    title
+                )
                 raise RuntimeError("FF_family could not be installed")
         if os.path.exists(cwd) and os.path.isdir(cwd):
             return cwd
+        FF_FAMILY_DISP.log_error(
+            f"Could not find {cwd}",
+            title
+        )
         raise PackageNotInstalled("FF_family not found")
 
     @staticmethod
@@ -954,9 +977,12 @@ class FFFamilyDownloader:
             int: The status of the function.
         """
         title = "__call__"
-        self.disp.log_debug(f"Starting {title}", title)
+        self.disp.log_debug("Starting ff family installation", title)
         status = self.main(audio_segment_node)
-        self.disp.log_debug(f"Ending {title} with status {status}", title)
+        self.disp.log_debug(
+            f"Ending ff_family installation with status {status}",
+            title
+        )
         return status
 
     def main(self, audio_segment_node: AudioSegment = None) -> int:
@@ -974,19 +1000,45 @@ class FFFamilyDownloader:
         """
         title = "main"
         try:
-            found_path = self.get_ff_family_path(download_if_not_present=False)
+            self.disp.log_debug(
+                "Checking if ff family is already installed",
+                title
+            )
+            found_path = self.get_ff_family_path(
+                download_if_not_present=False,
+                cwd=self.cwd,
+                query_timeout=self.query_timeout,
+                success=self.success,
+                error=self.error,
+                debug=self.debug
+            )
             self.disp.log_info(
                 f"FF_family already installed at {found_path}",
                 title
             )
             self.ffmpeg_path = self.get_ffmpeg_binary_path(
-                download_if_not_present=False
+                download_if_not_present=False,
+                cwd=self.cwd,
+                query_timeout=self.query_timeout,
+                success=self.success,
+                error=self.error,
+                debug=self.debug
             )
             self.ffplay_path = self.get_ffplay_binary_path(
-                download_if_not_present=False
+                download_if_not_present=False,
+                cwd=self.cwd,
+                query_timeout=self.query_timeout,
+                success=self.success,
+                error=self.error,
+                debug=self.debug
             )
             self.ffprobe_path = self.get_ffprobe_binary_path(
-                download_if_not_present=False
+                download_if_not_present=False,
+                cwd=self.cwd,
+                query_timeout=self.query_timeout,
+                success=self.success,
+                error=self.error,
+                debug=self.debug
             )
             self.disp.log_info("Updating pydub ffmpeg path", title)
             if audio_segment_node is not None:
@@ -1009,13 +1061,28 @@ class FFFamilyDownloader:
         self._get_all_binaries()
         self._install_all_binaries()
         self.ffmpeg_path = self.get_ffmpeg_binary_path(
-            download_if_not_present=False
+            download_if_not_present=False,
+            cwd=self.cwd,
+            query_timeout=self.query_timeout,
+            success=self.success,
+            error=self.error,
+            debug=self.debug
         )
         self.ffplay_path = self.get_ffplay_binary_path(
-            download_if_not_present=False
+            download_if_not_present=False,
+            cwd=self.cwd,
+            query_timeout=self.query_timeout,
+            success=self.success,
+            error=self.error,
+            debug=self.debug
         )
         self.ffprobe_path = self.get_ffprobe_binary_path(
-            download_if_not_present=False
+            download_if_not_present=False,
+            cwd=self.cwd,
+            query_timeout=self.query_timeout,
+            success=self.success,
+            error=self.error,
+            debug=self.debug
         )
         self.disp.log_info(f"FFmpeg installed at {self.ffmpeg_path}", title)
         self.disp.log_info(f"FFplay installed at {self.ffplay_path}", title)

@@ -3,7 +3,7 @@
 """
 import os
 from typing import Dict, Union
-from .downloader import ArchitectureNotSupported, PackageNotInstalled, PackageNotSupported, NotImplementedError, FFMPEG_KEY, FFPROBE_KEY, FFPLAY_KEY, WINDOWS_KEY, LINUX_KEY, MAC_KEY, FILE_PATH_TOKEN, FILE_URL_TOKEN, QUERY_TIMEOUT, CWD, BUNDLE_DOWNLOAD, FF_FAMILY_DISP, FFFamilyDownloader, AudioSegment
+from .downloader import ArchitectureNotSupported, PackageNotInstalled, PackageNotSupported, FFMPEG_KEY, FFPROBE_KEY, FFPLAY_KEY, WINDOWS_KEY, LINUX_KEY, MAC_KEY, FILE_PATH_TOKEN, FILE_URL_TOKEN, QUERY_TIMEOUT, CWD, BUNDLE_DOWNLOAD, FF_FAMILY_DISP, FFFamilyDownloader, AudioSegment
 
 
 class FFFamily:
@@ -27,7 +27,6 @@ class FFFamily:
         self.package_not_installed: PackageNotInstalled = PackageNotInstalled
         self.package_not_supported: PackageNotSupported = PackageNotSupported
         self.architecture_not_supported: ArchitectureNotSupported = ArchitectureNotSupported
-        self.not_implemented: NotImplementedError = NotImplementedError
         if debug:
             FF_FAMILY_DISP.debug = debug
             self.ff_family_disp.debug = debug

@@ -164,7 +164,7 @@ class Server:
             self.runtime_data_initialised.ff_family_initialised.package_not_installed,
             self.runtime_data_initialised.ff_family_initialised.package_not_supported,
             self.runtime_data_initialised.ff_family_initialised.architecture_not_supported,
-            self.runtime_data_initialised.ff_family_initialised.not_implemented,
+            NotImplementedError,
             RuntimeError,
             ValueError
         ) as e:
@@ -185,7 +185,7 @@ class Server:
         status = self.get_ff_family()
         if status != self.success:
             self.disp.log_critical(
-                "Error: failed to download ff binaries.\nAborting server startup.",
+                "Error: failed to download ff binaries, Aborting server startup.",
                 title
             )
             return status
