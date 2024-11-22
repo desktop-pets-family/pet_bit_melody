@@ -6,7 +6,6 @@ from display_tty import Disp, TOML_CONF, FILE_DESCRIPTOR, SAVE_TO_FILE, FILE_NAM
 
 from . import instrument_constants as ICONST
 from .the_8_bit_range import NoteEquivalence8bit, Notes8bit
-from .the_16_bit_range import NoteEquivalence16bit, Notes16bit
 from .generic_generator import Notes
 
 __all__ = [
@@ -29,7 +28,6 @@ __all__ = [
 
 
 ICONST.NoteEquivalence8bit = NoteEquivalence8bit
-ICONST.NoteEquivalence16bit = NoteEquivalence16bit
 
 
 class NotesGuitar(Notes, ICONST.NoteEquivalenceGuitar):
@@ -165,6 +163,44 @@ class NotesHighTomDrum(Notes, ICONST.NoteEquivalenceHighTomDrum):
     )
 
 
+class Notes16bit(Notes, ICONST.NoteEquivalence16bit):
+    """
+    The class in charge of the 32 bit notes.
+
+    Args:
+        Notes (class): The base class for generating notes.
+    """
+    NOTE_EQUIVALENCE = ICONST.NoteEquivalence16bit.NOTE_EQUIVALENCE
+    MUTE = ICONST.NoteEquivalence16bit.MUTE
+    INNER_DISP: Disp = Disp(
+        TOML_CONF,
+        FILE_DESCRIPTOR,
+        SAVE_TO_FILE,
+        FILE_NAME,
+        debug=False,
+        logger="Notes16bit"
+    )
+
+
+class Notes24bit(Notes, ICONST.NoteEquivalence24bit):
+    """
+    The class in charge of the 32 bit notes.
+
+    Args:
+        Notes (class): The base class for generating notes.
+    """
+    NOTE_EQUIVALENCE = ICONST.NoteEquivalence24bit.NOTE_EQUIVALENCE
+    MUTE = ICONST.NoteEquivalence24bit.MUTE
+    INNER_DISP: Disp = Disp(
+        TOML_CONF,
+        FILE_DESCRIPTOR,
+        SAVE_TO_FILE,
+        FILE_NAME,
+        debug=False,
+        logger="Notes24bit"
+    )
+
+
 class Notes32bit(Notes, ICONST.NoteEquivalence32bit):
     """
     The class in charge of the 32 bit notes.
@@ -181,25 +217,6 @@ class Notes32bit(Notes, ICONST.NoteEquivalence32bit):
         FILE_NAME,
         debug=False,
         logger="Notes32bit"
-    )
-
-
-class Notes24bit(Notes, ICONST.NoteEquivalence24bit):
-    """
-    The class in charge of the 32 bit notes.
-
-    Args:
-        Notes (class): The base class for generating notes.
-    """
-    NOTE_EQUIVALENCE = ICONST.NoteEquivalence24bit.NOTE_EQUIVALENCE
-    MUTE = ICONST.NoteEquivalence32bit.MUTE
-    INNER_DISP: Disp = Disp(
-        TOML_CONF,
-        FILE_DESCRIPTOR,
-        SAVE_TO_FILE,
-        FILE_NAME,
-        debug=False,
-        logger="Notes24bit"
     )
 
 
