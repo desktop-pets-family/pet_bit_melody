@@ -632,3 +632,87 @@ class UserEndpoints:
             error=False
         )
         return HCI.success(content=data, content_type=CONST.CONTENT_TYPE, headers=self.runtime_data_initialised.json_header)
+
+    async def get_account_settings(self, request: Request) -> Response:
+        """_summary_
+            The endpoint corresponding to '/api/v1/account/settings'.
+
+        Returns:
+            Response: _description_: The data to send back to the user as a response.
+        """
+        title = "get_account_settings"
+        token = self.runtime_data_initialised.boilerplate_incoming_initialised.get_token_if_present(
+            request)
+        self.disp.log_debug(f'(get_account_settings) token = {token}', title)
+        body = self.runtime_data_initialised.boilerplate_responses_initialised.build_response_body(
+            title="get_account_settings",
+            message="Hello World!",
+            resp="",
+            token=token,
+            error=False
+        )
+        self.disp.log_debug(f"sent body : {body}", title)
+        self.disp.log_debug(
+            f"header = {self.runtime_data_initialised.json_header}", title)
+        outgoing = HCI.success(
+            content=body,
+            content_type=CONST.CONTENT_TYPE,
+            headers=self.runtime_data_initialised.json_header)
+        self.disp.log_debug(f"ready_to_go : {outgoing}",  title)
+        return outgoing
+
+    async def put_account_settings(self, request: Request) -> Response:
+        """_summary_
+            The endpoint corresponding to '/api/v1/account/settings'.
+
+        Returns:
+            Response: _description_: The data to send back to the user as a response.
+        """
+        title = "put_account_settings"
+        token = self.runtime_data_initialised.boilerplate_incoming_initialised.get_token_if_present(
+            request)
+        self.disp.log_debug(f'(get_account_settings) token = {token}', title)
+        body = self.runtime_data_initialised.boilerplate_responses_initialised.build_response_body(
+            title="put_account_settings",
+            message="Hello World!",
+            resp="",
+            token=token,
+            error=False
+        )
+        self.disp.log_debug(f"sent body : {body}", title)
+        self.disp.log_debug(
+            f"header = {self.runtime_data_initialised.json_header}", title)
+        outgoing = HCI.success(
+            content=body,
+            content_type=CONST.CONTENT_TYPE,
+            headers=self.runtime_data_initialised.json_header)
+        self.disp.log_debug(f"ready_to_go : {outgoing}",  title)
+        return outgoing
+
+    async def patch_account_settings(self, request: Request) -> Response:
+        """_summary_
+            The endpoint corresponding to '/api/v1/account/settings'.
+
+        Returns:
+            Response: _description_: The data to send back to the user as a response.
+        """
+        title = "patch_account_settings"
+        token = self.runtime_data_initialised.boilerplate_incoming_initialised.get_token_if_present(
+            request)
+        self.disp.log_debug(f'(patch_account_settings) token = {token}', title)
+        body = self.runtime_data_initialised.boilerplate_responses_initialised.build_response_body(
+            title="patch_account_settings",
+            message="Hello World!",
+            resp="",
+            token=token,
+            error=False
+        )
+        self.disp.log_debug(f"sent body : {body}", title)
+        self.disp.log_debug(
+            f"header = {self.runtime_data_initialised.json_header}", title)
+        outgoing = HCI.success(
+            content=body,
+            content_type=CONST.CONTENT_TYPE,
+            headers=self.runtime_data_initialised.json_header)
+        self.disp.log_debug(f"ready_to_go : {outgoing}",  title)
+        return outgoing

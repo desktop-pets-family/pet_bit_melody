@@ -8,10 +8,12 @@ from .. import constants as CONST
 from ..runtime_data import RuntimeData
 from ..http_codes import HCI
 
+
 class Applets:
     """
     The class that contains every methods for applets
     """
+
     def __init__(self, runtime_data: RuntimeData, success: int = 0, error: int = 84, debug: bool = False) -> None:
         """
         The constructor of the Applets class
@@ -39,7 +41,7 @@ class Applets:
             message="Not implemented yet",
             resp="not implemented",
             token=None,
-            error= True
+            error=True
         )
         return HCI.not_implemented(
             content=body,
@@ -57,7 +59,7 @@ class Applets:
             message="Not implemented yet",
             resp="not implemented",
             token=None,
-            error= True
+            error=True
         )
         return HCI.not_implemented(
             content=body,
@@ -268,7 +270,10 @@ class Applets:
             for _, element in enumerate(tags_list):
                 if element in applet["tags"]:
                     filtered_applets.append(applet)
-        self.disp.log_debug(f"Applet found with tags: {filtered_applets}", title)
+        self.disp.log_debug(
+            f"Applet found with tags: {filtered_applets}",
+            title
+        )
         body = self.runtime_data_initialised.boilerplate_responses_initialised.build_response_body(
             title=title,
             message=filtered_applets,
@@ -291,7 +296,7 @@ class Applets:
             message="Not implemented yet",
             resp="not implemented",
             token=None,
-            error= True
+            error=True
         )
         return HCI.not_implemented(
             content=body,
@@ -452,7 +457,7 @@ class Applets:
             message="Not implemented yet",
             resp="not implemented",
             token=None,
-            error= True
+            error=True
         )
         return HCI.not_implemented(
             content=body,
@@ -470,14 +475,14 @@ class Applets:
             message="Not implemented yet",
             resp="not implemented",
             token=None,
-            error= True
+            error=True
         )
         return HCI.not_implemented(
             content=body,
             content_type=CONST.CONTENT_TYPE,
             headers=self.runtime_data_initialised.json_header
         )
-    
+
     def delete_applet_by_id(self, request: Request, id: str) -> Response:
         """
         Get reactions by service name
@@ -488,10 +493,29 @@ class Applets:
             message="Not implemented yet",
             resp="not implemented",
             token=None,
-            error= True
+            error=True
         )
         return HCI.not_implemented(
             content=body,
             content_type=CONST.CONTENT_TYPE,
             headers=self.runtime_data_initialised.json_header
         )
+
+    def post_generate_audio(self, request: Request, id: str) -> Response:
+        """
+        Get reactions by service name
+        """
+        title = "Generate audio"
+        body = self.runtime_data_initialised.boilerplate_responses_initialised.build_response_body(
+            title="generate_audio",
+            message="Not implemented yet",
+            resp="not implemented",
+            token=None,
+            error=True
+        )
+        resp = HCI.not_implemented(
+            content=body,
+            content_type=CONST.CONTENT_TYPE,
+            headers=self.runtime_data_initialised.json_header
+        )
+        return resp
