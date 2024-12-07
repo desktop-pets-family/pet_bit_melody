@@ -9,7 +9,7 @@
   display: flex;
   justify-content: space-evenly;
   width: var(--access-point-container-width);
-  background-color: var(--bs-info-border-subtle);
+  /*background-color: var(--bs-info-border-subtle);*/
   padding-top: var(--access-point-padding-top);
   padding-bottom: var(--access-point-padding-bottom);
 }

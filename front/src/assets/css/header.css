@@ -14,7 +14,7 @@
   padding-left: 0px;
   padding-right: 0px;
   height: var(--header-height);
-  background-color: var(--bs-primary-text-emphasis);
+  background-color: slategrey;
 }
 
 .header_node_design {

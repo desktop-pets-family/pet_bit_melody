@@ -1,0 +1,20 @@
+.tab-content > .active, .tab-content > .show, .nav-link.active, .nav-link > .active, .nav-item > .nav-link.active {
+  display: block;
+  background-color: #1b9cc6;
+  color: white;
+}
+
+.nav-item > .nav-link {
+  color: black;
+}
+
+.button_menu_container > .button_menu, .button_menu_container > .button_menu_dropdown, .button_menu_container > .dropdown > .button_menu_dropdown, .access_point_container > .access_point_button {
+  background-color: #1b9cc6;
+  color: white;
+}
+
+.button_menu_container {
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+

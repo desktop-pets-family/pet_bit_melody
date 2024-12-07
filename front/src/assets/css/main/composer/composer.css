@@ -1,0 +1,352 @@
+* {
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: 100;
+}
+
+p, span, pre {
+  font-size: 14px;
+}
+
+:root {
+  --sound-editor-width: 100%;
+  --sound-editor-height: 50%;
+  --cell-title-width: 200px;
+  --cell-title-height: 30px;
+  --cell-icon-font-size: 17px;
+  --cell-button-width: 32px;
+  --cell-button-height: 30px;
+  --cell-title-padding-vertical: 0px;
+  --cell-title-padding-horizontal: 5px;
+  --cell-note-name-padding-horizontal: 5px;
+  --cell-note-name-padding-vertical: 0px;
+  --note-toggle-height: 100%;
+  --note-toggle-width: 40px;
+  --line-vertical-gap-between-notes: 2px;
+  --line-horizontal-gap-between-notes: 1px;
+  --note-colour-status-idle: grey;
+  --note-colour-status-active: rgb(0, 100, 128);
+  --note-colour-status-mute: rgb(169, 9, 84);
+}
+
+/* Default bootstrap functions that are used in this desing */
+
+.visually-hidden {
+  display: none;
+}
+
+/* Begin the styling functions for the page */
+
+.sound_editor {
+  background-color: black;
+  color: white;
+  width: var(--sound-editor-width);
+  height: var(--sound-editor-height);
+}
+
+.sound_toolbar {
+  background-color: grey;
+  color: white;
+}
+
+/* The section for the toolbar design */
+
+.track_toolbar {
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+  background-color: #444;
+  color: white;
+}
+
+/* The design for the divider */
+
+.divider {
+  width: 2px;
+  color: white;
+  background-color: white;
+}
+
+/* The button to add a new instrument line */
+
+.add_instrument_button {
+  color: white;
+  background-color: transparent;
+  border: transparent 2px none;
+  transition: color 0.3s;
+}
+
+.add_instrument_button:hover {
+  color: aqua;
+}
+
+/* The section for the toolbar edit buttons */
+
+.track_toolbar_button {
+  padding: 8px 12px;
+  border: none;
+  background-color: #444;
+  color: white;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.track_toolbar_button.active {
+  position: relative;
+  color: aqua;
+}
+
+.track_toolbar_button.active::after {
+  content: "";
+  position: absolute;
+  left: 10px;
+  bottom: 2px;
+  width: 5mm;
+  height: 4px;
+  background-color: aqua;
+}
+
+.track_toolbar_button:hover {
+  color: aqua;
+}
+
+/* The section in charge of designing the appearance of the track_length display */
+
+.track_length {
+  padding-top: 10px;
+  color: white;
+}
+
+.track_length_input {
+  width: 40px;
+}
+
+/* The section informing the user of the number of tracks that are present */
+
+.track_counter {
+  padding-top: 10px;
+  color: white;
+}
+
+/* The section for the body containing the editor lines */
+
+.track_editor {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-bottom: 2px;
+}
+
+/* The desing for the edit line */
+
+.track_line {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: 200px;
+}
+
+/* The desing for the instrument title section */
+
+.track_line_title {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+  gap: 10px;
+  width: var(--cell-title-width);
+  justify-content: space-between;
+  align-items: center;
+  background-color: slategrey;
+  padding-top: var(--cell-title-padding-vertical);
+  padding-bottom: var(--cell-title-padding-vertical);
+  padding-left: var(--cell-title-padding-horizontal);
+  padding-right: var(--cell-title-padding-horizontal);
+}
+
+.cell_title_container {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  width: var(--cell-title-width);
+  height: var(--cell-title-height);
+  background-color: aquamarine;
+}
+
+.cell_title_instrument_option {
+  width: 100%;
+  height: 10%;
+  color: white;
+  background-color: slategrey;
+}
+
+.cell_title_instrument_option::placeholder {
+  color: white;
+}
+
+/* The css designs for the mute/unmute track button */
+
+.cell_title_sound_option {
+  width: var(--cell-button-width);
+  height: var(--cell-button-height);
+  border-radius: 18px;
+  background-color: transparent;
+  border: none;
+}
+
+.cell_title_sound_option:hover {
+  background-color: aqua;
+}
+
+.cell_title_sound_option_icon {
+  font-size: var(--cell-icon-font-size);
+}
+
+/* currently not supported because of the way the generation works. */
+
+/* .cell_title_sound_visualiser {
+    width: 4px;
+    background-color: forestgreen;
+    height: var(--cell-title-height);
+} */
+
+/* The css designs for the delete track button */
+
+.cell_title_track_delete {
+  width: var(--cell-button-width);
+  height: var(--cell-button-height);
+  border-radius: 18px;
+  background-color: transparent;
+  border: none;
+}
+
+.cell_title_track_delete:hover {
+  background-color: orangered;
+}
+
+.cell_title_track_delete_icon {
+  font-size: var(--cell-icon-font-size);
+}
+
+/* The body of the line */
+
+.track_line_content {
+  display: flex;
+  /*flex-grow: 1;*/
+  flex-direction: row;
+  overflow: scroll;
+  width: 100%;
+  height: 100%;
+  background-color: azure;
+}
+
+/* The field in which the user notes are present */
+
+.user_notes {
+  width: 100%;
+}
+
+/* The design for a line of notes */
+
+.note_line {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  width: 100%;
+  gap: var(--line-vertical-gap-between-notes);
+  padding-top: var(--line-horizontal-gap-between-notes);
+  padding-bottom: var(--line-horizontal-gap-between-notes);
+}
+
+.note_line:hover {
+  background-color: lightblue;
+}
+
+/* The section concerning the notes of the line */
+
+.track_note_names {
+  display: flex;
+  flex-direction: column;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  padding-left: 0px;
+  padding-right: 0px;
+  /*flex-grow: 1;*/
+}
+
+/* The css class in charge of making the desing more intuitive for the user */
+
+.note_name {
+  display: inline-block;
+  width: auto;
+  box-sizing: border-box;
+  border-bottom: black 2px groove;
+  max-width: 100%;
+  white-space: nowrap;
+  text-align: center;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  color: black;
+  padding-left: var(--cell-note-name-padding-horizontal);
+  padding-right: var(--cell-note-name-padding-horizontal);
+  padding-top: var(--cell-note-name-padding-vertical);
+  padding-bottom: var(--cell-note-name-padding-vertical);
+}
+
+.note_name:hover {
+  cursor: pointer;
+}
+
+/* The class encapsulating the notes */
+
+.note_toggles {
+  display: flex;
+  /*flex-grow: 1;*/
+  flex-direction: row;
+  gap: var(--line-vertical-gap-between-notes);
+  overflow-x: auto;
+}
+
+/* The note toggle node */
+
+.note_toggle_node {
+  height: var(--note-toggle-height);
+  width: var(--note-toggle-width);
+  background-color: var(--note-colour-status-idle);
+}
+
+.note_toggle_node:hover {
+  background-color: lightblue !important;
+}
+
+/* The toggle options */
+
+.note_active {
+  background: var(--note-colour-status-active);
+}
+
+.note_idle {
+  background: var(--note-colour-status-idle);
+}
+
+.note_muted {
+  background: var(--note-colour-status-mute);
+}
+
+/* Control button customisation */
+
+.track_toolbar_controls {
+  background-color: #1b9cc6;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+}
+
+.track_toolbar_controls_button {
+  width: auto;
+  height: var(--button-menu-height);
+  border: transparent 0px solid;
+  border-radius: 30px;
+  margin-left: 5px;
+  margin-right: 5px;
+  background-color: transparent;
+}
+
