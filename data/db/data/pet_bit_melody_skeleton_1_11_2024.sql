@@ -16,6 +16,14 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Current Database: `terarea`
+--
+
+CREATE DATABASE IF NOT EXISTS `pet_bit_melody` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_uca1400_ai_ci */;
+
+USE `pet_bit_melody`;
+
+--
 -- Table structure for table `ActionLoging`
 --
 

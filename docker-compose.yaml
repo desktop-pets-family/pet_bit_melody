@@ -51,7 +51,7 @@ services:
     volumes:
       - ./server/:/srv/
     depends_on:
-      - maria-db
+      - mariadb
     networks:
       - pbm-network
 

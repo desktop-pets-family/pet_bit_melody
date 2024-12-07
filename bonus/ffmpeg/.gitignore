@@ -1,0 +1,3 @@
+# Ignore the ffmpeg and similar binaries
+ff_family/**
+!ff_family/downloader.py

@@ -4,23 +4,29 @@
 
 import sys
 from typing import Any, List
+from src import ServerMain, CONST
 
 
 class Main:
+    """_summary_
+    """
+
     def __init__(self) -> None:
         """_summary_
         """
-        self.error: int = 84
-        self.success: int = 0
+        self.error: int = CONST.ERROR
+        self.success: int = CONST.SUCCESS
         self.args: List[Any] = sys.argv
         self.argc: int = len(self.args)
 
     def run(self) -> None:
         """_summary_
         """
-        print("Noting to run yet, please check back later.")
-        print("You have entered the following arguments: ", self.args)
-        sys.exit(self.success)
+        SMI = ServerMain(
+            success=self.success,
+            error=self.error
+        )
+        sys.exit(SMI.main())
 
 
 if __name__ == "__main__":

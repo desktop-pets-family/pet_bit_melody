@@ -14,6 +14,7 @@ coverage_data/**
 .python_history
 log/**
 *my_docker_bash_launcher.sh*
+*my_local_bash_launcher.sh*
 True
 
 # Ignore all the sql files in the server
@@ -29,3 +30,10 @@ binarea_server
 
 # Ignore google cloud authorisations
 client_secret*.json
+
+# Ignore the ffmpeg and similar binaries
+ff_family/**
+src/lib/components/ff_family/**
+!src/lib/components/ff_family/downloader.py
+!src/lib/components/ff_family/__main__.py
+!src/lib/components/ff_family/__init__.py

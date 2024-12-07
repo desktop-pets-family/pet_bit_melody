@@ -36,22 +36,22 @@ class Main:
                 print("Usage: python3 ./server [OPTIONS]")
                 print("Options:")
                 print(
-                    "  --host=<host>                                                       The host to bind the server to (default: '0.0.0.0')"
+                    "  --host=<host>                    The host to bind the server to (default: '0.0.0.0')"
                 )
                 print(
-                    "  --port=<port>, -p <port>                                            The port to bind the server to (default: 5000)"
+                    "  --port=<port>, -p <port>         The port to bind the server to (default: 5000)"
                 )
                 print(
-                    "  --success=<number>, -s <number>                                     Change the success exit code (default: 0)"
+                    "  --success=<number>, -s <number>  Change the success exit code (default: 0)"
                 )
                 print(
-                    "  --error=<number>, -e <number>                                       Change the error exit code (default: 1)"
+                    "  --error=<number>, -e <number>    Change the error exit code (default: 1)"
                 )
                 print(
-                    "  --debug                                                             Enable debug mode"
+                    "  --debug                          Enable debug mode"
                 )
                 print(
-                    "  --help, -h                                                          Show this help message"
+                    "  --help, -h                       Show this help message"
                 )
                 sys.exit(self.success)
             elif "--host" in arg:
@@ -89,31 +89,28 @@ class Main:
         """_summary_
         This method is the entry point of the server.
         """
-        if self.argc > 1:
-            self.process_args()
-            SI = Server(
-                host=self.host,
-                port=self.port,
-                success=self.success,
-                error=self.error,
-                app_name=self.app_name,
-                debug=self.debug
-            )
-            try:
-                status = SI.main()
-            except KeyboardInterrupt:
-                print("\nCtrl+C caught! Exiting the program gracefully.")
-                del SI
-                status = self.success
-            except Exception as e:
-                print(f"An error occurred: {e}")
-                status = self.error
-            print(f"The server is exiting with a status of: {status}")
-            sys.exit(status)
-
-        else:
-            print("Usage: python3 ./server --help")
-            sys.exit(self.success)
+        if self.argc < 1:
+            print(f"Usage: python3 {argv[0]} --help")
+        self.process_args()
+        SI = Server(
+            host=self.host,
+            port=self.port,
+            success=self.success,
+            error=self.error,
+            app_name=self.app_name,
+            debug=self.debug
+        )
+        try:
+            status = SI.main()
+        except KeyboardInterrupt:
+            print("\nCtrl+C caught! Exiting the program gracefully.")
+            del SI
+            status = self.success
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            status = self.error
+        print(f"The server is exiting with a status of: {status}")
+        sys.exit(status)
 
 
 if __name__ == "__main__":

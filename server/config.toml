@@ -173,6 +173,151 @@ autocommit = false
 # default: "utf8mb4_unicode_ci"
 collation = "utf8mb4_unicode_ci" #"utf8mb4_general_ci"
 
+# FF Family downloader settings
+[Server_configuration.ff_family]
+# The base path for the location of the downloaded ff binaries
+cwd = "ff_family"
+
+# The delay before the query is considered dead
+# type: integer
+# default: 30
+query_timeout = 30
+
+# The corresponding names for the ff binaries in the list
+ffmpeg_key = "ffmpeg"
+ffprobe_key = "ffprobe"
+ffplay_key = "ffplay"
+
+# The corresponding names for the operating systems in the list
+mac_key = "macos"
+linux_key = "linux"
+windows_key = "windows"
+
+# The corresponding names for the link and the path in the list
+file_url_token = "file_url"
+file_path_token = "file_path"
+
+# The array array of links for the ff* binaries based on the operating system and architecture
+[Server_configuration.ff_family.bundle_download]
+
+# the links for ffmpeg
+[Server_configuration.ff_family.bundle_download.ffmpeg]
+
+# The links for the windows version of the binaries
+[Server_configuration.ff_family.bundle_download.ffmpeg.windows]
+[Server_configuration.ff_family.bundle_download.ffmpeg.windows.i686]
+file_url = "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-i686-static.zip" # 32-bit Windows
+file_path = "downloads/windows/ffmpeg-release-i686-static.zip"
+[Server_configuration.ff_family.bundle_download.ffmpeg.windows.64]
+file_url = "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-x86_64-static.zip" # 64-bit Windows
+file_path = "downloads/windows/ffmpeg-release-x86_64-static.zip"
+
+# The links for the linux version of the binaries
+[Server_configuration.ff_family.bundle_download.ffmpeg.linux]
+[Server_configuration.ff_family.bundle_download.ffmpeg.linux.i686]
+# 32-bit Linux (x86)
+file_url = "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-i686-static.tar.xz"
+file_path = "downloads/linux/ffmpeg-release-i686-static.tar.xz"
+[Server_configuration.ff_family.bundle_download.ffmpeg.linux.64]
+file_url = "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz" # 64-bit Linux
+file_path = "downloads/linux/ffmpeg-release-x86_64-static.tar.xz"
+[Server_configuration.ff_family.bundle_download.ffmpeg.linux.arm64]
+# 64-bit Linux (arm64)
+file_url = "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-arm64-static.tar.xz"
+file_path = "downloads/linux/ffprobe-release-arm64-static.tar.xz"
+
+# The links for the macos version of the binaries
+[Server_configuration.ff_family.bundle_download.ffmpeg.macos]
+[Server_configuration.ff_family.bundle_download.ffmpeg.macos.i686]
+file_url = "https://evermeet.cx/ffmpeg/get/zip" # 32-bit macOS
+file_path = "downloads/macos/ffmpeg-latest.zip"
+[Server_configuration.ff_family.bundle_download.ffmpeg.macos.64]
+file_url = "https://evermeet.cx/ffmpeg/get/zip"       # 64-bit macOS
+file_path = "downloads/macos/ffmpeg-latest-amd64.zip"
+[Server_configuration.ff_family.bundle_download.ffmpeg.macos.arm64]
+# 64-bit macOS (arm64),
+file_url = "https://ffmpeg.martin-riedl.de/redirect/latest/macos/arm64/release/ffmpeg.zip"
+file_path = "downloads/macos/ffmpeg-latest-arm64.zip"
+
+# the links for ffprobe
+[Server_configuration.ff_family.bundle_download.ffprobe]
+
+# The links for the windows version of the binaries
+[Server_configuration.ff_family.bundle_download.ffprobe.windows]
+[Server_configuration.ff_family.bundle_download.ffprobe.windows.i686]
+file_url = "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-i686-static.zip"
+file_path = "downloads/windows/ffprobe-release-i686-static.zip"
+[Server_configuration.ff_family.bundle_download.ffprobe.windows.64]
+file_url = "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-x86_64-static.zip" # 64-bit Windows
+file_path = "downloads/windows/ffprobe-release-x86_64-static.zip"
+
+# The links for the linux version of the binaries
+[Server_configuration.ff_family.bundle_download.ffprobe.linux]
+[Server_configuration.ff_family.bundle_download.ffprobe.linux.i686]
+# 32-bit Linux (x86)
+file_url = "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-i686-static.tar.xz"
+file_path = "downloads/linux/ffprobe-release-i686-static.tar.xz"
+[Server_configuration.ff_family.bundle_download.ffprobe.linux.64]
+# 64-bit Linux
+file_url = "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz"
+file_path = "downloads/linux/ffprobe_x64.tar.xz"
+[Server_configuration.ff_family.bundle_download.ffprobe.linux.arm64]
+# 64-bit Linux (arm 64)
+file_url = "https://ffmpeg.martin-riedl.de/redirect/latest/linux/arm64/release/ffprobe.zip"
+file_path = "downloads/linux/ffprobe_arm64.zip"
+
+# The links for the macos version of the binaries
+[Server_configuration.ff_family.bundle_download.ffprobe.macos]
+[Server_configuration.ff_family.bundle_download.ffprobe.macos.i686]
+file_url = "https://evermeet.cx/ffmpeg/getrelease/ffprobe/zip" # 32-bit macOS
+file_path = "downloads/macos/ffprobe-latest.zip"
+[Server_configuration.ff_family.bundle_download.ffprobe.macos.64]
+file_url = "https://evermeet.cx/ffmpeg/getrelease/ffprobe/zip" # 64-bit macOS
+file_path = "downloads/macos/ffprobe-latest-amd64.zip"
+[Server_configuration.ff_family.bundle_download.ffprobe.macos.arm64]
+# 64-bit macOS (arm64),
+file_url = "https://ffmpeg.martin-riedl.de/redirect/latest/macos/arm64/release/ffprobe.zip"
+file_path = "downloads/macos/ffprobe-latest-arm64.zip"
+
+# the links for ffplay
+[Server_configuration.ff_family.bundle_download.ffplay]
+
+# The links for the windows version of the binaries
+[Server_configuration.ff_family.bundle_download.ffplay.windows]
+[Server_configuration.ff_family.bundle_download.ffplay.windows.i686]
+file_url = "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-n4.4-32bit-static.zip" # 32-bit Windows
+file_path = "downloads/windows/ffplay-release-i686-static.zip"
+[Server_configuration.ff_family.bundle_download.ffplay.windows.64]
+file_url = "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-x86_64-static.zip" # 64-bit Windows
+file_path = "downloads/windows/ffplay-release-x86_64-static.zip"
+
+# The links for the linux version of the binaries
+[Server_configuration.ff_family.bundle_download.ffplay.linux]
+[Server_configuration.ff_family.bundle_download.ffplay.linux.i686]
+# 32-bit Linux (x86)
+file_url = "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-i686-static.tar.xz"
+file_path = "downloads/linux/ffplay-release-i686-static.tar.xz"
+[Server_configuration.ff_family.bundle_download.ffplay.linux.64]
+file_url = "https://ffmpeg.martin-riedl.de/redirect/latest/linux/amd64/release/ffplay.zip" # 64-bit Linux
+file_path = "downloads/linux/ffplay-latest-amd64.zip"
+[Server_configuration.ff_family.bundle_download.ffplay.linux.arm64]
+file_url = "https://ffmpeg.martin-riedl.de/redirect/latest/linux/arm64/release/ffplay.zip" # 64-bit Linux
+file_path = "downloads/linux/ffplay-latest-arm64.zip"
+
+# The links for the macos version of the binaries
+[Server_configuration.ff_family.bundle_download.ffplay.macos]
+[Server_configuration.ff_family.bundle_download.ffplay.macos.i686]
+file_url = "https://evermeet.cx/ffmpeg/getrelease/ffplay/zip" # 32-bit macOS
+file_path = "downloads/macos/ffplay-latest.zip"
+[Server_configuration.ff_family.bundle_download.ffplay.macos.64]
+file_url = "https://evermeet.cx/ffmpeg/getrelease/ffplay/zip" # 64-bit macOS
+file_path = "downloads/macos/ffplay-latest.zip"
+[Server_configuration.ff_family.bundle_download.ffplay.macos.arm64]
+# 64-bit macOS (arm64)
+file_url = "https://ffmpeg.martin-riedl.de/redirect/latest/macos/arm64/release/ffplay.zip"
+file_path = "downloads/macos/ffplay-latest-arm64.zip"
+
+
 # The settings for the automation of the cache of the program.
 [Crons]
 # Enable token cleaning (removing epxired tokens)

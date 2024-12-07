@@ -16,13 +16,14 @@ namespace server {
 namespace http_request {
   class Note {
     +String type  : the name of the note (e.g., F3)
-    +Float length : the duration for which the note is played
-    +String instrument : the name of the instrument
+    +Float length : the duration for which the note is played (in seconds)
     +Float tn : the time (in seconds) when the note starts playing
     +Muted boolean : Indicate if the note is to be processed or not
+    +Velocity int: Indicate the velocity of the note to be processed.
   }
   class Track {
     +List<Note> notes : the notes to play
+    +String instrument : the name of the instrument
     +Muted boolean : Indicate if the track is to be processed or not in the audio
   }
 
@@ -31,6 +32,7 @@ namespace http_request {
   }
   Track "1" --> "*" Note : contains
   Music "1" --> "*" Track : contains
+  ' example response: [{"instrument":"Piano", "muted":False,"notes":[{"type":F3, "length":0.2, "tn":0, "muted":False}, etc]}]
 }
 
 @enduml

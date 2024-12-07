@@ -1,7 +1,10 @@
-FROM ubuntu:latest
+FROM python:3.12.0-bookworm
 
-ENV LOCATION=docker-server \
-    DEBIAN_FRONTEND=noninteractive \
+LABEL Author="Henry Letellier" \
+    Description="This is a dockerfile for the server side of the project" \
+    Version="2.0.0"
+
+ENV LOCATION=server \
     HOME=/srv \
     ENV_NAME=server_env \
     LAUNCH_FILE=./src \
@@ -10,35 +13,63 @@ ENV LOCATION=docker-server \
     DEBUG=False \
     LAUNCH_SERVER_ON_BOOT=True \
     SYSTEM_ENV_LOCATION=/the_system_environement \
-    SYSTEM_ENV_NAME=docker_env \
+    SYSTEM_ENV_NAME=local_env \
     LOG_SERVER_DATA=False \
     LOG_PATH="/srv/log" \
     LOG_ADD_DATE=True \
     LOG_FILE_FORMAT="log" \
     LOG_DATA='log_' \
-    BASH_FILE_LAUNCHER=./my_docker_bash_launcher.sh
+    BASH_FILE_LAUNCHER=./my_local_bash_launcher.sh
 
 # Update de docker system, install tzdata, set the timezone to Europe/Paris, install mariadb dependencies and install python in the container
 RUN apt update && apt upgrade -y \
     && apt-get install -y tzdata \
     && ln -fs /usr/share/zoneinfo/Europe/Paris /etc/localtime \
     && dpkg-reconfigure --frontend noninteractive tzdata \
-    && apt-get install -y libmariadb-dev \
     && apt install -y \
-    python3 \
     python3-pip \
     python3-dev \
     python3-venv \
     build-essential
 
+# Add alias commands to the bash launchers
+ARG alias_dumper=/tmp/alias_dumper.sh
+RUN echo '#!/bin/bash' > ${alias_dumper} \
+    && echo "function add_alias {" >> ${alias_dumper} \
+    && echo "  echo \"alias \$1='\$2'\"" >> ${alias_dumper} \
+    && echo "  echo \"alias \$1='\$2'\" >> \$3" >> ${alias_dumper} \
+    && echo "}" >> ${alias_dumper} \
+    && echo "bash_path=\$1" >> ${alias_dumper} \
+    && echo "add_alias python python3 \$bash_path" >> ${alias_dumper} \
+    && echo "add_alias pip pip3 \$bash_path" >> ${alias_dumper} \
+    && echo "add_alias ls 'ls --color=auto' \$bash_path" >> ${alias_dumper} \
+    && echo "add_alias grep 'grep --color=auto' \$bash_path" >> ${alias_dumper} \
+    && echo "echo 'alias commands added'" >> ${alias_dumper} \
+    && chmod +x ${alias_dumper}
+RUN ${alias_dumper} /etc/bash.bashrc \
+    && ${alias_dumper} /etc/profile \
+    && ${alias_dumper} /etc/zprofile \
+    && ${alias_dumper} /etc/csh.cshrc \
+    && ${alias_dumper} /etc/csh.login \
+    && ${alias_dumper} /etc/zsh/zshrc \
+    && ${alias_dumper} /etc/fish/config.fish
+
+
 # Go to the working folder
 WORKDIR ${HOME}
+
+# Copying the content of the requirements file into the container (this is a failsafe in case the requirements file is not in the backend folder)
+COPY ./requirements.txt ${HOME}
 
 # Copy the content of the backend into the container
 COPY . ${HOME}
 
+# Update python pip
+RUN pip install --upgrade pip || pip3 install --upgrade pip
+
 # Create a system environement and also run the setup code from the project
 RUN mkdir -p ${SYSTEM_ENV_LOCATION} \
+    && pip install -r ./requirements.txt \
     && python3 -m venv ${SYSTEM_ENV_LOCATION}/${SYSTEM_ENV_NAME} \
     && . ${SYSTEM_ENV_LOCATION}/${SYSTEM_ENV_NAME}/bin/activate \
     && pip3 install -r ./requirements.txt \
