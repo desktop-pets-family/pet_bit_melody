@@ -45,7 +45,7 @@ toml == 0.10.2
 bcrypt == 4.2.0
 
 # FastAPI dependency
-python-multipart == 0.0.9
+python-multipart ==0.0.18
 
 # For music generation
 pydub == 0.25.1
