@@ -42,7 +42,7 @@ dotenv-python == 0.0.1
 toml == 0.10.2
 
 # For hashing passwords
-bcrypt == 4.2.0
+bcrypt ==4.3.0
 
 # FastAPI dependency
 python-multipart ==0.0.20
