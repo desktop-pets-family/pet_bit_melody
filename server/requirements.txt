@@ -29,7 +29,7 @@ APScheduler ==3.11.1
 
 # The dependencies required for make the project executable
 pyinstaller ==6.10.0
-coverage ==7.6.1
+coverage ==7.12.0
 
 # For running unit tests and coverages
 pytest == 8.3.3
