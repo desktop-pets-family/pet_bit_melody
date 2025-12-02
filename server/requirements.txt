@@ -21,7 +21,7 @@ boto3 == 1.35.21
 botocore == 1.35.21
 
 # For http protocols
-fastapi[all] ==0.115.0
+fastapi[all] ==0.123.4
 uvicorn ==0.31.0
 
 # For background scheduled jobs
