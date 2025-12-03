@@ -5,7 +5,7 @@ requests ==2.32.5
 Pillow ==10.4.0
 
 # Code linting
-typing-extensions == 4.12.2
+typing-extensions ==4.15.0
 
 # Text desining
 display-tty ==1.1.16
