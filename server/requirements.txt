@@ -8,7 +8,7 @@ Pillow ==10.4.0
 typing-extensions == 4.12.2
 
 # Text desining
-display-tty ==1.1.16
+display-tty ==1.1.17
 
 # uuid generator
 uuid == 1.30
