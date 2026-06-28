@@ -25,7 +25,7 @@ fastapi[all] ==0.123.4
 uvicorn ==0.31.0
 
 # For background scheduled jobs
-APScheduler ==3.11.1 
+APScheduler ==3.11.3 
 
 # The dependencies required for make the project executable
 pyinstaller ==6.10.0
