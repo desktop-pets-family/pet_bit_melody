@@ -1,5 +1,5 @@
 # Fetch packages online
-requests ==2.32.5
+requests ==2.33.0
 
 # spritesheet management
 Pillow ==10.4.0
